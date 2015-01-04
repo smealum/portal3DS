@@ -42,6 +42,12 @@ DVLB_s* md2Dvlb;
 shaderProgram_s md2Program;
 const u32 md2BaseAddr=0x14000000;
 
+int md2UniformScale0;
+int md2UniformTranslation0;
+int md2UniformScale1;
+int md2UniformTranslation1;
+int md2UniformFrameParam;
+
 void md2Init()
 {
 	md2Dvlb = DVLB_ParseFile((u32*)md2_vsh_shbin, md2_vsh_shbin_size);
@@ -50,12 +56,79 @@ void md2Init()
 
 	shaderProgramInit(&md2Program);
 	shaderProgramSetVsh(&md2Program, &md2Dvlb->DVLE[0]);
+
+	md2UniformScale0 = shaderInstanceGetUniformLocation(md2Program.vertexShader, "scale0");
+	md2UniformTranslation0 = shaderInstanceGetUniformLocation(md2Program.vertexShader, "translation0");
+	md2UniformScale1 = shaderInstanceGetUniformLocation(md2Program.vertexShader, "scale1");
+	md2UniformTranslation1 = shaderInstanceGetUniformLocation(md2Program.vertexShader, "translation1");
+	md2UniformFrameParam = shaderInstanceGetUniformLocation(md2Program.vertexShader, "frameParam");
 }
 
 void md2Exit()
 {
 	shaderProgramFree(&md2Program);
 	DVLB_Free(md2Dvlb);
+}
+
+// destructive
+void trimName(char* name)
+{
+	if(!name)return;
+	while(*name)
+	{
+		if(*name>='0' && *name<='9')
+		{
+			*name=0;
+			return;
+		}
+		name++;
+	}
+}
+
+void md2ComputeAnimations(md2_model_t* mdl)
+{
+	if(!mdl || !mdl->frames || !mdl->header.num_frames)return;
+
+	int i, n=0;
+	char* oldstr=mdl->frames[0].name;
+
+	for(i=0; i<mdl->header.num_frames; i++)
+	{
+		md2_frame_t *pframe=&mdl->frames[i];
+		trimName(pframe->name);
+		if(strcmp(pframe->name,oldstr))n++;
+		oldstr=pframe->name;
+	}
+
+	mdl->num_animations=n;
+	mdl->animations=malloc(sizeof(md2_anim_t)*mdl->num_animations);
+
+	n=0;
+	mdl->animations[0].start=0;
+	oldstr=mdl->frames[0].name;
+
+	for(i=0;i<mdl->header.num_frames;i++)
+	{
+		md2_frame_t *pframe=&mdl->frames[i];
+		if(strcmp(pframe->name,oldstr))
+		{
+			mdl->animations[n++].end=i-1;
+			mdl->animations[n].start=i;
+		}
+		oldstr=pframe->name;
+	}
+
+	mdl->animations[n].end=i-1;
+	
+	for(i=0;i<mdl->num_animations;i++)
+	{
+		int j;
+		u16 n=mdl->animations[i].end-mdl->animations[i].start+1;
+		for(j=0;j<n;j++)
+		{
+			mdl->frames[mdl->animations[i].start+j].next = mdl->animations[i].start+((j+1)%n);
+		}
+	}
 }
 
 int md2ReadModel(md2_model_t *mdl, const char *filename)
@@ -153,6 +226,9 @@ int md2ReadModel(md2_model_t *mdl, const char *filename)
 	mdl->header.num_vertices = mdl->permutation_size;
 
 	fclose(fp);
+
+	md2ComputeAnimations(mdl);
+
 	return 1;
 }
 
@@ -227,13 +303,13 @@ void md2RenderFrame(md2_model_t *mdl, int n1, int n2, float interp, texture_s* t
 	n1 %= mdl->header.num_frames;
 	n2 %= mdl->header.num_frames;
 
-	GPU_SetFloatUniform(GPU_VERTEX_SHADER, shaderInstanceGetUniformLocation(md2Program.vertexShader, "scale0"), (u32*)(float[]){1.0f, mdl->frames[n1].scale.z, mdl->frames[n1].scale.y, mdl->frames[n1].scale.x}, 1);
-	GPU_SetFloatUniform(GPU_VERTEX_SHADER, shaderInstanceGetUniformLocation(md2Program.vertexShader, "translation0"), (u32*)(float[]){1.0f, mdl->frames[n1].translate.z, mdl->frames[n1].translate.y, mdl->frames[n1].translate.x}, 1);
+	GPU_SetFloatUniform(GPU_VERTEX_SHADER, md2UniformScale0, (u32*)(float[]){1.0f, mdl->frames[n1].scale.z, mdl->frames[n1].scale.y, mdl->frames[n1].scale.x}, 1);
+	GPU_SetFloatUniform(GPU_VERTEX_SHADER, md2UniformTranslation0, (u32*)(float[]){1.0f, mdl->frames[n1].translate.z, mdl->frames[n1].translate.y, mdl->frames[n1].translate.x}, 1);
 
-	GPU_SetFloatUniform(GPU_VERTEX_SHADER, shaderInstanceGetUniformLocation(md2Program.vertexShader, "scale1"), (u32*)(float[]){1.0f, mdl->frames[n2].scale.z, mdl->frames[n2].scale.y, mdl->frames[n2].scale.x}, 1);
-	GPU_SetFloatUniform(GPU_VERTEX_SHADER, shaderInstanceGetUniformLocation(md2Program.vertexShader, "translation1"), (u32*)(float[]){1.0f, mdl->frames[n2].translate.z, mdl->frames[n2].translate.y, mdl->frames[n2].translate.x}, 1);
+	GPU_SetFloatUniform(GPU_VERTEX_SHADER, md2UniformScale1, (u32*)(float[]){1.0f, mdl->frames[n2].scale.z, mdl->frames[n2].scale.y, mdl->frames[n2].scale.x}, 1);
+	GPU_SetFloatUniform(GPU_VERTEX_SHADER, md2UniformTranslation1, (u32*)(float[]){1.0f, mdl->frames[n2].translate.z, mdl->frames[n2].translate.y, mdl->frames[n2].translate.x}, 1);
 
-	GPU_SetFloatUniform(GPU_VERTEX_SHADER, shaderInstanceGetUniformLocation(md2Program.vertexShader, "frameParam"), (u32*)(float[]){0.0f, 1.0f / mdl->header.skinheight, 1.0f / mdl->header.skinwidth, interp}, 1);
+	GPU_SetFloatUniform(GPU_VERTEX_SHADER, md2UniformFrameParam, (u32*)(float[]){0.0f, 1.0f / mdl->header.skinheight, 1.0f / mdl->header.skinwidth, interp}, 1);
 
 	gsUpdateTransformation();
 
@@ -244,4 +320,51 @@ void md2RenderFrame(md2_model_t *mdl, int n1, int n2, float interp, texture_s* t
 	GPUCMD_AddWrite(GPUREG_ATTRIBBUFFER2_CONFIG0, (u32)mdl->texcoords-md2BaseAddr);
 
 	GPU_DrawElements(GPU_UNKPRIM, (u32*)((u32)mdl->indices-md2BaseAddr), mdl->header.num_tris*3);
+}
+
+void md2InstanceInit(md2_instance_t* mi, md2_model_t* mdl, texture_s* t)
+{
+	if(!mi || !mdl)return;
+
+	mi->currentAnim=0;
+	mi->currentFrame=0;
+	mi->interpolation=0.0f;
+	mi->speed=0.25f;
+	mi->nextFrame=0;
+	mi->texture=t;
+	mi->model=mdl;
+}
+
+void md2InstanceChangeAnimation(md2_instance_t* mi, u16 newAnim, bool oneshot)
+{
+	if(!mi || mi->currentAnim==newAnim || newAnim>=mi->model->num_animations)return;
+	if(!oneshot && mi->oneshot){mi->oldAnim=newAnim;return;}
+	mi->oneshot=oneshot;
+	mi->oldAnim=mi->currentAnim;
+	mi->currentAnim=newAnim;
+	mi->nextFrame=mi->model->animations[mi->currentAnim].start;
+}
+
+void md2InstanceUpdate(md2_instance_t* mi)
+{
+	if(!mi)return;
+	if(!mi->oneshot)mi->oldAnim=mi->currentAnim;
+	mi->interpolation+=mi->speed;
+	if(mi->interpolation>=1.0f)
+	{
+		mi->interpolation=0.0f;
+		mi->currentFrame=mi->nextFrame;
+		if(mi->currentFrame>=mi->model->animations[mi->currentAnim].end)
+		{
+			if(mi->oneshot){u8 oa=mi->currentAnim;mi->currentAnim=mi->oldAnim;mi->oldAnim=oa;mi->oneshot=false;}
+			mi->nextFrame=mi->model->animations[mi->currentAnim].start;
+		}else mi->nextFrame++;
+	}
+}
+
+void md2InstanceDraw(md2_instance_t* mi)
+{
+	if(!mi || !mi->model || !mi->texture)return;
+
+	md2RenderFrame(mi->model, mi->currentFrame, mi->nextFrame, mi->interpolation, mi->texture);
 }

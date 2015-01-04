@@ -12,6 +12,7 @@
 #include "utils/math.h"
 
 char* testString;
+md2_instance_t gladosInstance;
 md2_model_t gladosModel;
 texture_s gladosTexture;
 
@@ -82,7 +83,7 @@ void renderFrame(u32* outBuffer, u32* outDepthBuffer)
 			gsRotateZ(M_PI/2);
 
 			md2StartDrawing();
-			md2RenderFrame(&gladosModel, 0, 1, 0.0f, &gladosTexture);
+			md2InstanceDraw(&gladosInstance);
 
 		gsPopMatrix();
 
@@ -110,6 +111,8 @@ int main(int argc, char** argv)
 	md2Init();
 	textureLoad(&gladosTexture, "sdmc:/glados.png", GPU_TEXTURE_MAG_FILTER(GPU_LINEAR)|GPU_TEXTURE_MIN_FILTER(GPU_LINEAR));
 	md2ReadModel(&gladosModel, "sdmc:/glados.md2");
+	md2InstanceInit(&gladosInstance, &gladosModel, &gladosTexture);
+	md2InstanceChangeAnimation(&gladosInstance, 1, false);
 
 	//background color (blue)
 	gsSetBackgroundColor(RGBA8(0x68, 0xB0, 0xD8, 0xFF));
@@ -122,6 +125,8 @@ int main(int argc, char** argv)
 		hidScanInput();
 		//START to exit to hbmenu
 		if(keysDown()&KEY_START)break;
+
+		md2InstanceUpdate(&gladosInstance);
 
 		gsDrawFrame();
 

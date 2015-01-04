@@ -66,12 +66,18 @@ typedef struct
 	vect3Df_s translate;
 	char name[16];
 	md2_vertex_t *verts;
+	u16 next;
 }md2_frame_t;
 
 typedef struct
 {
 	u16 v, st;
 }md2_vertperm_t;
+
+typedef struct
+{
+	u16 start, end;
+}md2_anim_t;
 
 /* MD2 model structure */
 typedef struct
@@ -83,6 +89,9 @@ typedef struct
 	md2_triangle_t *triangles;
 	md2_frame_t *frames;
 
+	u8 num_animations;
+	md2_anim_t* animations;
+
 	md2_vertperm_t* permutation;
 	u32 permutation_size;
 
@@ -91,6 +100,16 @@ typedef struct
 	u16* indices;
 }md2_model_t;
 
+typedef struct
+{
+	u16 currentFrame, nextFrame;
+	u8 currentAnim, oldAnim;
+	float interpolation, speed;
+	bool oneshot;
+	texture_s* texture;
+	md2_model_t* model;
+}md2_instance_t;
+
 void md2Init();
 void md2Exit();
 void md2StartDrawing();
@@ -98,5 +117,10 @@ void md2StartDrawing();
 int md2ReadModel(md2_model_t *mdl, const char *filename);
 void md2FreeModel(md2_model_t *mdl);
 void md2RenderFrame(md2_model_t *mdl, int n1, int n2, float interp, texture_s* t);
+
+void md2InstanceInit(md2_instance_t* mi, md2_model_t* mdl, texture_s* t);
+void md2InstanceChangeAnimation(md2_instance_t* mi, u16 newAnim, bool oneshot);
+void md2InstanceUpdate(md2_instance_t* mi);
+void md2InstanceDraw(md2_instance_t* mi);
 
 #endif
