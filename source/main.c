@@ -11,10 +11,14 @@
 #include "gfx/texture.h"
 #include "utils/math.h"
 
+#include "game/room_io.h"
+
 char* testString;
 md2_instance_t gladosInstance;
 md2_model_t gladosModel;
 texture_s gladosTexture;
+
+room_s testRoom;
 
 void drawBottom(u32* outBuffer, u32* outDepthBuffer)
 {
@@ -113,6 +117,9 @@ int main(int argc, char** argv)
 	md2ReadModel(&gladosModel, "sdmc:/glados.md2");
 	md2InstanceInit(&gladosInstance, &gladosModel, &gladosTexture);
 	md2InstanceChangeAnimation(&gladosInstance, 1, false);
+
+	//init room
+	readRoom("sdmc:/test1.map", &testRoom, 0);
 
 	//background color (blue)
 	gsSetBackgroundColor(RGBA8(0x68, 0xB0, 0xD8, 0xFF));

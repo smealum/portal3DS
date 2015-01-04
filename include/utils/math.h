@@ -4,6 +4,11 @@
 #include <3ds/types.h>
 #include <math.h>
 
+#define f32tofloat(n)   (((float)(n)) / (float)(1<<12))
+#define f32toint(n)   ((n) >> 12)
+#define floattof32(n)   ((int)((n) * (1 << 12)))
+#define inttof32(n)   ((n) << 12)
+
 typedef float mtx44[4][4];
 typedef float mtx33[3][3];
 
