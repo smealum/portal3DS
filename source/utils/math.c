@@ -11,6 +11,18 @@ void loadIdentity44(float* m)
 	m[0]=m[5]=m[10]=m[15]=1.0f;
 }
 
+void transposeMatrix33(float* m1, float* m2) //3x3
+{
+	int i, j;
+	for(i=0;i<3;i++)for(j=0;j<3;j++)m2[j+i*3]=m1[i+j*3];
+}
+
+void multMatrix33(float* m1, float* m2, float* m) //3x3
+{
+	int i, j;
+	for(i=0;i<3;i++)for(j=0;j<3;j++)m[j+i*3]=(m1[0+i*3]*m2[j+0*3])+(m1[1+i*3]*m2[j+1*3])+(m1[2+i*3]*m2[j+2*3]);
+}
+
 void multMatrix44(float* m1, float* m2, float* m) //4x4
 {
 	int i, j;
@@ -78,6 +90,35 @@ void rotateMatrixZ(float* tm, float x, bool r)
 	rm[15]=1.0f;
 	if(!r)multMatrix44(tm,rm,m);
 	else multMatrix44(rm,tm,m);
+	memcpy(tm,m,16*sizeof(float));
+}
+
+void rotateMatrixAxis(float* tm, float x, vect3Df_s a, bool r)
+{
+	float rm[16], m[16];
+
+	float cosval=cos(x);
+	float sinval=sin(x);
+	float onemcosval=1.0f-cosval;
+
+	memset(rm, 0x00, sizeof(rm));
+
+	rm[0]=cosval + a.x*a.x*onemcosval;
+	rm[1]=a.x*a.y*onemcosval-a.z*sinval;
+	rm[2]=a.x*a.z*onemcosval + a.y*sinval;
+
+	rm[4]=a.x*a.y*onemcosval + a.z*sinval;
+	rm[5]=cosval + a.y*a.y*onemcosval;
+	rm[6]=a.y*a.z*onemcosval-a.x*sinval;
+
+	rm[8]=a.x*a.z*onemcosval-a.y*sinval;
+	rm[9]=a.y*a.z*onemcosval + a.x*sinval;
+	rm[10]=cosval + a.z*a.z*onemcosval;
+
+	rm[15]=1.0f;
+
+	if(r)multMatrix44(rm,tm,m);
+	else multMatrix44(tm,rm,m);
 	memcpy(tm,m,16*sizeof(float));
 }
 

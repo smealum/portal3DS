@@ -12,6 +12,7 @@
 #include "utils/math.h"
 #include "utils/filesystem.h"
 
+#include "game/camera.h"
 #include "game/material.h"
 #include "game/room_io.h"
 
@@ -20,6 +21,7 @@ md2_instance_t gladosInstance;
 md2_model_t gladosModel;
 texture_s gladosTexture;
 room_s testRoom;
+camera_s testCamera;
 
 //object position and rotation angle
 vect3Df_s position, angle;
@@ -78,19 +80,21 @@ void renderFrame(u32* outBuffer, u32* outDepthBuffer)
 	textStartDrawing();
 	textDrawString(0, 0, testString);
 
-	//initialize projection matrix to standard perspective stuff
-		gsMatrixMode(GS_PROJECTION);
-		// gsProjectionMatrix(80.0f*M_PI/180.0f, 240.0f/400.0f, 0.01f, 200.0f);
-		gsProjectionMatrix(80.0f*M_PI/180.0f, 240.0f/400.0f, 0.01f, 10000.0f);
-		gsRotateZ(M_PI/2); //because framebuffer is sideways...
+	// //initialize projection matrix to standard perspective stuff
+	// 	gsMatrixMode(GS_PROJECTION);
+	// 	// gsProjectionMatrix(80.0f*M_PI/180.0f, 240.0f/400.0f, 0.01f, 200.0f);
+	// 	gsProjectionMatrix(80.0f*M_PI/180.0f, 240.0f/400.0f, 0.01f, 10000.0f);
+	// 	gsRotateZ(M_PI/2); //because framebuffer is sideways...
 
-	//draw object
+	// //draw object
 		gsMatrixMode(GS_MODELVIEW);
 		gsPushMatrix();
-			gsRotateX(angle.x);
-			gsRotateY(angle.y);
-			gsRotateZ(angle.z);
-			gsTranslate(-position.x, -position.y, -position.z);
+	// 		gsRotateX(angle.x);
+	// 		gsRotateY(angle.y);
+	// 		gsRotateZ(angle.z);
+	// 		gsTranslate(-position.x, -position.y, -position.z);
+
+			useCamera(&testCamera);
 
 			md2StartDrawing();
 			md2InstanceDraw(&gladosInstance);
@@ -134,14 +138,12 @@ int main(int argc, char** argv)
 	md2InstanceInit(&gladosInstance, &gladosModel, &gladosTexture);
 	md2InstanceChangeAnimation(&gladosInstance, 1, false);
 
+	//init camera
+	initCamera(&testCamera);
+
 	//init room
 	roomInit();
 	readRoom("test1.map", &testRoom, MAP_READ_ENTITIES);
-
-	//initialize object position and angle
-	// position=vect3Df(0.0f, -15.0f, -40.0f);
-	angle=vect3Df(M_PI/2, 0.0f, M_PI/2);
-	angle=vect3Df(0.0f, 0.0f, 0.0f);
 
 	//background color (blue)
 	gsSetBackgroundColor(RGBA8(0x68, 0xB0, 0xD8, 0xFF));
@@ -156,21 +158,22 @@ int main(int argc, char** argv)
 		if(keysDown()&KEY_START)break;
 
 		//rotate object
-		if(keysHeld()&KEY_CPAD_UP)angle.x+=0.025f;
-		if(keysHeld()&KEY_CPAD_DOWN)angle.x-=0.025f;
-		if(keysHeld()&KEY_CPAD_LEFT)angle.z+=0.025f;
-		if(keysHeld()&KEY_CPAD_RIGHT)angle.z-=0.025f;
+		if(keysHeld()&KEY_CPAD_UP)rotateCamera(&testCamera, vect3Df(-0.05f, 0.0f, 0.0f));
+		if(keysHeld()&KEY_CPAD_DOWN)rotateCamera(&testCamera, vect3Df(0.05f, 0.0f, 0.0f));
+		if(keysHeld()&KEY_CPAD_LEFT)rotateCamera(&testCamera, vect3Df(0.0f, -0.05f, 0.0f));
+		if(keysHeld()&KEY_CPAD_RIGHT)rotateCamera(&testCamera, vect3Df(0.0f, 0.05f, 0.0f));
 
-		if(keysHeld()&KEY_DUP)position.y+=1.0f;
-		if(keysHeld()&KEY_DDOWN)position.y-=1.0f;
-		if(keysHeld()&KEY_DLEFT)position.x+=1.0f;
-		if(keysHeld()&KEY_DRIGHT)position.x-=1.0f;
+		if(keysHeld()&KEY_DUP)moveCamera(&testCamera, vect3Df(0.0f, 0.0f, -1.0f));
+		if(keysHeld()&KEY_DDOWN)moveCamera(&testCamera, vect3Df(0.0f, 0.0f, 1.0f));
+		if(keysHeld()&KEY_DLEFT)moveCamera(&testCamera, vect3Df(1.0f, 0.0f, 0.0f));
+		if(keysHeld()&KEY_DRIGHT)moveCamera(&testCamera, vect3Df(-1.0f, 0.0f, 0.0f));
 
 		//R/L to bring object closer to or move it further from the camera
-		if(keysHeld()&KEY_R)position.z+=1.0f;
-		if(keysHeld()&KEY_L)position.z-=1.0f;
+		if(keysHeld()&KEY_R)moveCamera(&testCamera, vect3Df(0.0f, 1.0f, 0.0f));
+		if(keysHeld()&KEY_L)moveCamera(&testCamera, vect3Df(0.0f, -1.0f, 0.0f));
 
 		md2InstanceUpdate(&gladosInstance);
+		updateCamera(&testCamera);
 
 		gsDrawFrame();
 
