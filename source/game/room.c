@@ -12,6 +12,8 @@ DVLB_s* roomDvlb;
 shaderProgram_s roomProgram;
 const u32 roomBaseAddr=0x14000000;
 
+int roomUniformTextureDimensions;
+
 void roomInit()
 {
 	roomDvlb = DVLB_ParseFile((u32*)room_vsh_shbin, room_vsh_shbin_size);
@@ -20,6 +22,8 @@ void roomInit()
 
 	shaderProgramInit(&roomProgram);
 	shaderProgramSetVsh(&roomProgram, &roomDvlb->DVLE[0]);
+
+	roomUniformTextureDimensions = shaderInstanceGetUniformLocation(roomProgram.vertexShader, "textureDimensions");
 }
 
 void roomExit()
@@ -235,7 +239,7 @@ void drawRoom(room_s* r)
 		(u64[]){0x10}, // attribute permutations for each buffer
 		(u8[]){2} // number of attributes for each buffer
 		);
-	
+
 	gsScale(TILESIZE_FLOAT*2, HEIGHTUNIT_FLOAT, TILESIZE_FLOAT*2);
 
 	gsUpdateTransformation();
@@ -244,6 +248,7 @@ void drawRoom(room_s* r)
 	for(i=0; i<r->numIndexBuffers; i++)
 	{
 		textureBind(r->indexBufferTextures[i], GPU_TEXUNIT0);
+		GPU_SetFloatUniform(GPU_VERTEX_SHADER, roomUniformTextureDimensions, (u32*)(float[]){0.0f, 0.0f, 1.0f / r->indexBufferTextures[i]->height, 1.0f / r->indexBufferTextures[i]->width}, 1);
 		GPU_DrawElements(GPU_UNKPRIM, (u32*)((u32)r->indexBuffers[i]-roomBaseAddr), r->numIndices[i]);
 	}
 }

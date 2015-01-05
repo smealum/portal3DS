@@ -1,7 +1,6 @@
 ; make sure you update aemstro_as for this (01/01/15)
  
 ; setup constants
-	.const c81, 0.0078125, 0.0078125, 0.0, 0.0
 	.const c82, 82.0, 0.5774, 0.5, 1.0
 	.const c83, 1.0, 1.0, 1.0, 1.0
  
@@ -14,6 +13,7 @@
 ; setup uniform map (required to use SHDR_GetUniformRegister)
 	.uniform c84, c87, projection      ; c84-c87 = projection matrix
 	.uniform c88, c91, modelview       ; c88-c91 = modelview matrix
+	.uniform c92, c92, textureDimensions
 
 ; setup vsh and gsh
 	.vsh main, endmain
@@ -33,8 +33,8 @@
 			dp4 o0,  c87,  r0  (0x3)
 
 		; result.texcoord = in.texcoord
-			mul o2,  c81,  v1  (0x5)
-			mul o3,  c81,  v1  (0x5)
+			mul o2,  c92,  v1  (0x5)
+			mul o3,  c92,  v1  (0x5)
 
 		; result.color = EXPERIMENTS !			
 			mov o1,  c83       (0x5)

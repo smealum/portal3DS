@@ -169,27 +169,26 @@ void getTextureCoordSlice(materialSlice_s* ms, rectangle_s* rec, vect3Di_s* v)
 
 	vect3Di_s p1=vect3Di(0,0,0), p2;
 
+	float heightRatio=(HEIGHTUNIT_FLOAT / (TILESIZE_FLOAT*2)) / ms->factorY;
+
 	if(!rec->size.x)
 	{
-		p1=vect3Di(ms->img->width * rec->position.z, ms->img->height * rec->position.y, 0);
-		p2=vect3Di(ms->img->width * rec->size.z, ms->img->height * rec->size.y, 0);
+		p1=vect3Di((ms->img->width * rec->position.z) / ms->factorX, ms->img->height * rec->position.y * heightRatio, 0);
+		p2=vect3Di((ms->img->width * rec->size.z) / ms->factorX, ms->img->height * rec->size.y * heightRatio, 0);
 	}else if(!rec->size.y)
 	{
-		p1=vect3Di(ms->img->width * rec->position.z, ms->img->height * rec->position.x, 0);
-		p2=vect3Di(ms->img->width * rec->size.z, ms->img->height * rec->size.x, 0);
+		p1=vect3Di((ms->img->width * rec->position.z) / ms->factorX, (ms->img->height * rec->position.x) / ms->factorX, 0);
+		p2=vect3Di((ms->img->width * rec->size.z) / ms->factorX, (ms->img->height * rec->size.x) / ms->factorX, 0);
 	}else
 	{
-		p1=vect3Di(ms->img->width * rec->position.y, ms->img->height * rec->position.x, 0);
-		p2=vect3Di(ms->img->width * rec->size.y, ms->img->height * rec->size.x, 0);
+		p1=vect3Di(ms->img->width * rec->position.y * heightRatio, (ms->img->height * rec->position.x) / ms->factorX, 0);
+		p2=vect3Di(ms->img->width * rec->size.y * heightRatio, (ms->img->height * rec->size.x) / ms->factorX, 0);
 	}
 
 	p1.x%=(ms->img->width);
 	p1.y%=(ms->img->height);
 
 	p2=vaddi(p1,p2);
-
-	p1=vect3Di(p1.x/ms->factorX, p1.y/ms->factorY, 0);
-	p2=vect3Di(p2.x/ms->factorX, p2.y/ms->factorY, 0);
 
 	v[0]=vect3Di(p1.x, p1.y, 0);
 	v[1]=vect3Di(p1.x, p2.y, 0);
