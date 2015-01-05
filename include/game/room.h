@@ -3,11 +3,16 @@
 
 #include <3ds.h>
 #include "utils/math.h"
+#include "game/material.h"
+
+#define TILESIZE (384)
+#define TILESIZE_FLOAT (f32tofloat(TILESIZE<<7))
+#define HEIGHTUNIT (192)
 
 typedef struct
 {
 	vect3Di_s position, size, normal;
-	// material_s* material;
+	material_s* material;
 	bool portalable, hide, touched, collides;
 }rectangle_s;
 
@@ -26,6 +31,7 @@ typedef struct
 typedef struct
 {
 	s16 x, y, z;
+	s16 u, v;
 }rectangleVertex_s;
 
 typedef struct
@@ -34,14 +40,23 @@ typedef struct
 	vect3Df_s position;
 	u16 width, height;
 	rectangleList_s rectangles;
-	int numVertices, numIndices[6];
+	int numVertices;
 	rectangleVertex_s* vertexBuffer;
-	u16* indexBuffers[6];
+	int numIndexBuffers;
+	int* numIndices;
+	texture_s** indexBufferTextures;
+	u16** indexBuffers;
 }room_s;
+
+void roomInit();
+void roomExit();
 
 void initRectangleList(rectangleList_s* p);
 rectangle_s* addRectangle(rectangle_s r, rectangleList_s* p);
 void popRectangle(rectangleList_s* p);
+void getTextureCoordSlice(materialSlice_s* ms, rectangle_s* rec, vect3Di_s* v);
+void getMaterialTextureCoord(rectangle_s* rec, vect3Di_s* v);
+texture_s* getRectangleTexture(rectangle_s* rec);
 
 void readVect3Df(vect3Df_s* v, FILE* f, bool fp);
 void readRectangle(rectangle_s* rec, FILE* f);
@@ -51,5 +66,6 @@ void initRoom(room_s* r, u16 w, u16 h, vect3Df_s p);
 void generateRoomGeometry(room_s* r);
 rectangle_s* addRoomRectangle(room_s* r, rectangle_s rec);
 void removeRoomRectangles(room_s* r);
+void drawRoom(room_s* r);
 
 #endif

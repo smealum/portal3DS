@@ -9,6 +9,11 @@
 #define floattof32(n)   ((int)((n) * (1 << 12)))
 #define inttof32(n)   ((n) << 12)
 
+#define f32tot16(n)          ((t16)(n >> 8))
+#define inttot16(n)          ((n) << 4)
+#define t16toint(n)          ((n) >> 4)
+#define floattot16(n)        ((t16)((n) * (1 << 4)))
+
 typedef float mtx44[4][4];
 typedef float mtx33[3][3];
 

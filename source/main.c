@@ -11,14 +11,17 @@
 #include "gfx/texture.h"
 #include "utils/math.h"
 
+#include "game/material.h"
 #include "game/room_io.h"
 
 char* testString;
 md2_instance_t gladosInstance;
 md2_model_t gladosModel;
 texture_s gladosTexture;
-
 room_s testRoom;
+
+//object position and rotation angle
+vect3Df_s position, angle;
 
 void drawBottom(u32* outBuffer, u32* outDepthBuffer)
 {
@@ -76,18 +79,23 @@ void renderFrame(u32* outBuffer, u32* outDepthBuffer)
 
 	//initialize projection matrix to standard perspective stuff
 		gsMatrixMode(GS_PROJECTION);
-		gsProjectionMatrix(80.0f*M_PI/180.0f, 240.0f/400.0f, 0.01f, 200.0f);
+		// gsProjectionMatrix(80.0f*M_PI/180.0f, 240.0f/400.0f, 0.01f, 200.0f);
+		gsProjectionMatrix(80.0f*M_PI/180.0f, 240.0f/400.0f, 0.01f, 10000.0f);
 		gsRotateZ(M_PI/2); //because framebuffer is sideways...
 
 	//draw object
 		gsMatrixMode(GS_MODELVIEW);
 		gsPushMatrix();
-			gsTranslate(0.0f, -15.0f, -40.0f);
-			gsRotateX(M_PI/2);
-			gsRotateZ(M_PI/2);
+			gsRotateX(angle.x);
+			gsRotateY(angle.y);
+			gsRotateZ(angle.z);
+			gsTranslate(-position.x, -position.y, -position.z);
 
 			md2StartDrawing();
 			md2InstanceDraw(&gladosInstance);
+
+			gsScale(TILESIZE_FLOAT*2, TILESIZE_FLOAT, TILESIZE_FLOAT*2);
+			drawRoom(&testRoom);
 
 		gsPopMatrix();
 
@@ -107,19 +115,28 @@ int main(int argc, char** argv)
 	//initialize GS
 	gsInit(NULL, renderFrame, drawBottom);
 
+	//init materials
+	initMaterials();
+
 	//init text
 	textInit();
 	testString = textMakeString("\1hello this is a test\nwith newline support");
 
 	//init md2
 	md2Init();
-	textureLoad(&gladosTexture, "sdmc:/glados.png", GPU_TEXTURE_MAG_FILTER(GPU_LINEAR)|GPU_TEXTURE_MIN_FILTER(GPU_LINEAR));
+	textureLoad(&gladosTexture, "sdmc:/glados.png", GPU_TEXTURE_MAG_FILTER(GPU_LINEAR)|GPU_TEXTURE_MIN_FILTER(GPU_LINEAR)|GPU_TEXTURE_WRAP_S(GPU_REPEAT)|GPU_TEXTURE_WRAP_T(GPU_REPEAT));
 	md2ReadModel(&gladosModel, "sdmc:/glados.md2");
 	md2InstanceInit(&gladosInstance, &gladosModel, &gladosTexture);
 	md2InstanceChangeAnimation(&gladosInstance, 1, false);
 
 	//init room
-	readRoom("sdmc:/test1.map", &testRoom, 0);
+	roomInit();
+	readRoom("sdmc:/test1.map", &testRoom, MAP_READ_ENTITIES);
+
+	//initialize object position and angle
+	// position=vect3Df(0.0f, -15.0f, -40.0f);
+	angle=vect3Df(M_PI/2, 0.0f, M_PI/2);
+	angle=vect3Df(0.0f, 0.0f, 0.0f);
 
 	//background color (blue)
 	gsSetBackgroundColor(RGBA8(0x68, 0xB0, 0xD8, 0xFF));
@@ -132,6 +149,21 @@ int main(int argc, char** argv)
 		hidScanInput();
 		//START to exit to hbmenu
 		if(keysDown()&KEY_START)break;
+
+		//rotate object
+		if(keysHeld()&KEY_CPAD_UP)angle.x+=0.025f;
+		if(keysHeld()&KEY_CPAD_DOWN)angle.x-=0.025f;
+		if(keysHeld()&KEY_CPAD_LEFT)angle.z+=0.025f;
+		if(keysHeld()&KEY_CPAD_RIGHT)angle.z-=0.025f;
+
+		if(keysHeld()&KEY_DUP)position.y+=1.0f;
+		if(keysHeld()&KEY_DDOWN)position.y-=1.0f;
+		if(keysHeld()&KEY_DLEFT)position.x+=1.0f;
+		if(keysHeld()&KEY_DRIGHT)position.x-=1.0f;
+
+		//R/L to bring object closer to or move it further from the camera
+		if(keysHeld()&KEY_R)position.z+=1.0f;
+		if(keysHeld()&KEY_L)position.z-=1.0f;
 
 		md2InstanceUpdate(&gladosInstance);
 

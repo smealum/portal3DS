@@ -6,17 +6,58 @@
 
 u8 tileOrder[] = {0,1,8,9,2,3,10,11,16,17,24,25,18,19,26,27,4,5,12,13,6,7,14,15,20,21,28,29,22,23,30,31,32,33,40,41,34,35,42,43,48,49,56,57,50,51,58,59,36,37,44,45,38,39,46,47,52,53,60,61,54,55,62,63};
 
+texture_s textures[TEXTURES_NUM];
+
 unsigned long htonl(unsigned long v)
 {
 	u8* v2=(u8*)&v;
 	return (v2[0]<<24)|(v2[1]<<16)|(v2[2]<<8)|(v2[3]);
 }
 
+void textureInit()
+{
+	int i;
+	for(i=0; i<TEXTURES_NUM; i++)
+	{
+		textures[i].used=false;
+	}
+}
+
+void textureExit()
+{
+	int i;
+	for(i=0; i<TEXTURES_NUM; i++)
+	{
+		if(textures[i].used)
+		{
+			textureFree(&textures[i]);
+			textures[i].used=false;
+		}
+	}
+}
+
+texture_s* textureCreate(const char* fn, u32 param)
+{
+	if(!fn)return NULL;
+
+	int i;
+	for(i=0; i<TEXTURES_NUM; i++)
+	{
+		if(!textures[i].used)
+		{
+			if(!textureLoad(&textures[i], fn, param))return &textures[i];
+			else return NULL;
+		}
+	}
+	return NULL;
+}
+
 int textureLoad(texture_s* t, const char* fn, u32 param)
 {
-	if(!t || !fn)return -1;
+	if(!t || !fn || t->used)return -1;
 
 	t->data=NULL;
+	t->filename=NULL;
 
 	u32* buffer;
 	unsigned int error=lodepng_decode32_file((unsigned char**)&buffer, (unsigned int*)&t->width, (unsigned int*)&t->height, fn);
@@ -44,6 +85,10 @@ int textureLoad(texture_s* t, const char* fn, u32 param)
 	free(buffer);
 	
 	t->param=param;
+	t->filename=malloc(strlen(fn)+1);
+	if(t->filename)strcpy(t->filename, fn);
+
+	t->used=true;
 
 	return 0;
 }
@@ -52,7 +97,7 @@ void textureBind(texture_s* t, GPU_TEXUNIT unit)
 {
 	if(!t)return;
 
-	GPU_SetTexture(unit, (u32*)osConvertVirtToPhys((u32)t->data),t->height,t->width,t->param,GPU_RGBA8);
+	GPU_SetTexture(unit, (u32*)osConvertVirtToPhys((u32)t->data), t->height, t->width, t->param, GPU_RGBA8);
 }
 
 void textureFree(texture_s* t)
@@ -60,4 +105,5 @@ void textureFree(texture_s* t)
 	if(!t || !t->data)return;
 
 	linearFree(t->data);
+	t->data = NULL;
 }

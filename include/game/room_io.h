@@ -6,6 +6,10 @@
 
 #define MAPHEADER_SIZE (256)
 
+#define MAP_READ_LIGHT (1<<0)
+#define MAP_READ_ENTITIES (1<<1)
+#define MAP_READ_INFO (1<<7)
+
 typedef struct
 {
 	u32 dataSize;
