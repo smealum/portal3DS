@@ -8,6 +8,7 @@
 #define TILESIZE (384)
 #define TILESIZE_FLOAT (f32tofloat(TILESIZE<<7))
 #define HEIGHTUNIT (192)
+#define HEIGHTUNIT_FLOAT (f32tofloat(HEIGHTUNIT<<7))
 
 typedef struct
 {

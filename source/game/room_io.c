@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <3ds.h>
 #include "game/room_io.h"
+#include "utils/filesystem.h"
 
 void readVect3Di(vect3Di_s* v, FILE* f)
 {
@@ -32,7 +33,7 @@ void readRectangle(rectangle_s* rec, FILE* f)
 	readVect3Di(&rec->size, f);
 	readVect3Di(&rec->normal, f);
 
-	printf("rec : %d %d %d\n", rec->position.x, rec->position.y, rec->position.z);
+	// printf("rec : %d %d %d\n", rec->position.x, rec->position.y, rec->position.z);
 
 	fread(&rec->portalable, sizeof(bool), 1, f);
 	
@@ -183,8 +184,8 @@ void readEntity(u8 i, FILE* f)
 			{
 				vect3Di_s p; readVect3Di(&p,f);
 				u8 o; fread(&o,sizeof(u8),1,f);
-				printf("start : %d %d %d\n", p.x, p.y, p.z);
-				position=vect3Df(p.x*TILESIZE_FLOAT*2, p.y*TILESIZE_FLOAT, p.z*TILESIZE_FLOAT*2);
+				// printf("start : %d %d %d\n", p.x, p.y, p.z);
+				position=vect3Df(p.x*TILESIZE_FLOAT*2, p.y*HEIGHTUNIT_FLOAT, p.z*TILESIZE_FLOAT*2);
 				// setupWallDoor(NULL, &entryWallDoor, p, o);
 				// if(entryWallDoor.used)
 				// {
@@ -246,7 +247,7 @@ void readRoom(char* filename, room_s* r, u8 flags)
 {
 	if(!filename || !r)return;
 
-	FILE* f=fopen(filename,"rb");
+	FILE* f=openFile(filename,"rb");
 	if(!f)return;
 
 	mapHeader_s h;

@@ -28,7 +28,7 @@ void initMaterials(void)
 	}
 	defaultMaterial=createMaterial();
 	defaultMaterialSlice=createMaterialSlice();
-	loadMaterialSlice(defaultMaterialSlice, "sdmc:/default.png");
+	loadMaterialSlice(defaultMaterialSlice, "default.png");
 }
 
 materialSlice_s* createMaterialSlice()

@@ -33,6 +33,7 @@
 #include <3ds.h>
 #include "gfx/md2.h"
 #include "gfx/gs.h"
+#include "utils/filesystem.h"
 
 #include "md2_vsh_shbin.h"
 
@@ -138,7 +139,7 @@ int md2ReadModel(md2_model_t *mdl, const char *filename)
 	FILE *fp;
 	int i, j, k;
 
-	fp = fopen(filename, "rb");
+	fp = openFile(filename, "rb");
 	if(!fp)
 	{
 		printf("Error: couldn't open \"%s\"!\n", filename);
@@ -196,7 +197,7 @@ int md2ReadModel(md2_model_t *mdl, const char *filename)
 	}
 
 	mdl->permutation = (md2_vertperm_t*) realloc(mdl->permutation, sizeof(md2_vertperm_t)*mdl->permutation_size);
-	printf("permutation %d vs %d vs %d vs %d\n", (int)mdl->permutation_size, (int)mdl->header.num_tris*3, (int)mdl->header.num_vertices, (int)mdl->header.num_st);
+	// printf("permutation %d vs %d vs %d vs %d\n", (int)mdl->permutation_size, (int)mdl->header.num_tris*3, (int)mdl->header.num_vertices, (int)mdl->header.num_st);
 
 	// permute texcoords
 	md2_texCoord_t* tmp_texcoords = mdl->texcoords;

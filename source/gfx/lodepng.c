@@ -33,6 +33,8 @@ Rename this file to lodepng.cpp to use it for C++, or to lodepng.c to use it for
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "utils/filesystem.h"
+
 #ifdef LODEPNG_COMPILE_CPP
 #include <fstream>
 #endif /*LODEPNG_COMPILE_CPP*/
@@ -377,7 +379,7 @@ unsigned lodepng_load_file(unsigned char** out, size_t* outsize, const char* fil
   *out = 0;
   *outsize = 0;
 
-  file = fopen(filename, "rb");
+  file = openFile(filename, "rb");
   if(!file) return 78;
 
   /*get filesize:*/
@@ -399,7 +401,7 @@ unsigned lodepng_load_file(unsigned char** out, size_t* outsize, const char* fil
 unsigned lodepng_save_file(const unsigned char* buffer, size_t buffersize, const char* filename)
 {
   FILE* file;
-  file = fopen(filename, "wb" );
+  file = openFile(filename, "wb" );
   if(!file) return 79;
   fwrite((char*)buffer , 1 , buffersize, file);
   fclose(file);

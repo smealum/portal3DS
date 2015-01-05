@@ -10,6 +10,7 @@
 #include "gfx/md2.h"
 #include "gfx/texture.h"
 #include "utils/math.h"
+#include "utils/filesystem.h"
 
 #include "game/material.h"
 #include "game/room_io.h"
@@ -94,7 +95,6 @@ void renderFrame(u32* outBuffer, u32* outDepthBuffer)
 			md2StartDrawing();
 			md2InstanceDraw(&gladosInstance);
 
-			gsScale(TILESIZE_FLOAT*2, TILESIZE_FLOAT, TILESIZE_FLOAT*2);
 			drawRoom(&testRoom);
 
 		gsPopMatrix();
@@ -115,8 +115,13 @@ int main(int argc, char** argv)
 	//initialize GS
 	gsInit(NULL, renderFrame, drawBottom);
 
+	//init fs
+	filesystemInit(argc, argv);
+
 	//init materials
 	initMaterials();
+	loadMaterialSlices("slices.ini");
+	loadMaterials("materials.ini");
 
 	//init text
 	textInit();
@@ -124,14 +129,14 @@ int main(int argc, char** argv)
 
 	//init md2
 	md2Init();
-	textureLoad(&gladosTexture, "sdmc:/glados.png", GPU_TEXTURE_MAG_FILTER(GPU_LINEAR)|GPU_TEXTURE_MIN_FILTER(GPU_LINEAR)|GPU_TEXTURE_WRAP_S(GPU_REPEAT)|GPU_TEXTURE_WRAP_T(GPU_REPEAT));
-	md2ReadModel(&gladosModel, "sdmc:/glados.md2");
+	textureLoad(&gladosTexture, "glados.png", GPU_TEXTURE_MAG_FILTER(GPU_LINEAR)|GPU_TEXTURE_MIN_FILTER(GPU_LINEAR)|GPU_TEXTURE_WRAP_S(GPU_REPEAT)|GPU_TEXTURE_WRAP_T(GPU_REPEAT));
+	md2ReadModel(&gladosModel, "glados.md2");
 	md2InstanceInit(&gladosInstance, &gladosModel, &gladosTexture);
 	md2InstanceChangeAnimation(&gladosInstance, 1, false);
 
 	//init room
 	roomInit();
-	readRoom("sdmc:/test1.map", &testRoom, MAP_READ_ENTITIES);
+	readRoom("test1.map", &testRoom, MAP_READ_ENTITIES);
 
 	//initialize object position and angle
 	// position=vect3Df(0.0f, -15.0f, -40.0f);

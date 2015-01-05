@@ -191,7 +191,7 @@ void generateRoomGeometry(room_s* r)
 			
 			getMaterialTextureCoord(&l->data, texCoords);
 
-			printf("%f %f, %f %f\n", (texCoords[0].x)*0.0078125, (texCoords[0].y)*0.0078125, (texCoords[2].x)*0.0078125, (texCoords[2].y)*0.0078125);
+			// printf("%f %f, %f %f\n", (texCoords[0].x)*0.0078125, (texCoords[0].y)*0.0078125, (texCoords[2].x)*0.0078125, (texCoords[2].y)*0.0078125);
 
 			int i;
 			for(i=0; i<4; i++)
@@ -235,6 +235,8 @@ void drawRoom(room_s* r)
 		(u64[]){0x10}, // attribute permutations for each buffer
 		(u8[]){2} // number of attributes for each buffer
 		);
+	
+	gsScale(TILESIZE_FLOAT*2, HEIGHTUNIT_FLOAT, TILESIZE_FLOAT*2);
 
 	gsUpdateTransformation();
 

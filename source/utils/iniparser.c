@@ -16,6 +16,7 @@
 /*---------------------------- Includes ------------------------------------*/
 #include <ctype.h>
 #include "utils/iniparser.h"
+#include "utils/filesystem.h"
 
 /*---------------------------- Defines -------------------------------------*/
 #define ASCIILINESZ         (1024)
@@ -579,7 +580,7 @@ dictionary * iniparser_load(const char * ininame)
 
     dictionary * dict ;
 
-    if ((in=fopen((char*)ininame, "r"))==NULL) {
+    if ((in=openFile((char*)ininame, "r"))==NULL) {
         fprintf(stderr, "iniparser: cannot open %s\n", ininame);
         return NULL ;
     }
