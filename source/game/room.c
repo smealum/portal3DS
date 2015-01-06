@@ -240,15 +240,19 @@ void drawRoom(room_s* r)
 		(u8[]){2} // number of attributes for each buffer
 		);
 
-	gsScale(TILESIZE_FLOAT*2, HEIGHTUNIT_FLOAT, TILESIZE_FLOAT*2);
+	gsPushMatrix();
 
-	gsUpdateTransformation();
+		gsScale(TILESIZE_FLOAT*2, HEIGHTUNIT_FLOAT, TILESIZE_FLOAT*2);
 
-	int i;
-	for(i=0; i<r->numIndexBuffers; i++)
-	{
-		textureBind(r->indexBufferTextures[i], GPU_TEXUNIT0);
-		GPU_SetFloatUniform(GPU_VERTEX_SHADER, roomUniformTextureDimensions, (u32*)(float[]){0.0f, 0.0f, 1.0f / r->indexBufferTextures[i]->height, 1.0f / r->indexBufferTextures[i]->width}, 1);
-		GPU_DrawElements(GPU_UNKPRIM, (u32*)((u32)r->indexBuffers[i]-roomBaseAddr), r->numIndices[i]);
-	}
+		gsUpdateTransformation();
+
+		int i;
+		for(i=0; i<r->numIndexBuffers; i++)
+		{
+			textureBind(r->indexBufferTextures[i], GPU_TEXUNIT0);
+			GPU_SetFloatUniform(GPU_VERTEX_SHADER, roomUniformTextureDimensions, (u32*)(float[]){0.0f, 0.0f, 1.0f / r->indexBufferTextures[i]->height, 1.0f / r->indexBufferTextures[i]->width}, 1);
+			GPU_DrawElements(GPU_UNKPRIM, (u32*)((u32)r->indexBuffers[i]-roomBaseAddr), r->numIndices[i]);
+		}
+
+	gsPopMatrix();
 }

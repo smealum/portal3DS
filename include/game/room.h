@@ -5,10 +5,10 @@
 #include "utils/math.h"
 #include "game/material.h"
 
-#define TILESIZE (384)
-#define TILESIZE_FLOAT (f32tofloat(TILESIZE<<7))
-#define HEIGHTUNIT (192)
-#define HEIGHTUNIT_FLOAT (f32tofloat(HEIGHTUNIT<<7))
+#define TILESIZE (2)
+#define TILESIZE_FLOAT ((float)TILESIZE)
+#define HEIGHTUNIT (1)
+#define HEIGHTUNIT_FLOAT ((float)HEIGHTUNIT)
 
 typedef struct
 {

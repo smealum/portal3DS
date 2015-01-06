@@ -15,6 +15,7 @@
 #include "game/camera.h"
 #include "game/material.h"
 #include "game/room_io.h"
+#include "game/portal.h"
 
 char* testString;
 md2_instance_t gladosInstance;
@@ -25,6 +26,8 @@ camera_s testCamera;
 
 //object position and rotation angle
 vect3Df_s position, angle;
+
+portal_s testPortal;
 
 void drawBottom(u32* outBuffer, u32* outDepthBuffer)
 {
@@ -42,6 +45,18 @@ void GPU_SetDummyTexEnv(u8 num)
 		GPU_REPLACE, 
 		GPU_REPLACE, 
 		0xFFFFFFFF);
+}
+
+void drawScene(camera_s* c)
+{
+	if(!c)return;
+
+	// useCamera(&testCamera);
+
+	md2StartDrawing();
+	md2InstanceDraw(&gladosInstance);
+
+	drawRoom(&testRoom);
 }
 
 // topscreen
@@ -77,29 +92,18 @@ void renderFrame(u32* outBuffer, u32* outDepthBuffer)
 	GPU_SetDummyTexEnv(4);
 	GPU_SetDummyTexEnv(5);
 
-	textStartDrawing();
-	textDrawString(0, 0, testString);
-
-	// //initialize projection matrix to standard perspective stuff
-	// 	gsMatrixMode(GS_PROJECTION);
-	// 	// gsProjectionMatrix(80.0f*M_PI/180.0f, 240.0f/400.0f, 0.01f, 200.0f);
-	// 	gsProjectionMatrix(80.0f*M_PI/180.0f, 240.0f/400.0f, 0.01f, 10000.0f);
-	// 	gsRotateZ(M_PI/2); //because framebuffer is sideways...
+	// textStartDrawing();
+	// textDrawString(0, 0, testString);
 
 	// //draw object
 		gsMatrixMode(GS_MODELVIEW);
 		gsPushMatrix();
-	// 		gsRotateX(angle.x);
-	// 		gsRotateY(angle.y);
-	// 		gsRotateZ(angle.z);
-	// 		gsTranslate(-position.x, -position.y, -position.z);
 
 			useCamera(&testCamera);
 
-			md2StartDrawing();
-			md2InstanceDraw(&gladosInstance);
+			drawScene(&testCamera);
 
-			drawRoom(&testRoom);
+			drawPortal(&testPortal, drawScene, &testCamera);
 
 		gsPopMatrix();
 
@@ -145,8 +149,14 @@ int main(int argc, char** argv)
 	roomInit();
 	readRoom("test1.map", &testRoom, MAP_READ_ENTITIES);
 
+	//init portal
+	portalInit();
+	initPortal(&testPortal);
+
 	//background color (blue)
 	gsSetBackgroundColor(RGBA8(0x68, 0xB0, 0xD8, 0xFF));
+
+	rotateCamera(&testCamera, vect3Df(0.0f, M_PI, 0.0f));
 
 	printf("ready\n");
 
@@ -158,19 +168,25 @@ int main(int argc, char** argv)
 		if(keysDown()&KEY_START)break;
 
 		//rotate object
-		if(keysHeld()&KEY_CPAD_UP)rotateCamera(&testCamera, vect3Df(-0.05f, 0.0f, 0.0f));
-		if(keysHeld()&KEY_CPAD_DOWN)rotateCamera(&testCamera, vect3Df(0.05f, 0.0f, 0.0f));
-		if(keysHeld()&KEY_CPAD_LEFT)rotateCamera(&testCamera, vect3Df(0.0f, -0.05f, 0.0f));
-		if(keysHeld()&KEY_CPAD_RIGHT)rotateCamera(&testCamera, vect3Df(0.0f, 0.05f, 0.0f));
+		if(keysHeld()&KEY_CSTICK_UP)rotateCamera(&testCamera, vect3Df(-0.05f, 0.0f, 0.0f));
+		if(keysHeld()&KEY_CSTICK_DOWN)rotateCamera(&testCamera, vect3Df(0.05f, 0.0f, 0.0f));
+		if(keysHeld()&KEY_CSTICK_LEFT)rotateCamera(&testCamera, vect3Df(0.0f, -0.05f, 0.0f));
+		if(keysHeld()&KEY_CSTICK_RIGHT)rotateCamera(&testCamera, vect3Df(0.0f, 0.05f, 0.0f));
 
-		if(keysHeld()&KEY_DUP)moveCamera(&testCamera, vect3Df(0.0f, 0.0f, -1.0f));
-		if(keysHeld()&KEY_DDOWN)moveCamera(&testCamera, vect3Df(0.0f, 0.0f, 1.0f));
-		if(keysHeld()&KEY_DLEFT)moveCamera(&testCamera, vect3Df(1.0f, 0.0f, 0.0f));
-		if(keysHeld()&KEY_DRIGHT)moveCamera(&testCamera, vect3Df(-1.0f, 0.0f, 0.0f));
+		if(keysHeld()&KEY_CPAD_UP)moveCamera(&testCamera, vect3Df(0.0f, 0.0f, -0.4f));
+		if(keysHeld()&KEY_CPAD_DOWN)moveCamera(&testCamera, vect3Df(0.0f, 0.0f, 0.4f));
+		if(keysHeld()&KEY_CPAD_LEFT)moveCamera(&testCamera, vect3Df(-0.4f, 0.0f, 0.0f));
+		if(keysHeld()&KEY_CPAD_RIGHT)moveCamera(&testCamera, vect3Df(0.4f, 0.0f, 0.0f));
+
+
+		if(keysHeld()&KEY_X)testPortal.position = vaddf(testPortal.position, vect3Df(0.0f, 0.0f, -0.4f));
+		if(keysHeld()&KEY_B)testPortal.position = vaddf(testPortal.position, vect3Df(0.0f, 0.0f, 0.4f));
+		if(keysHeld()&KEY_Y)testPortal.position = vaddf(testPortal.position, vect3Df(-0.4f, 0.0f, 0.0f));
+		if(keysHeld()&KEY_A)testPortal.position = vaddf(testPortal.position, vect3Df(0.4f, 0.0f, 0.0f));
 
 		//R/L to bring object closer to or move it further from the camera
-		if(keysHeld()&KEY_R)moveCamera(&testCamera, vect3Df(0.0f, 1.0f, 0.0f));
-		if(keysHeld()&KEY_L)moveCamera(&testCamera, vect3Df(0.0f, -1.0f, 0.0f));
+		if(keysHeld()&KEY_R)angle.y+=0.01f;
+		if(keysHeld()&KEY_L)angle.y-=0.01f;
 
 		md2InstanceUpdate(&gladosInstance);
 		updateCamera(&testCamera);

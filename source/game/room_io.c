@@ -3,6 +3,7 @@
 #include <3ds.h>
 #include "game/room_io.h"
 #include "game/camera.h"
+#include "game/portal.h"
 #include "utils/filesystem.h"
 
 void readVect3Di(vect3Di_s* v, FILE* f)
@@ -60,6 +61,7 @@ void readRectangles(room_s* r, FILE* f)
 }
 
 extern camera_s testCamera;
+extern portal_s testPortal;
 
 void readEntity(u8 i, FILE* f)
 {
@@ -187,6 +189,7 @@ void readEntity(u8 i, FILE* f)
 				u8 o; fread(&o,sizeof(u8),1,f);
 				// printf("start : %d %d %d\n", p.x, p.y, p.z);
 				setCameraPosition(&testCamera, vect3Df(p.x*TILESIZE_FLOAT*2, p.y*HEIGHTUNIT_FLOAT, p.z*TILESIZE_FLOAT*2));
+				testPortal.position=vect3Df(p.x*TILESIZE_FLOAT*2, p.y*HEIGHTUNIT_FLOAT, p.z*TILESIZE_FLOAT*2);
 				// setupWallDoor(NULL, &entryWallDoor, p, o);
 				// if(entryWallDoor.used)
 				// {

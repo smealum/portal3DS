@@ -513,7 +513,7 @@ void gsDrawFrame()
 			// float interaxial=slider*0.12f;
 			float interaxial=slider*0.12f*10;
 
-			//adjust left gpu buffer fo 3D !
+			//adjust left gpu buffer for 3D !
 			{mtx44 m; loadIdentity44((float*)m); translateMatrix((float*)m, -interaxial*0.5f, 0.0f, 0.0f); gsAdjustBufferMatrices(m);}
 
 			//draw left framebuffer
