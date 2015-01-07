@@ -68,6 +68,36 @@ void initPortal(portal_s* p)
 	if(!p)return;
 
 	// p->position = vect3Df();
+	updatePortalOrientation(p, (vect3Df_s[]){vect3Df(0.0f, 0.0f, 1.0f), vect3Df(0.0f, 1.0f, 0.0f)}, vect3Df(1.0f, 0.0f, 0.0f));
+}
+
+void updatePortalOrientation(portal_s* p, vect3Df_s plane[2], vect3Df_s normal)
+{
+	if(!p)return;
+
+	p->plane[0] = plane[0];
+	p->plane[1] = plane[1];
+	p->normal = normal;
+		
+	p->matrix[0+0*4] = p->plane[0].x;
+	p->matrix[1+0*4] = p->plane[0].y;
+	p->matrix[2+0*4] = p->plane[0].z;
+	p->matrix[3+0*4] = 0.0f;
+	
+	p->matrix[0+1*4] = p->plane[1].x;
+	p->matrix[1+1*4] = p->plane[1].y;
+	p->matrix[2+1*4] = p->plane[1].z;
+	p->matrix[3+1*4] = 0.0f;
+
+	p->matrix[0+2*4] = p->normal.x;
+	p->matrix[1+2*4] = p->normal.y;
+	p->matrix[2+2*4] = p->normal.z;
+	p->matrix[3+2*4] = 0.0f;
+
+	p->matrix[0+3*4] = 0.0f;
+	p->matrix[1+3*4] = 0.0f;
+	p->matrix[2+3*4] = 0.0f;
+	p->matrix[3+3*4] = 1.0f;
 }
 
 void drawPortal(portal_s* p, renderSceneCallback callback, camera_s* c)
@@ -88,7 +118,7 @@ void drawPortal(portal_s* p, renderSceneCallback callback, camera_s* c)
 
 	gsPushMatrix();
 		gsTranslate(p->position.x, p->position.y, p->position.z);
-		gsRotateY(M_PI/2);
+		gsMultMatrix(p->matrix);
 
 		shaderInstanceSetBool(portalProgram.vertexShader, 0, true);
 		gsSetShader(&portalProgram);
@@ -118,5 +148,7 @@ void drawPortal(portal_s* p, renderSceneCallback callback, camera_s* c)
 	GPU_SetDepthTestAndWriteMask(true, GPU_GREATER, GPU_WRITE_ALL);
 	GPU_SetStencilTest(true, GPU_NOTEQUAL, 0x00, 0xFF, 0xFF);
 	GPU_SetStencilOp(GPU_KEEP, GPU_KEEP, GPU_KEEP);
+
+	gsRotateY(0.1f);
 	callback(c);
 }

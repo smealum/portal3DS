@@ -7,6 +7,8 @@
 typedef struct portal_s
 {
 	vect3Df_s position;
+	vect3Df_s normal, plane[2];
+	float matrix[4*4];
 }portal_s;
 
 typedef void (*renderSceneCallback)(camera_s* c);
@@ -16,5 +18,7 @@ void portalExit();
 
 void initPortal(portal_s* p);
 void drawPortal(portal_s* p, renderSceneCallback callback, camera_s* c);
+
+void updatePortalOrientation(portal_s* p, vect3Df_s plane[2], vect3Df_s normal);
 
 #endif
