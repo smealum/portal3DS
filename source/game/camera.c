@@ -11,6 +11,7 @@ void initCamera(camera_s* c)
 	if(!c)return;
 
 	initProjectionMatrix((float*)c->projection, 1.3962634f, 240.0f/400.0f, 0.01f, 1000.0f);
+	rotateMatrixZ((float*)c->projection, M_PI/2, false); //because framebuffer is sideways...
 	loadIdentity44((float*)c->orientation);
 	c->position=vect3Df(0.0f, 0.0f, 0.0f);
 
@@ -71,7 +72,6 @@ void updateCamera(camera_s* c)
 	if(!c)return;
 
 	memcpy(c->modelview, c->orientation, sizeof(mtx44));
-	rotateMatrixZ((float*)c->modelview, M_PI/2, true); //because framebuffer is sideways...
 	translateMatrix((float*)c->modelview, -c->position.x, -c->position.y, -c->position.z);
 
 	updateCameraFrustum(c);

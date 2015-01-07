@@ -27,7 +27,7 @@ camera_s testCamera;
 //object position and rotation angle
 vect3Df_s position, angle;
 
-portal_s testPortal;
+portal_s testPortal1, testPortal2;
 
 void drawBottom(u32* outBuffer, u32* outDepthBuffer)
 {
@@ -51,12 +51,16 @@ void drawScene(camera_s* c)
 {
 	if(!c)return;
 
-	// useCamera(&testCamera);
+	gsMatrixMode(GS_MODELVIEW);
+	gsPushMatrix();
+		gsLoadIdentity();
+		useCamera(c);
 
-	md2StartDrawing();
-	md2InstanceDraw(&gladosInstance);
+		md2StartDrawing();
+		md2InstanceDraw(&gladosInstance);
 
-	drawRoom(&testRoom);
+		drawRoom(&testRoom);
+	gsPopMatrix();
 }
 
 // topscreen
@@ -103,7 +107,8 @@ void renderFrame(u32* outBuffer, u32* outDepthBuffer)
 
 			drawScene(&testCamera);
 
-			drawPortal(&testPortal, drawScene, &testCamera);
+			drawPortal(&testPortal1, drawScene, &testCamera);
+			// drawPortal(&testPortal2, drawScene, &testCamera);
 
 		gsPopMatrix();
 
@@ -151,7 +156,13 @@ int main(int argc, char** argv)
 
 	//init portal
 	portalInit();
-	initPortal(&testPortal);
+	initPortal(&testPortal1);
+	initPortal(&testPortal2);
+
+	// updatePortalOrientation(&testPortal2, (vect3Df_s[]){vect3Df(-1.0f, 0.0f, 0.0f), vect3Df(0.0f, 1.0f, 0.0f)}, vect3Df(0.0f, 0.0f, 1.0f));
+
+	testPortal1.target = &testPortal2;
+	testPortal2.target = &testPortal1;
 
 	//background color (blue)
 	gsSetBackgroundColor(RGBA8(0x68, 0xB0, 0xD8, 0xFF));
@@ -179,10 +190,10 @@ int main(int argc, char** argv)
 		if(keysHeld()&KEY_CPAD_RIGHT)moveCamera(&testCamera, vect3Df(0.4f, 0.0f, 0.0f));
 
 
-		if(keysHeld()&KEY_X)testPortal.position = vaddf(testPortal.position, vect3Df(0.0f, 0.0f, -0.4f));
-		if(keysHeld()&KEY_B)testPortal.position = vaddf(testPortal.position, vect3Df(0.0f, 0.0f, 0.4f));
-		if(keysHeld()&KEY_Y)testPortal.position = vaddf(testPortal.position, vect3Df(-0.4f, 0.0f, 0.0f));
-		if(keysHeld()&KEY_A)testPortal.position = vaddf(testPortal.position, vect3Df(0.4f, 0.0f, 0.0f));
+		if(keysHeld()&KEY_X)testPortal1.position = vaddf(testPortal1.position, vect3Df(0.0f, 0.0f, -0.4f));
+		if(keysHeld()&KEY_B)testPortal1.position = vaddf(testPortal1.position, vect3Df(0.0f, 0.0f, 0.4f));
+		if(keysHeld()&KEY_Y)testPortal1.position = vaddf(testPortal1.position, vect3Df(-0.4f, 0.0f, 0.0f));
+		if(keysHeld()&KEY_A)testPortal1.position = vaddf(testPortal1.position, vect3Df(0.4f, 0.0f, 0.0f));
 
 		//R/L to bring object closer to or move it further from the camera
 		if(keysHeld()&KEY_R)angle.y+=0.01f;

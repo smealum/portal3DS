@@ -68,7 +68,8 @@ void initPortal(portal_s* p)
 	if(!p)return;
 
 	// p->position = vect3Df();
-	updatePortalOrientation(p, (vect3Df_s[]){vect3Df(0.0f, 0.0f, 1.0f), vect3Df(0.0f, 1.0f, 0.0f)}, vect3Df(1.0f, 0.0f, 0.0f));
+	p->target = NULL;
+	updatePortalOrientation(p, (vect3Df_s[]){vect3Df(0.0f, 0.0f, 1.0f), vect3Df(0.0f, 1.0f, 0.0f)}, vect3Df(-1.0f, 0.0f, 0.0f));
 }
 
 void updatePortalOrientation(portal_s* p, vect3Df_s plane[2], vect3Df_s normal)
@@ -98,6 +99,15 @@ void updatePortalOrientation(portal_s* p, vect3Df_s plane[2], vect3Df_s normal)
 	p->matrix[1+3*4] = 0.0f;
 	p->matrix[2+3*4] = 0.0f;
 	p->matrix[3+3*4] = 1.0f;
+}
+
+vect3Df_s warpVector(portal_s* p, vect3Df_s v)
+{
+	if(!p)return vect3Df(0.0f, 0.0f, 0.0f);
+	portal_s* p2=p->target;
+	if(!p2)return vect3Df(0.0f, 0.0f, 0.0f);
+	
+	return multMatrix44Vect3(p2->matrix, multMatrix44Vect3(p->matrix, v, false), true);
 }
 
 void drawPortal(portal_s* p, renderSceneCallback callback, camera_s* c)
@@ -149,6 +159,19 @@ void drawPortal(portal_s* p, renderSceneCallback callback, camera_s* c)
 	GPU_SetStencilTest(true, GPU_NOTEQUAL, 0x00, 0xFF, 0xFF);
 	GPU_SetStencilOp(GPU_KEEP, GPU_KEEP, GPU_KEEP);
 
-	gsRotateY(0.1f);
-	callback(c);
+	if(!p->target)return;
+
+	gsPushMatrix();
+		camera_s camera=*c;
+		float tmp1[4*4], tmp2[4*4];
+		transposeMatrix44(p->matrix, tmp1);
+		camera.position = vaddf(p->target->position, warpVector(p, vsubf(c->position, p->position)));
+		multMatrix44((float*)camera.orientation, tmp1, tmp2);
+		multMatrix44(tmp2, p->target->matrix, (float*)camera.orientation);
+
+		memcpy(camera.modelview, camera.orientation, sizeof(mtx44));
+		translateMatrix((float*)camera.modelview, -camera.position.x, -camera.position.y, -camera.position.z);
+
+		callback(&camera);
+	gsPopMatrix();
 }

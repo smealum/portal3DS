@@ -9,6 +9,7 @@ typedef struct portal_s
 	vect3Df_s position;
 	vect3Df_s normal, plane[2];
 	float matrix[4*4];
+	struct portal_s* target;
 }portal_s;
 
 typedef void (*renderSceneCallback)(camera_s* c);

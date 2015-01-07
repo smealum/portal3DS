@@ -23,11 +23,22 @@ void multMatrix33(float* m1, float* m2, float* m) //3x3
 	for(i=0;i<3;i++)for(j=0;j<3;j++)m[j+i*3]=(m1[0+i*3]*m2[j+0*3])+(m1[1+i*3]*m2[j+1*3])+(m1[2+i*3]*m2[j+2*3]);
 }
 
+void transposeMatrix44(float* m1, float* m2) //4x4
+{
+	int i, j;
+	for(i=0;i<4;i++)for(j=0;j<4;j++)m2[j+i*4]=m1[i+j*4];
+}
+
 void multMatrix44(float* m1, float* m2, float* m) //4x4
 {
 	int i, j;
 	for(i=0;i<4;i++)for(j=0;j<4;j++)m[i+j*4]=(m1[0+j*4]*m2[i+0*4])+(m1[1+j*4]*m2[i+1*4])+(m1[2+j*4]*m2[i+2*4])+(m1[3+j*4]*m2[i+3*4]);
+}
 
+vect3Df_s multMatrix44Vect3(float* m, vect3Df_s v, bool transpose)
+{
+	if(!transpose) return vect3Df(vdotf(v, vect3Df(m[0+0*4], m[1+0*4], m[2+0*4])), vdotf(v, vect3Df(m[0+1*4], m[1+1*4], m[2+1*4])), vdotf(v, vect3Df(m[0+2*4], m[1+2*4], m[2+2*4])));
+	else           return vect3Df(vdotf(v, vect3Df(m[0+0*4], m[0+1*4], m[0+2*4])), vdotf(v, vect3Df(m[1+0*4], m[1+1*4], m[1+2*4])), vdotf(v, vect3Df(m[2+0*4], m[2+1*4], m[2+2*4])));
 }
 
 void translateMatrix(float* tm, float x, float y, float z)
