@@ -41,6 +41,12 @@ vect3Df_s multMatrix44Vect3(float* m, vect3Df_s v, bool transpose)
 	else           return vect3Df(vdotf(v, vect3Df(m[0+0*4], m[0+1*4], m[0+2*4])), vdotf(v, vect3Df(m[1+0*4], m[1+1*4], m[1+2*4])), vdotf(v, vect3Df(m[2+0*4], m[2+1*4], m[2+2*4])));
 }
 
+vect4Df_s multMatrix44Vect4(float* m, vect4Df_s v, bool transpose)
+{
+	if(!transpose) return vect4Df(vdotf4(v, vect4Df(m[0+0*4], m[1+0*4], m[2+0*4], m[3+0*4])), vdotf4(v, vect4Df(m[0+1*4], m[1+1*4], m[2+1*4], m[3+1*4])), vdotf4(v, vect4Df(m[0+2*4], m[1+2*4], m[2+2*4], m[3+2*4])), vdotf4(v, vect4Df(m[0+3*4], m[1+3*4], m[2+3*4], m[3+3*4])));
+	else           return vect4Df(vdotf4(v, vect4Df(m[0+0*4], m[0+1*4], m[0+2*4], m[0+3*4])), vdotf4(v, vect4Df(m[1+0*4], m[1+1*4], m[1+2*4], m[1+3*4])), vdotf4(v, vect4Df(m[2+0*4], m[2+1*4], m[2+2*4], m[2+3*4])), vdotf4(v, vect4Df(m[3+0*4], m[3+1*4], m[3+2*4], m[3+3*4])));
+}
+
 void translateMatrix(float* tm, float x, float y, float z)
 {
 	float rm[16], m[16];

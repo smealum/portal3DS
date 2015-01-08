@@ -154,6 +154,7 @@ void loadIdentity44(float* m);
 void transposeMatrix44(float* m1, float* m2);
 void multMatrix44(float* m1, float* m2, float* m);
 vect3Df_s multMatrix44Vect3(float* m, vect3Df_s v, bool transpose);
+vect4Df_s multMatrix44Vect4(float* m, vect4Df_s v, bool transpose);
 
 void translateMatrix(float* tm, float x, float y, float z);
 void rotateMatrixX(float* tm, float x, bool r);

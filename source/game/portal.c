@@ -118,6 +118,68 @@ vect3Df_s warpPortalVector(portal_s* p, vect3Df_s v)
 	return multMatrix44Vect3(p2->matrix, v, false);
 }
 
+void GPU_SetScissorTest_(GPU_SCISSORMODE mode, u32 x, u32 y, u32 w, u32 h)
+{
+	u32 param[4];
+	
+	param[0x0] = mode;
+	param[0x1] = (y<<16)|(x&0xFFFF);
+	param[0x2] = ((h-1)<<16)|((w-1)&0xFFFF);
+	GPUCMD_AddIncrementalWrites(GPUREG_SCISSORTEST_MODE, param, 0x00000003);
+
+	//enable depth buffer
+	param[0x0]=0x0000000F;
+	param[0x1]=0x0000000F;
+	param[0x2]=0x00000002;
+	param[0x3]=0x00000002;
+	GPUCMD_AddIncrementalWrites(GPUREG_0112, param, 0x00000004);
+}
+
+void getPortalBoundingBox(portal_s* p, camera_s* c, vect3Di_s* topleft, vect3Di_s* bottomright)
+{
+	if(!p || !topleft || !bottomright)return;
+
+	vect3Df_s v;
+	float mX=1.0f, MX=-1.0f;
+	float mY=1.0f, MY=-1.0f;
+
+	v = projectPointCamera(c, vaddf(p->position, vect3Df(p->plane[0].x*PORTAL_WIDTH+p->plane[1].x*PORTAL_HEIGHT, p->plane[0].y*PORTAL_WIDTH+p->plane[1].y*PORTAL_HEIGHT, p->plane[0].z*PORTAL_WIDTH+p->plane[1].z*PORTAL_HEIGHT)));
+	if(v.x < mX) mX = v.x;
+	if(v.y < mY) mY = v.y;
+	if(v.x > MX) MX = v.x;
+	if(v.y > MY) MY = v.y;
+
+	v = projectPointCamera(c, vaddf(p->position, vect3Df(p->plane[0].x*PORTAL_WIDTH-p->plane[1].x*PORTAL_HEIGHT, p->plane[0].y*PORTAL_WIDTH-p->plane[1].y*PORTAL_HEIGHT, p->plane[0].z*PORTAL_WIDTH-p->plane[1].z*PORTAL_HEIGHT)));
+	if(v.x < mX) mX = v.x;
+	if(v.y < mY) mY = v.y;
+	if(v.x > MX) MX = v.x;
+	if(v.y > MY) MY = v.y;
+
+	v = projectPointCamera(c, vaddf(p->position, vect3Df(-p->plane[0].x*PORTAL_WIDTH-p->plane[1].x*PORTAL_HEIGHT, -p->plane[0].y*PORTAL_WIDTH-p->plane[1].y*PORTAL_HEIGHT, -p->plane[0].z*PORTAL_WIDTH-p->plane[1].z*PORTAL_HEIGHT)));
+	if(v.x < mX) mX = v.x;
+	if(v.y < mY) mY = v.y;
+	if(v.x > MX) MX = v.x;
+	if(v.y > MY) MY = v.y;
+
+	v = projectPointCamera(c, vaddf(p->position, vect3Df(-p->plane[0].x*PORTAL_WIDTH+p->plane[1].x*PORTAL_HEIGHT, -p->plane[0].y*PORTAL_WIDTH+p->plane[1].y*PORTAL_HEIGHT, -p->plane[0].z*PORTAL_WIDTH+p->plane[1].z*PORTAL_HEIGHT)));
+	if(v.x < mX) mX = v.x;
+	if(v.y < mY) mY = v.y;
+	if(v.x > MX) MX = v.x;
+	if(v.y > MY) MY = v.y;
+
+	topleft->x = (mX+1.0f)*240*2/2;
+	topleft->y = (mY+1.0f)*400/2;
+
+	bottomright->x = (MX+1.0f)*240*2/2;
+	bottomright->y = (MY+1.0f)*400/2;
+
+	if(topleft->x < 0) topleft->x = 0;
+	if(topleft->y < 0) topleft->y = 0;
+
+	if(bottomright->x > 240*2) bottomright->x = 240*2;
+	if(bottomright->y > 400) bottomright->y = 400;
+}
+
 void drawPortals(portal_s* portals[], int n, renderSceneCallback callback, camera_s* c)
 {
 	if(!portals || !portalVertexData || !callback || !c)return;
@@ -168,7 +230,7 @@ void drawPortals(portal_s* portals[], int n, renderSceneCallback callback, camer
 		for(i=0; i<n; i++)
 		{
 			portal_s* p = portals[i];
-			GPU_SetStencilTest(true, GPU_NOTEQUAL, 0x00, 0xFF, i+1);
+			GPU_SetStencilTest(true, GPU_EQUAL, i+1, 0xFF, 0x00);
 
 			gsPushMatrix();
 				gsTranslate(p->position.x, p->position.y, p->position.z);
@@ -190,6 +252,11 @@ void drawPortals(portal_s* portals[], int n, renderSceneCallback callback, camer
 		portal_s* p = portals[i];
 		
 		GPU_SetStencilTest(true, GPU_EQUAL, i+1, 0xFF, 0x00);
+
+		vect3Di_s bottomright, topleft;
+		getPortalBoundingBox(p, c, &topleft, &bottomright);
+
+		GPU_SetScissorTest_(GPU_SCISSOR_NORMAL, topleft.x, topleft.y, bottomright.x, bottomright.y);
 
 		gsPushMatrix();
 			camera_s camera=*c;

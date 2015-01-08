@@ -125,3 +125,14 @@ bool aabbInCameraFrustum(camera_s* c, vect3Df_s o, vect3Df_s s, int planes)
 	}
 	return true;
 }
+
+vect3Df_s projectPointCamera(camera_s* c, vect3Df_s p)
+{
+	if(!c)return vect3Df(0.0f, 0.0f, 0.0f);
+
+	vect4Df_s v = vect4Df(p.x, p.y, p.z, 1.0f);
+	v = multMatrix44Vect4((float*)c->modelview, v, false);
+	v = multMatrix44Vect4((float*)c->projection, v, false);
+
+	return vect3Df(v.x/v.w, v.y/v.w, v.z/v.w);
+}
