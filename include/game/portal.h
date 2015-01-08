@@ -20,6 +20,6 @@ void portalExit();
 void initPortal(portal_s* p);
 void drawPortal(portal_s* p, renderSceneCallback callback, camera_s* c);
 
-void updatePortalOrientation(portal_s* p, vect3Df_s plane[2], vect3Df_s normal);
+void updatePortalOrientation(portal_s* p, vect3Df_s plane0, vect3Df_s normal);
 
 #endif

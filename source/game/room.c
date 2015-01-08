@@ -119,6 +119,78 @@ void getRectangleUnitVectors(rectangle_s* rec, vect3Di_s* v1, vect3Di_s* v2)
 	}
 }
 
+bool collideLineRectangle(rectangle_s* rec, vect3Df_s o, vect3Df_s v, float d, float* kk, vect3Df_s* ip)
+{
+	if(!rec)return false;
+	vect3Df_s n=vect3Df(fabs(rec->normal.x),fabs(rec->normal.y),fabs(rec->normal.z));
+	float p1=vdotf(v,n);
+	if(fabs(p1)>0.001f)
+	{
+		vect3Df_s p=vect3Df(rec->position.x*TILESIZE_FLOAT*2, rec->position.y*HEIGHTUNIT_FLOAT, rec->position.z*TILESIZE_FLOAT*2);
+		vect3Df_s s=vect3Df(rec->size.x*TILESIZE_FLOAT*2, rec->size.y*HEIGHTUNIT_FLOAT, rec->size.z*TILESIZE_FLOAT*2);
+		
+		float p2=vdotf(vsubf(p,o),n);
+
+		float k=p2/p1;
+		s8 sign=((s.x>0)^(s.y<0)^(s.z>0)^(p1<0))?(-1):(1);
+		if(kk)
+		{
+			*kk=k+sign;
+		}
+		if(k<0 || k>d){return false;}
+		vect3Df_s i=vaddf(o,vmulf(v,k));
+		if(ip)*ip=i;
+		i=vsubf(i,p);
+		
+		bool r=true;
+		if(s.x)
+		{
+			if(s.x>0)r=r&&i.x<s.x&&i.x>=0;
+			else r=r&&i.x>s.x&&i.x<=0;
+		}
+		if(s.y)
+		{
+			if(s.y>0)r=r&&i.y<s.y&&i.y>=0;
+			else r=r&&i.y>s.y&&i.y<=0;
+		}
+		if(s.z)
+		{
+			if(s.z>0)r=r&&i.z<s.z&&i.z>=0;
+			else r=r&&i.z>s.z&&i.z<=0;
+		}
+		return r;
+	}
+	return false;
+}
+
+rectangle_s* collideLineMapClosest(room_s* r, rectangle_s* rec, vect3Df_s l, vect3Df_s u, float d, vect3Df_s* i, float* lk)
+{
+	if(!r)return NULL;
+	listCell_s *lc=r->rectangles.first;
+	vect3Df_s v;
+	float lowestK=d;
+	rectangle_s* hit=NULL;
+	while(lc)
+	{
+		if(&lc->data!=rec && lc->data.collides)
+		{
+			float k;
+			if(collideLineRectangle(&lc->data,l,u,lowestK,&k,&v))
+			{
+				if(k<lowestK)
+				{
+					if(i)*i=v;
+					if(lk)*lk=k;
+					lowestK=k;
+					hit=&lc->data;
+				}
+			}
+		}
+		lc=lc->next;
+	}
+	return hit;
+}
+
 int findTexture(texture_s* t, texture_s** tb, int n)
 {
 	if(!t || !tb)return -1;

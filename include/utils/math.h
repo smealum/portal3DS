@@ -98,6 +98,11 @@ static inline float vdotf(vect3Df_s v1, vect3Df_s v2)
 	return v1.x*v2.x+v1.y*v2.y+v1.z*v2.z;
 }
 
+static inline vect3Df_s vprodf(vect3Df_s v1, vect3Df_s v2)
+{
+	return vect3Df((v1.y*v2.z)-(v1.z*v2.y),(v1.z*v2.x)-(v1.x*v2.z),(v1.x*v2.y)-(v1.y*v2.x));
+}
+
 typedef struct
 {
 	float x, y, z, w;

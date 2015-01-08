@@ -20,7 +20,7 @@ void readVect3Df(vect3Df_s* v, FILE* f, bool fp)
 	if(fp)
 	{
 		s32 fpv[3];
-		fread(v, sizeof(s32), 3, f);
+		fread(fpv, sizeof(s32), 3, f);
 		v->x=f32tofloat(fpv[0]);
 		v->y=f32tofloat(fpv[1]);
 		v->z=f32tofloat(fpv[2]);
@@ -33,7 +33,7 @@ void readRectangle(rectangle_s* rec, FILE* f)
 	
 	readVect3Di(&rec->position, f);
 	readVect3Di(&rec->size, f);
-	readVect3Di(&rec->normal, f);
+	readVect3Df(&rec->normal, f, true);
 
 	// printf("rec : %d %d %d\n", rec->position.x, rec->position.y, rec->position.z);
 

@@ -69,45 +69,52 @@ void initPortal(portal_s* p)
 
 	// p->position = vect3Df();
 	p->target = NULL;
-	updatePortalOrientation(p, (vect3Df_s[]){vect3Df(0.0f, 0.0f, 1.0f), vect3Df(0.0f, 1.0f, 0.0f)}, vect3Df(-1.0f, 0.0f, 0.0f));
+	updatePortalOrientation(p, vect3Df(0.0f, 0.0f, 1.0f), vect3Df(-1.0f, 0.0f, 0.0f));
 }
 
-void updatePortalOrientation(portal_s* p, vect3Df_s plane[2], vect3Df_s normal)
+void updatePortalOrientation(portal_s* p, vect3Df_s plane0, vect3Df_s normal)
 {
 	if(!p)return;
 
-	p->plane[0] = plane[0];
-	p->plane[1] = plane[1];
 	p->normal = normal;
-		
+	p->plane[0] = plane0;
+	p->plane[1] = vprodf(p->normal, p->plane[0]);
+
+	printf("0 : %f %f %f\n", p->plane[0].x, p->plane[0].y, p->plane[0].z);
+	printf("1 : %f %f %f\n", p->plane[1].x, p->plane[1].y, p->plane[1].z);
+
 	p->matrix[0+0*4] = p->plane[0].x;
-	p->matrix[1+0*4] = p->plane[0].y;
-	p->matrix[2+0*4] = p->plane[0].z;
-	p->matrix[3+0*4] = 0.0f;
-	
-	p->matrix[0+1*4] = p->plane[1].x;
-	p->matrix[1+1*4] = p->plane[1].y;
-	p->matrix[2+1*4] = p->plane[1].z;
-	p->matrix[3+1*4] = 0.0f;
-
-	p->matrix[0+2*4] = p->normal.x;
-	p->matrix[1+2*4] = p->normal.y;
-	p->matrix[2+2*4] = p->normal.z;
-	p->matrix[3+2*4] = 0.0f;
-
+	p->matrix[0+1*4] = p->plane[0].y;
+	p->matrix[0+2*4] = p->plane[0].z;
 	p->matrix[0+3*4] = 0.0f;
+	
+	p->matrix[1+0*4] = p->plane[1].x;
+	p->matrix[1+1*4] = p->plane[1].y;
+	p->matrix[1+2*4] = p->plane[1].z;
 	p->matrix[1+3*4] = 0.0f;
+
+	p->matrix[2+0*4] = p->normal.x;
+	p->matrix[2+1*4] = p->normal.y;
+	p->matrix[2+2*4] = p->normal.z;
 	p->matrix[2+3*4] = 0.0f;
+
+	p->matrix[3+0*4] = 0.0f;
+	p->matrix[3+1*4] = 0.0f;
+	p->matrix[3+2*4] = 0.0f;
 	p->matrix[3+3*4] = 1.0f;
 }
 
-vect3Df_s warpVector(portal_s* p, vect3Df_s v)
+vect3Df_s warpPortalVector(portal_s* p, vect3Df_s v)
 {
 	if(!p)return vect3Df(0.0f, 0.0f, 0.0f);
 	portal_s* p2=p->target;
 	if(!p2)return vect3Df(0.0f, 0.0f, 0.0f);
+
+	vect3Df_s v2 = multMatrix44Vect3(p2->matrix, multMatrix44Vect3(p->matrix, v, true), false);
+
+	printf("%f, %f, %f\n", v2.x, v2.y, v2.z);
 	
-	return multMatrix44Vect3(p2->matrix, multMatrix44Vect3(p->matrix, v, false), true);
+	return multMatrix44Vect3(p2->matrix, multMatrix44Vect3(p->matrix, v, true), true);
 }
 
 void drawPortal(portal_s* p, renderSceneCallback callback, camera_s* c)
@@ -165,8 +172,8 @@ void drawPortal(portal_s* p, renderSceneCallback callback, camera_s* c)
 		camera_s camera=*c;
 		float tmp1[4*4], tmp2[4*4];
 		transposeMatrix44(p->matrix, tmp1);
-		camera.position = vaddf(p->target->position, warpVector(p, vsubf(c->position, p->position)));
-		multMatrix44((float*)camera.orientation, tmp1, tmp2);
+		camera.position = vaddf(p->target->position, warpPortalVector(p, vsubf(c->position, p->position)));
+		multMatrix44((float*)camera.orientation, p->matrix, tmp2);
 		multMatrix44(tmp2, p->target->matrix, (float*)camera.orientation);
 
 		memcpy(camera.modelview, camera.orientation, sizeof(mtx44));

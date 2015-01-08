@@ -159,7 +159,8 @@ int main(int argc, char** argv)
 	initPortal(&testPortal1);
 	initPortal(&testPortal2);
 
-	// updatePortalOrientation(&testPortal2, (vect3Df_s[]){vect3Df(-1.0f, 0.0f, 0.0f), vect3Df(0.0f, 1.0f, 0.0f)}, vect3Df(0.0f, 0.0f, 1.0f));
+	updatePortalOrientation(&testPortal2, vect3Df(1.0f, 0.0f, 0.0f), vect3Df(0.0f, 1.0f, 0.0f));
+	testPortal2.position.y-=4.0f;
 
 	testPortal1.target = &testPortal2;
 	testPortal2.target = &testPortal1;
@@ -195,9 +196,20 @@ int main(int argc, char** argv)
 		if(keysHeld()&KEY_Y)testPortal1.position = vaddf(testPortal1.position, vect3Df(-0.4f, 0.0f, 0.0f));
 		if(keysHeld()&KEY_A)testPortal1.position = vaddf(testPortal1.position, vect3Df(0.4f, 0.0f, 0.0f));
 
-		//R/L to bring object closer to or move it further from the camera
-		if(keysHeld()&KEY_R)angle.y+=0.01f;
-		if(keysHeld()&KEY_L)angle.y-=0.01f;
+		if(keysHeld()&KEY_R)
+		{
+			vect3Df_s position;
+			rectangle_s* rec = collideLineMapClosest(&testRoom, NULL, testCamera.position, vect3Df(-testCamera.orientation[2][0], -testCamera.orientation[2][1], -testCamera.orientation[2][2]), 1000.0f, &position, NULL);
+			if(rec)
+			{
+				printf("%p\n", rec);
+				vect3Df_s normal = rec->normal;
+				vect3Df_s plane0 = vect3Df(testCamera.orientation[0][0], testCamera.orientation[0][1], testCamera.orientation[0][2]);
+				plane0 = vnormf(vsubf(plane0, vmulf(normal, vdotf(normal, plane0))));
+				testPortal1.position = position;
+				updatePortalOrientation(&testPortal1, plane0, normal);
+			}
+		}
 
 		md2InstanceUpdate(&gladosInstance);
 		updateCamera(&testCamera);

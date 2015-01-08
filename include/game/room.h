@@ -12,7 +12,8 @@
 
 typedef struct
 {
-	vect3Di_s position, size, normal;
+	vect3Di_s position, size;
+	vect3Df_s normal;
 	material_s* material;
 	bool portalable, hide, touched, collides;
 }rectangle_s;
@@ -68,5 +69,7 @@ void generateRoomGeometry(room_s* r);
 rectangle_s* addRoomRectangle(room_s* r, rectangle_s rec);
 void removeRoomRectangles(room_s* r);
 void drawRoom(room_s* r);
+
+rectangle_s* collideLineMapClosest(room_s* r, rectangle_s* rec, vect3Df_s l, vect3Df_s u, float d, vect3Df_s* i, float* lk);
 
 #endif
