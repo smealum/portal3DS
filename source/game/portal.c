@@ -1,3 +1,5 @@
+#include <stdio.h>
+#include <string.h>
 #include <3ds.h>
 #include "game/portal.h"
 #include "utils/math.h"
@@ -80,9 +82,6 @@ void updatePortalOrientation(portal_s* p, vect3Df_s plane0, vect3Df_s normal)
 	p->plane[0] = plane0;
 	p->plane[1] = vprodf(p->normal, p->plane[0]);
 
-	printf("0 : %f %f %f\n", p->plane[0].x, p->plane[0].y, p->plane[0].z);
-	printf("1 : %f %f %f\n", p->plane[1].x, p->plane[1].y, p->plane[1].z);
-
 	p->matrix[0+0*4] = p->plane[0].x;
 	p->matrix[0+1*4] = p->plane[0].y;
 	p->matrix[0+2*4] = p->plane[0].z;
@@ -115,16 +114,14 @@ vect3Df_s warpPortalVector(portal_s* p, vect3Df_s v)
 	// rotation
 	v.x = -v.x;
 	v.z = -v.z;
-
-	vect3Df_s v2 = multMatrix44Vect3(p2->matrix, v, false);
-	printf("%f, %f, %f\n", v2.x, v2.y, v2.z);
 	
 	return multMatrix44Vect3(p2->matrix, v, false);
 }
 
-void drawPortal(portal_s* p, renderSceneCallback callback, camera_s* c)
+void drawPortals(portal_s* portals[], int n, renderSceneCallback callback, camera_s* c)
 {
-	if(!p || !portalVertexData || !callback || !c)return;
+	if(!portals || !portalVertexData || !callback || !c)return;
+	int i;
 
 	GPU_SetAttributeBuffers(
 		1, // number of attributes
@@ -139,53 +136,74 @@ void drawPortal(portal_s* p, renderSceneCallback callback, camera_s* c)
 		);
 
 	gsPushMatrix();
-		gsTranslate(p->position.x, p->position.y, p->position.z);
-		gsMultMatrix(p->matrix);
-
 		shaderInstanceSetBool(portalProgram.vertexShader, 0, true);
 		gsSetShader(&portalProgram);
 
-		gsUpdateTransformation();
-
-		// GPU_DrawArray(GPU_TRIANGLE_STRIP, portalOutlineNumVertices);
-
 		GPUCMD_AddWrite(GPUREG_ATTRIBBUFFER0_CONFIG0, (u32)portalVertexData-portalBaseAddr);
 
-		// GPU_SetDepthTestAndWriteMask(true, GPU_GEQUAL, GPU_WRITE_COLOR);
-		GPU_SetDepthTestAndWriteMask(true, GPU_ALWAYS, GPU_WRITE_COLOR);
-		GPU_SetStencilTest(true, GPU_ALWAYS, 0x00, 0xFF, 0xFF);
+		GPU_SetDepthTestAndWriteMask(true, GPU_GEQUAL, GPU_WRITE_COLOR);
 		GPU_SetStencilOp(GPU_KEEP, GPU_KEEP, GPU_XOR);
 
-		GPU_DrawArray(GPU_TRIANGLE_STRIP, portalNumVertices);
+		for(i=0; i<n; i++)
+		{
+			portal_s* p = portals[i];
+			GPU_SetStencilTest(true, GPU_ALWAYS, 0x00, 0xFF, i+1);
+
+			gsPushMatrix();
+				gsTranslate(p->position.x, p->position.y, p->position.z);
+				gsMultMatrix(p->matrix);
+
+				gsUpdateTransformation();
+
+				GPU_DrawArray(GPU_TRIANGLE_STRIP, portalNumVertices);
+			gsPopMatrix();
+		}
 
 		shaderInstanceSetBool(portalProgram.vertexShader, 0, false);
 		GPUCMD_AddWrite(GPUREG_VSH_BOOLUNIFORM, 0x7FFF0000|portalProgram.vertexShader->boolUniforms);
 
 		GPU_SetDepthTestAndWriteMask(true, GPU_ALWAYS, GPU_WRITE_ALL);
-		GPU_SetStencilTest(true, GPU_NOTEQUAL, 0x00, 0xFF, 0xFF);
 		GPU_SetStencilOp(GPU_KEEP, GPU_KEEP, GPU_KEEP);
 
-		GPU_DrawArray(GPU_TRIANGLE_STRIP, portalNumVertices);
+		for(i=0; i<n; i++)
+		{
+			portal_s* p = portals[i];
+			GPU_SetStencilTest(true, GPU_NOTEQUAL, 0x00, 0xFF, i+1);
+
+			gsPushMatrix();
+				gsTranslate(p->position.x, p->position.y, p->position.z);
+				gsMultMatrix(p->matrix);
+
+				gsUpdateTransformation();
+
+				GPU_DrawArray(GPU_TRIANGLE_STRIP, portalNumVertices);
+			gsPopMatrix();
+		}
+
 	gsPopMatrix();
 
 	GPU_SetDepthTestAndWriteMask(true, GPU_GREATER, GPU_WRITE_ALL);
-	GPU_SetStencilTest(true, GPU_NOTEQUAL, 0x00, 0xFF, 0xFF);
 	GPU_SetStencilOp(GPU_KEEP, GPU_KEEP, GPU_KEEP);
 
-	if(!p->target)return;
+	for(i=0; i<n; i++)
+	{
+		portal_s* p = portals[i];
+		
+		GPU_SetStencilTest(true, GPU_NOTEQUAL, 0x00, 0xFF, i+1);
 
-	gsPushMatrix();
-		camera_s camera=*c;
-		float tmp1[4*4], tmp2[4*4];
-		transposeMatrix44(p->target->matrix, tmp1);
-		camera.position = vaddf(p->target->position, warpPortalVector(p, vsubf(c->position, p->position)));
-		multMatrix44((float*)camera.orientation, p->matrix, tmp2);
-		rotateMatrixY(tmp1, M_PI, true);
-		multMatrix44(tmp2, tmp1, (float*)camera.orientation);
+		gsPushMatrix();
+			camera_s camera=*c;
+			float tmp1[4*4], tmp2[4*4];
+			transposeMatrix44(p->target->matrix, tmp1);
+			camera.position = vaddf(p->target->position, warpPortalVector(p, vsubf(c->position, p->position)));
+			multMatrix44((float*)camera.orientation, p->matrix, tmp2);
+			rotateMatrixY(tmp1, M_PI, true);
+			multMatrix44(tmp2, tmp1, (float*)camera.orientation);
 
-		memcpy(camera.modelview, camera.orientation, sizeof(mtx44));
-		translateMatrix((float*)camera.modelview, -camera.position.x, -camera.position.y, -camera.position.z);
+			memcpy(camera.modelview, camera.orientation, sizeof(mtx44));
+			translateMatrix((float*)camera.modelview, -camera.position.x, -camera.position.y, -camera.position.z);
 
-		callback(&camera);
-	gsPopMatrix();
+			callback(&camera);
+		gsPopMatrix();
+	}
 }

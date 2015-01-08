@@ -107,8 +107,7 @@ void renderFrame(u32* outBuffer, u32* outDepthBuffer)
 
 			drawScene(&testCamera);
 
-			drawPortal(&testPortal1, drawScene, &testCamera);
-			// drawPortal(&testPortal2, drawScene, &testCamera);
+			drawPortals((portal_s*[]){&testPortal1, &testPortal2}, 2, drawScene, &testCamera);
 
 		gsPopMatrix();
 

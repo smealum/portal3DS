@@ -550,14 +550,14 @@ void gsDrawFrame()
 
 			//clear the screen
 			GX_SetDisplayTransfer(NULL, (u32*)gsGpuOut, 0x019001E0, (u32*)gfxGetFramebuffer(GFX_TOP, GFX_LEFT, NULL, NULL), 0x019001E0, 0x01001000);
-			gspWaitForPPF();
+			// gspWaitForPPF();
 		}
 
 		gsDrawBottom(NULL, NULL);
 
 		//clear the screen
 		GX_SetMemoryFill(NULL, (u32*)gsGpuOut, gsBackgroundColor, (u32*)&gsGpuOut[0x2EE00], 0x201, (u32*)gsGpuDOut, 0x00000000, (u32*)&gsGpuDOut[0x2EE00], 0x201);
-		gspWaitForPSC0();
+		// gspWaitForPSC0();
 		gfxSwapBuffersGpu();
 	}
 }

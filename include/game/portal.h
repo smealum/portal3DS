@@ -18,7 +18,7 @@ void portalInit();
 void portalExit();
 
 void initPortal(portal_s* p);
-void drawPortal(portal_s* p, renderSceneCallback callback, camera_s* c);
+void drawPortals(portal_s* portals[], int n, renderSceneCallback callback, camera_s* c);
 
 void updatePortalOrientation(portal_s* p, vect3Df_s plane0, vect3Df_s normal);
 
