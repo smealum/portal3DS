@@ -189,7 +189,7 @@ void drawPortals(portal_s* portals[], int n, renderSceneCallback callback, camer
 	{
 		portal_s* p = portals[i];
 		
-		GPU_SetStencilTest(true, GPU_NOTEQUAL, 0x00, 0xFF, i+1);
+		GPU_SetStencilTest(true, GPU_EQUAL, i+1, 0xFF, 0x00);
 
 		gsPushMatrix();
 			camera_s camera=*c;

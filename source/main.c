@@ -28,6 +28,7 @@ camera_s testCamera;
 vect3Df_s position, angle;
 
 portal_s testPortal1, testPortal2;
+portal_s testPortal3, testPortal4;
 
 void drawBottom(u32* outBuffer, u32* outDepthBuffer)
 {
@@ -107,7 +108,7 @@ void renderFrame(u32* outBuffer, u32* outDepthBuffer)
 
 			drawScene(&testCamera);
 
-			drawPortals((portal_s*[]){&testPortal1, &testPortal2}, 2, drawScene, &testCamera);
+			drawPortals((portal_s*[]){&testPortal1, &testPortal2, &testPortal3, &testPortal4}, 4, drawScene, &testCamera);
 
 		gsPopMatrix();
 
@@ -157,12 +158,17 @@ int main(int argc, char** argv)
 	portalInit();
 	initPortal(&testPortal1);
 	initPortal(&testPortal2);
+	initPortal(&testPortal3);
+	initPortal(&testPortal4);
 
 	updatePortalOrientation(&testPortal2, vect3Df(1.0f, 0.0f, 0.0f), vect3Df(0.0f, 1.0f, 0.0f));
 	testPortal2.position.y-=4.0f;
 
 	testPortal1.target = &testPortal2;
 	testPortal2.target = &testPortal1;
+
+	testPortal3.target = &testPortal4;
+	testPortal4.target = &testPortal3;
 
 	//background color (blue)
 	gsSetBackgroundColor(RGBA8(0x68, 0xB0, 0xD8, 0xFF));
@@ -195,7 +201,7 @@ int main(int argc, char** argv)
 		if(keysHeld()&KEY_Y)testPortal1.position = vaddf(testPortal1.position, vect3Df(-0.4f, 0.0f, 0.0f));
 		if(keysHeld()&KEY_A)testPortal1.position = vaddf(testPortal1.position, vect3Df(0.4f, 0.0f, 0.0f));
 
-		if(keysHeld()&KEY_R || keysHeld()&KEY_L)
+		if(keysHeld()&KEY_R || keysHeld()&KEY_L || keysHeld()&KEY_ZR || keysHeld()&KEY_ZL)
 		{
 			vect3Df_s position;
 			rectangle_s* rec = collideLineMapClosest(&testRoom, NULL, testCamera.position, vect3Df(-testCamera.orientation[2][0], -testCamera.orientation[2][1], -testCamera.orientation[2][2]), 1000.0f, &position, NULL);
@@ -206,14 +212,24 @@ int main(int argc, char** argv)
 				vect3Df_s plane0 = vect3Df(testCamera.orientation[0][0], testCamera.orientation[0][1], testCamera.orientation[0][2]);
 				plane0 = vnormf(vsubf(plane0, vmulf(normal, vdotf(normal, plane0))));
 
+				position = vaddf(position, vmulf(normal, -0.05f));
+
 				if(keysHeld()&KEY_L)
 				{
 					testPortal2.position = position;
 					updatePortalOrientation(&testPortal2, plane0, normal);
-				}else
+				}else if(keysHeld()&KEY_R)
 				{
 					testPortal1.position = position;
 					updatePortalOrientation(&testPortal1, plane0, normal);
+				}else if(keysHeld()&KEY_ZL)
+				{
+					testPortal3.position = position;
+					updatePortalOrientation(&testPortal3, plane0, normal);
+				}else if(keysHeld()&KEY_ZR)
+				{
+					testPortal4.position = position;
+					updatePortalOrientation(&testPortal4, plane0, normal);
 				}
 			}
 		}
