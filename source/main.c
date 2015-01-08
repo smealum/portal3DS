@@ -196,7 +196,7 @@ int main(int argc, char** argv)
 		if(keysHeld()&KEY_Y)testPortal1.position = vaddf(testPortal1.position, vect3Df(-0.4f, 0.0f, 0.0f));
 		if(keysHeld()&KEY_A)testPortal1.position = vaddf(testPortal1.position, vect3Df(0.4f, 0.0f, 0.0f));
 
-		if(keysHeld()&KEY_R)
+		if(keysHeld()&KEY_R || keysHeld()&KEY_L)
 		{
 			vect3Df_s position;
 			rectangle_s* rec = collideLineMapClosest(&testRoom, NULL, testCamera.position, vect3Df(-testCamera.orientation[2][0], -testCamera.orientation[2][1], -testCamera.orientation[2][2]), 1000.0f, &position, NULL);
@@ -206,8 +206,16 @@ int main(int argc, char** argv)
 				vect3Df_s normal = rec->normal;
 				vect3Df_s plane0 = vect3Df(testCamera.orientation[0][0], testCamera.orientation[0][1], testCamera.orientation[0][2]);
 				plane0 = vnormf(vsubf(plane0, vmulf(normal, vdotf(normal, plane0))));
-				testPortal1.position = position;
-				updatePortalOrientation(&testPortal1, plane0, normal);
+
+				if(keysHeld()&KEY_L)
+				{
+					testPortal2.position = position;
+					updatePortalOrientation(&testPortal2, plane0, normal);
+				}else
+				{
+					testPortal1.position = position;
+					updatePortalOrientation(&testPortal1, plane0, normal);
+				}
 			}
 		}
 

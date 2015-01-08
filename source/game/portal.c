@@ -110,11 +110,16 @@ vect3Df_s warpPortalVector(portal_s* p, vect3Df_s v)
 	portal_s* p2=p->target;
 	if(!p2)return vect3Df(0.0f, 0.0f, 0.0f);
 
-	vect3Df_s v2 = multMatrix44Vect3(p2->matrix, multMatrix44Vect3(p->matrix, v, true), false);
+	v = multMatrix44Vect3(p->matrix, v, true);
 
+	// rotation
+	v.x = -v.x;
+	v.z = -v.z;
+
+	vect3Df_s v2 = multMatrix44Vect3(p2->matrix, v, false);
 	printf("%f, %f, %f\n", v2.x, v2.y, v2.z);
 	
-	return multMatrix44Vect3(p2->matrix, multMatrix44Vect3(p->matrix, v, true), true);
+	return multMatrix44Vect3(p2->matrix, v, false);
 }
 
 void drawPortal(portal_s* p, renderSceneCallback callback, camera_s* c)
@@ -146,7 +151,8 @@ void drawPortal(portal_s* p, renderSceneCallback callback, camera_s* c)
 
 		GPUCMD_AddWrite(GPUREG_ATTRIBBUFFER0_CONFIG0, (u32)portalVertexData-portalBaseAddr);
 
-		GPU_SetDepthTestAndWriteMask(true, GPU_GEQUAL, GPU_WRITE_COLOR);
+		// GPU_SetDepthTestAndWriteMask(true, GPU_GEQUAL, GPU_WRITE_COLOR);
+		GPU_SetDepthTestAndWriteMask(true, GPU_ALWAYS, GPU_WRITE_COLOR);
 		GPU_SetStencilTest(true, GPU_ALWAYS, 0x00, 0xFF, 0xFF);
 		GPU_SetStencilOp(GPU_KEEP, GPU_KEEP, GPU_XOR);
 
@@ -171,10 +177,11 @@ void drawPortal(portal_s* p, renderSceneCallback callback, camera_s* c)
 	gsPushMatrix();
 		camera_s camera=*c;
 		float tmp1[4*4], tmp2[4*4];
-		transposeMatrix44(p->matrix, tmp1);
+		transposeMatrix44(p->target->matrix, tmp1);
 		camera.position = vaddf(p->target->position, warpPortalVector(p, vsubf(c->position, p->position)));
 		multMatrix44((float*)camera.orientation, p->matrix, tmp2);
-		multMatrix44(tmp2, p->target->matrix, (float*)camera.orientation);
+		rotateMatrixY(tmp1, M_PI, true);
+		multMatrix44(tmp2, tmp1, (float*)camera.orientation);
 
 		memcpy(camera.modelview, camera.orientation, sizeof(mtx44));
 		translateMatrix((float*)camera.modelview, -camera.position.x, -camera.position.y, -camera.position.z);
