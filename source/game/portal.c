@@ -9,7 +9,7 @@
 
 #define PORTAL_HEIGHT (4.0f)
 #define PORTAL_WIDTH (2.0f)
-#define PORTAL_OUTLINE (0.1f)
+#define PORTAL_OUTLINE (0.2f)
 #define PORTAL_DETAIL (32)
 
 DVLB_s* portalDvlb;
@@ -180,9 +180,11 @@ void getPortalBoundingBox(portal_s* p, camera_s* c, vect3Di_s* topleft, vect3Di_
 	if(bottomright->y > 400) bottomright->y = 400;
 }
 
-void drawPortals(portal_s* portals[], int n, renderSceneCallback callback, camera_s* c)
+#define stencilValue(i, stencil) ((depth*n*2+(i)+1)^(stencil))
+
+void drawPortals(portal_s* portals[], int n, renderSceneCallback_t callback, camera_s* c, int depth, u8 stencil)
 {
-	if(!portals || !portalVertexData || !callback || !c)return;
+	if(!portals || !portalVertexData || !callback || !c || !depth)return;
 	int i;
 
 	GPU_SetAttributeBuffers(
@@ -201,6 +203,20 @@ void drawPortals(portal_s* portals[], int n, renderSceneCallback callback, camer
 		shaderInstanceSetBool(portalProgram.vertexShader, 0, true);
 		gsSetShader(&portalProgram);
 
+		for(i=0; i<n; i++)
+		{
+			portal_s* p = portals[i];
+
+			gsPushMatrix();
+				gsTranslate(p->position.x, p->position.y, p->position.z);
+				gsMultMatrix(p->matrix);
+
+				gsUpdateTransformation();
+
+				GPU_DrawArray(GPU_TRIANGLE_STRIP, portalNumVertices);
+			gsPopMatrix();
+		}
+
 		GPUCMD_AddWrite(GPUREG_ATTRIBBUFFER0_CONFIG0, (u32)portalVertexData-portalBaseAddr);
 
 		GPU_SetDepthTestAndWriteMask(true, GPU_GEQUAL, GPU_WRITE_COLOR);
@@ -209,7 +225,7 @@ void drawPortals(portal_s* portals[], int n, renderSceneCallback callback, camer
 		for(i=0; i<n; i++)
 		{
 			portal_s* p = portals[i];
-			GPU_SetStencilTest(true, GPU_ALWAYS, 0x00, 0xFF, i+1);
+			GPU_SetStencilTest(true, GPU_EQUAL, stencil, 0xFF, stencilValue(i, 0));
 
 			gsPushMatrix();
 				gsTranslate(p->position.x, p->position.y, p->position.z);
@@ -224,13 +240,13 @@ void drawPortals(portal_s* portals[], int n, renderSceneCallback callback, camer
 		shaderInstanceSetBool(portalProgram.vertexShader, 0, false);
 		GPUCMD_AddWrite(GPUREG_VSH_BOOLUNIFORM, 0x7FFF0000|portalProgram.vertexShader->boolUniforms);
 
-		GPU_SetDepthTestAndWriteMask(true, GPU_ALWAYS, GPU_WRITE_ALL);
+		GPU_SetDepthTestAndWriteMask(true, GPU_ALWAYS, GPU_WRITE_DEPTH);
 		GPU_SetStencilOp(GPU_KEEP, GPU_KEEP, GPU_KEEP);
 
 		for(i=0; i<n; i++)
 		{
 			portal_s* p = portals[i];
-			GPU_SetStencilTest(true, GPU_EQUAL, i+1, 0xFF, 0x00);
+			GPU_SetStencilTest(true, GPU_EQUAL, stencilValue(i, stencil), 0xFF, 0x00);
 
 			gsPushMatrix();
 				gsTranslate(p->position.x, p->position.y, p->position.z);
@@ -251,7 +267,7 @@ void drawPortals(portal_s* portals[], int n, renderSceneCallback callback, camer
 	{
 		portal_s* p = portals[i];
 		
-		GPU_SetStencilTest(true, GPU_EQUAL, i+1, 0xFF, 0x00);
+		GPU_SetStencilTest(true, GPU_EQUAL, stencilValue(i, stencil), 0xFF, 0x00);
 
 		vect3Di_s bottomright, topleft;
 		getPortalBoundingBox(p, c, &topleft, &bottomright);
@@ -270,7 +286,7 @@ void drawPortals(portal_s* portals[], int n, renderSceneCallback callback, camer
 			memcpy(camera.modelview, camera.orientation, sizeof(mtx44));
 			translateMatrix((float*)camera.modelview, -camera.position.x, -camera.position.y, -camera.position.z);
 
-			callback(&camera);
+			callback(&camera, depth-1, stencilValue(i, stencil));
 		gsPopMatrix();
 	}
 }

@@ -12,13 +12,13 @@ typedef struct portal_s
 	struct portal_s* target;
 }portal_s;
 
-typedef void (*renderSceneCallback)(camera_s* c);
+typedef void (*renderSceneCallback_t)(camera_s* c, int depth, u8 stencil);
 
 void portalInit();
 void portalExit();
 
 void initPortal(portal_s* p);
-void drawPortals(portal_s* portals[], int n, renderSceneCallback callback, camera_s* c);
+void drawPortals(portal_s* portals[], int n, renderSceneCallback_t callback, camera_s* c, int depth, u8 stencil);
 
 void updatePortalOrientation(portal_s* p, vect3Df_s plane0, vect3Df_s normal);
 

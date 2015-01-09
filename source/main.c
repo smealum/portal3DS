@@ -48,7 +48,7 @@ void GPU_SetDummyTexEnv(u8 num)
 		0xFFFFFFFF);
 }
 
-void drawScene(camera_s* c)
+void drawScene(camera_s* c, int depth, u8 stencil)
 {
 	if(!c)return;
 
@@ -61,6 +61,8 @@ void drawScene(camera_s* c)
 		md2InstanceDraw(&gladosInstance);
 
 		drawRoom(&testRoom);
+
+		drawPortals((portal_s*[]){&testPortal1, &testPortal2, &testPortal3, &testPortal4}, 4, drawScene, c, depth, stencil);
 	gsPopMatrix();
 }
 
@@ -102,15 +104,7 @@ void renderFrame(u32* outBuffer, u32* outDepthBuffer)
 
 	// //draw object
 		gsMatrixMode(GS_MODELVIEW);
-		gsPushMatrix();
-
-			useCamera(&testCamera);
-
-			drawScene(&testCamera);
-
-			drawPortals((portal_s*[]){&testPortal1, &testPortal2, &testPortal3, &testPortal4}, 4, drawScene, &testCamera);
-
-		gsPopMatrix();
+		drawScene(&testCamera, 2, 0);
 
 	GPU_FinishDrawing();
 }
