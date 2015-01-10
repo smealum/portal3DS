@@ -136,7 +136,7 @@ int main(int argc, char** argv)
 
 	//init md2
 	md2Init();
-	textureLoad(&gladosTexture, "glados.png", GPU_TEXTURE_MAG_FILTER(GPU_LINEAR)|GPU_TEXTURE_MIN_FILTER(GPU_LINEAR)|GPU_TEXTURE_WRAP_S(GPU_REPEAT)|GPU_TEXTURE_WRAP_T(GPU_REPEAT));
+	textureLoad(&gladosTexture, "glados.png", GPU_TEXTURE_MAG_FILTER(GPU_LINEAR)|GPU_TEXTURE_MIN_FILTER(GPU_LINEAR)|GPU_TEXTURE_WRAP_S(GPU_REPEAT)|GPU_TEXTURE_WRAP_T(GPU_REPEAT), 0);
 	md2ReadModel(&gladosModel, "glados.md2");
 	md2InstanceInit(&gladosInstance, &gladosModel, &gladosTexture);
 	md2InstanceChangeAnimation(&gladosInstance, 1, false);

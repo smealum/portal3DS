@@ -11,6 +11,7 @@ typedef struct
 	u32 width, height;
 	u32 param;
 	u32* data;
+	u8 mipmap;
 	bool used;
 }texture_s;
 
@@ -18,8 +19,8 @@ typedef struct
 void textureInit();
 void textureExit();
 
-texture_s* textureCreate(const char* fn, u32 param);
-int textureLoad(texture_s* t, const char* fn, u32 param);
+texture_s* textureCreate(const char* fn, u32 param, int mipmap);
+int textureLoad(texture_s* t, const char* fn, u32 param, int mipmap);
 void textureBind(texture_s* t, GPU_TEXUNIT unit);
 void textureFree(texture_s* t);
 

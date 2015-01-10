@@ -21,7 +21,7 @@ void textInit()
 	shaderProgramSetVsh(&textProgram, &textDvlb->DVLE[0]);
 	shaderProgramSetGsh(&textProgram, &textDvlb->DVLE[1], 4);
 
-	textureLoad(&textTexture, "font.png", GPU_TEXTURE_MAG_FILTER(GPU_NEAREST)|GPU_TEXTURE_MIN_FILTER(GPU_NEAREST));
+	textureLoad(&textTexture, "font.png", GPU_TEXTURE_MAG_FILTER(GPU_NEAREST)|GPU_TEXTURE_MIN_FILTER(GPU_NEAREST), 0);
 }
 
 void textExit()

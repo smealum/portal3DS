@@ -1,6 +1,7 @@
 #ifndef ROOM_H
 #define ROOM_H
 
+#include <stdio.h>
 #include <3ds.h>
 #include "utils/math.h"
 #include "game/material.h"

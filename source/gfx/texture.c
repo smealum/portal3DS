@@ -36,7 +36,7 @@ void textureExit()
 	}
 }
 
-texture_s* textureCreate(const char* fn, u32 param)
+texture_s* textureCreate(const char* fn, u32 param, int mipmap)
 {
 	if(!fn)return NULL;
 
@@ -45,16 +45,58 @@ texture_s* textureCreate(const char* fn, u32 param)
 	{
 		if(!textures[i].used)
 		{
-			if(!textureLoad(&textures[i], fn, param))return &textures[i];
+			if(!textureLoad(&textures[i], fn, param, mipmap))return &textures[i];
 			else return NULL;
 		}
 	}
 	return NULL;
 }
 
-int textureLoad(texture_s* t, const char* fn, u32 param)
+void tileImage(u32* src, u32* dst, int width, int height)
+{
+	if(!src || !dst)return;
+
+	int i, j, k, l;
+	l=0;
+	for(j=0; j<height; j+=8)
+	{
+		for(i=0; i<width; i+=8)
+		{
+			for(k=0; k<8*8; k++)
+			{
+				int x=i+tileOrder[k]%8;
+				int y=j+(tileOrder[k]-(x-i))/8;
+				u32 v=src[x+(height-1-y)*width];
+				dst[l++]=htonl(v);
+			}
+		}
+	}
+}
+
+// downscales by a factor of 2 on width and 2 on height
+void downscaleImage(u8* data, int width, int height)
+{
+	if(!data || !width || !height)return;
+
+	int i, j;
+	for(j=0; j<height; j++)
+	{
+		for(i=0; i<width; i++)
+		{
+			const u32 offset = (i+j*width)*4;
+			const u32 offset2 = (i*2+j*2*width*2)*4;
+			data[offset+0] = (data[offset2+0+0] + data[offset2+4+0] + data[offset2+width*4*2+0] + data[offset2+(width*2+1)*4+0]) / 4;
+			data[offset+1] = (data[offset2+0+1] + data[offset2+4+1] + data[offset2+width*4*2+1] + data[offset2+(width*2+1)*4+1]) / 4;
+			data[offset+2] = (data[offset2+0+2] + data[offset2+4+2] + data[offset2+width*4*2+2] + data[offset2+(width*2+1)*4+2]) / 4;
+			data[offset+3] = (data[offset2+0+3] + data[offset2+4+3] + data[offset2+width*4*2+3] + data[offset2+(width*2+1)*4+3]) / 4;
+		}
+	}
+}
+
+int textureLoad(texture_s* t, const char* fn, u32 param, int mipmap)
 {
 	if(!t || !fn || t->used)return -1;
+	if(mipmap < 0)return -1;
 
 	t->data=NULL;
 	t->filename=NULL;
@@ -63,23 +105,26 @@ int textureLoad(texture_s* t, const char* fn, u32 param)
 	unsigned int error=lodepng_decode32_file((unsigned char**)&buffer, (unsigned int*)&t->width, (unsigned int*)&t->height, fn);
 	if(error){printf("error %u: %s\n", error, lodepng_error_text(error)); return -2;}
 
-	t->data=linearMemAlign(4*t->width*t->height, 0x80); //textures need to be 0x80 byte aligned
+	int l=0; for(l=0; !(t->height&(1<<l)) && !(t->width&(1<<l)); l++);
+
+	if(mipmap>l)mipmap=l;
+
+	u32 size = 4*t->width*t->height;
+	size = ((size - (size >> (2*(mipmap+1)))) * 4) / 3; //geometric progression
+	t->data=linearMemAlign(size, 0x80); //textures need to be 0x80 byte aligned
 	if(!t->data){free(buffer); return -3;}
 
-	int i, j, k, l;
-	l=0;
-	for(j=0; j<t->height; j+=8)
+	tileImage(buffer, t->data, t->width, t->height);
+
+	u32 offset = t->width*t->height;
+	int level = 0;
+	int w = t->width/2, h = t->height/2;
+	for(level = 0; level < mipmap; level++)
 	{
-		for(i=0; i<t->width; i+=8)
-		{
-			for(k=0; k<8*8; k++)
-			{
-				int x=i+tileOrder[k]%8;
-				int y=j+(tileOrder[k]-(x-i))/8;
-				u32 v=buffer[x+(t->height-1-y)*t->width];
-				t->data[l++]=htonl(v);
-			}
-		}
+		downscaleImage((u8*)buffer, w, h);
+		tileImage(buffer, &t->data[offset], w, h);
+		offset += w*h;
+		w /= 2; h /= 2;
 	}
 
 	free(buffer);
@@ -88,6 +133,7 @@ int textureLoad(texture_s* t, const char* fn, u32 param)
 	t->filename=malloc(strlen(fn)+1);
 	if(t->filename)strcpy(t->filename, fn);
 
+	t->mipmap=mipmap;
 	t->used=true;
 
 	return 0;
@@ -98,6 +144,7 @@ void textureBind(texture_s* t, GPU_TEXUNIT unit)
 	if(!t)return;
 
 	GPU_SetTexture(unit, (u32*)osConvertVirtToPhys((u32)t->data), t->height, t->width, t->param, GPU_RGBA8);
+	GPUCMD_AddWrite(GPUREG_0084, t->mipmap<<16);
 }
 
 void textureFree(texture_s* t)

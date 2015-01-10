@@ -67,7 +67,7 @@ void loadMaterialSlice(materialSlice_s* ms, char* filename)
 {
 	if(ms)
 	{
-		ms->img=textureCreate(filename, GPU_TEXTURE_MAG_FILTER(GPU_LINEAR)|GPU_TEXTURE_MIN_FILTER(GPU_LINEAR)|GPU_TEXTURE_WRAP_S(GPU_REPEAT)|GPU_TEXTURE_WRAP_T(GPU_REPEAT));
+		ms->img=textureCreate(filename, GPU_TEXTURE_MAG_FILTER(GPU_LINEAR)|GPU_TEXTURE_MIN_FILTER(GPU_LINEAR)|GPU_TEXTURE_WRAP_S(GPU_REPEAT)|GPU_TEXTURE_WRAP_T(GPU_REPEAT), 10);
 		ms->align=false;
 		ms->factorX=1;
 		ms->factorY=1;
