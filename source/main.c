@@ -63,7 +63,7 @@ void drawScene(camera_s* c, int depth, u8 stencil)
 
 		drawRoom(&testRoom);
 
-		drawPortals((portal_s*[]){&testPortal1, &testPortal2, &testPortal3, &testPortal4}, 4, drawScene, c, depth, stencil);
+		drawPortals((portal_s*[]){&testPortal1, &testPortal2}, 2, drawScene, c, depth, stencil);
 	gsPopMatrix();
 }
 
@@ -105,10 +105,13 @@ void renderFrame(u32* outBuffer, u32* outDepthBuffer)
 
 	// //draw object
 		gsMatrixMode(GS_MODELVIEW);
+		drawPlayerGun(&testPlayer);
 		drawScene(&testPlayer.camera, 2, 0);
 
 	GPU_FinishDrawing();
 }
+
+float debugVal[10] = {1.3, -1.65, -3.1, -0.1};
 
 int main(int argc, char** argv)
 {
@@ -143,6 +146,7 @@ int main(int argc, char** argv)
 	md2InstanceChangeAnimation(&gladosInstance, 1, false);
 
 	//init player
+	playerInit();
 	initPlayer(&testPlayer);
 
 	//init room
@@ -179,55 +183,31 @@ int main(int argc, char** argv)
 		//START to exit to hbmenu
 		if(keysDown()&KEY_START)break;
 
-		//rotate object
-		if(keysHeld()&KEY_CSTICK_UP)rotatePlayer(&testPlayer, vect3Df(-0.05f, 0.0f, 0.0f));
-		if(keysHeld()&KEY_CSTICK_DOWN)rotatePlayer(&testPlayer, vect3Df(0.05f, 0.0f, 0.0f));
-		if(keysHeld()&KEY_CSTICK_LEFT)rotatePlayer(&testPlayer, vect3Df(0.0f, -0.05f, 0.0f));
-		if(keysHeld()&KEY_CSTICK_RIGHT)rotatePlayer(&testPlayer, vect3Df(0.0f, 0.05f, 0.0f));
+		circlePosition cstick;
+		irrstCstickRead(&cstick);
+		rotatePlayer(&testPlayer, vect3Df((abs(cstick.dy)<5)?0:(-cstick.dy*0.001f), (abs(cstick.dx)<5)?0:(cstick.dx*0.001f), 0.0f));
 
 		if(keysHeld()&KEY_CPAD_UP)movePlayer(&testPlayer, vect3Df(0.0f, 0.0f, -0.4f));
 		if(keysHeld()&KEY_CPAD_DOWN)movePlayer(&testPlayer, vect3Df(0.0f, 0.0f, 0.4f));
 		if(keysHeld()&KEY_CPAD_LEFT)movePlayer(&testPlayer, vect3Df(-0.4f, 0.0f, 0.0f));
 		if(keysHeld()&KEY_CPAD_RIGHT)movePlayer(&testPlayer, vect3Df(0.4f, 0.0f, 0.0f));
 
+		if(keysHeld()&KEY_X)debugVal[0]+=0.05f;
+		if(keysHeld()&KEY_B)debugVal[0]-=0.05f;
+		if(keysHeld()&KEY_Y)debugVal[1]+=0.05f;
+		if(keysHeld()&KEY_A)debugVal[1]-=0.05f;
 
-		if(keysHeld()&KEY_X)testPortal1.position = vaddf(testPortal1.position, vect3Df(0.0f, 0.0f, -0.4f));
-		if(keysHeld()&KEY_B)testPortal1.position = vaddf(testPortal1.position, vect3Df(0.0f, 0.0f, 0.4f));
-		if(keysHeld()&KEY_Y)testPortal1.position = vaddf(testPortal1.position, vect3Df(-0.4f, 0.0f, 0.0f));
-		if(keysHeld()&KEY_A)testPortal1.position = vaddf(testPortal1.position, vect3Df(0.4f, 0.0f, 0.0f));
+		if(keysHeld()&KEY_DUP)debugVal[2]+=0.05f;
+		if(keysHeld()&KEY_DDOWN)debugVal[2]-=0.05f;
+		if(keysHeld()&KEY_DLEFT)debugVal[3]+=0.05f;
+		if(keysHeld()&KEY_DRIGHT)debugVal[3]-=0.05f;
+		if(keysHeld()&KEY_ZL)debugVal[4]+=0.05f;
+		if(keysHeld()&KEY_ZR)debugVal[4]-=0.05f;
 
-		if(keysHeld()&KEY_R || keysHeld()&KEY_L || keysHeld()&KEY_ZR || keysHeld()&KEY_ZL)
-		{
-			vect3Df_s position;
-			rectangle_s* rec = collideLineMapClosest(&testRoom, NULL, testPlayer.camera.position, vect3Df(-testPlayer.camera.orientation[2][0], -testPlayer.camera.orientation[2][1], -testPlayer.camera.orientation[2][2]), 1000.0f, &position, NULL);
-			if(rec)
-			{
-				printf("%p\n", rec);
-				vect3Df_s normal = rec->normal;
-				vect3Df_s plane0 = vect3Df(testPlayer.camera.orientation[0][0], testPlayer.camera.orientation[0][1], testPlayer.camera.orientation[0][2]);
-				plane0 = vnormf(vsubf(plane0, vmulf(normal, vdotf(normal, plane0))));
+		printf("%f %f %f %f\n",debugVal[0],debugVal[1],debugVal[2],debugVal[3]);
 
-				position = vaddf(position, vmulf(normal, -0.05f));
-
-				if(keysHeld()&KEY_L)
-				{
-					testPortal2.position = position;
-					updatePortalOrientation(&testPortal2, plane0, normal);
-				}else if(keysHeld()&KEY_R)
-				{
-					testPortal1.position = position;
-					updatePortalOrientation(&testPortal1, plane0, normal);
-				}else if(keysHeld()&KEY_ZL)
-				{
-					testPortal3.position = position;
-					updatePortalOrientation(&testPortal3, plane0, normal);
-				}else if(keysHeld()&KEY_ZR)
-				{
-					testPortal4.position = position;
-					updatePortalOrientation(&testPortal4, plane0, normal);
-				}
-			}
-		}
+		if(keysDown()&KEY_R)shootPlayerGun(&testPlayer, &testRoom, &testPortal1);
+		if(keysDown()&KEY_L)shootPlayerGun(&testPlayer, &testRoom, &testPortal2);
 
 		md2InstanceUpdate(&gladosInstance);
 		updatePlayer(&testPlayer, &testRoom);
