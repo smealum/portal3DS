@@ -16,13 +16,14 @@
 #include "game/material.h"
 #include "game/room_io.h"
 #include "game/portal.h"
+#include "game/player.h"
 
 char* testString;
 md2_instance_t gladosInstance;
 md2_model_t gladosModel;
 texture_s gladosTexture;
 room_s testRoom;
-camera_s testCamera;
+player_s testPlayer;
 
 //object position and rotation angle
 vect3Df_s position, angle;
@@ -104,7 +105,7 @@ void renderFrame(u32* outBuffer, u32* outDepthBuffer)
 
 	// //draw object
 		gsMatrixMode(GS_MODELVIEW);
-		drawScene(&testCamera, 2, 0);
+		drawScene(&testPlayer.camera, 2, 0);
 
 	GPU_FinishDrawing();
 }
@@ -141,8 +142,8 @@ int main(int argc, char** argv)
 	md2InstanceInit(&gladosInstance, &gladosModel, &gladosTexture);
 	md2InstanceChangeAnimation(&gladosInstance, 1, false);
 
-	//init camera
-	initCamera(&testCamera);
+	//init player
+	initPlayer(&testPlayer);
 
 	//init room
 	roomInit();
@@ -167,7 +168,7 @@ int main(int argc, char** argv)
 	//background color (blue)
 	gsSetBackgroundColor(RGBA8(0x68, 0xB0, 0xD8, 0xFF));
 
-	rotateCamera(&testCamera, vect3Df(0.0f, M_PI, 0.0f));
+	rotatePlayer(&testPlayer, vect3Df(0.0f, M_PI, 0.0f));
 
 	printf("ready\n");
 
@@ -179,15 +180,15 @@ int main(int argc, char** argv)
 		if(keysDown()&KEY_START)break;
 
 		//rotate object
-		if(keysHeld()&KEY_CSTICK_UP)rotateCamera(&testCamera, vect3Df(-0.05f, 0.0f, 0.0f));
-		if(keysHeld()&KEY_CSTICK_DOWN)rotateCamera(&testCamera, vect3Df(0.05f, 0.0f, 0.0f));
-		if(keysHeld()&KEY_CSTICK_LEFT)rotateCamera(&testCamera, vect3Df(0.0f, -0.05f, 0.0f));
-		if(keysHeld()&KEY_CSTICK_RIGHT)rotateCamera(&testCamera, vect3Df(0.0f, 0.05f, 0.0f));
+		if(keysHeld()&KEY_CSTICK_UP)rotatePlayer(&testPlayer, vect3Df(-0.05f, 0.0f, 0.0f));
+		if(keysHeld()&KEY_CSTICK_DOWN)rotatePlayer(&testPlayer, vect3Df(0.05f, 0.0f, 0.0f));
+		if(keysHeld()&KEY_CSTICK_LEFT)rotatePlayer(&testPlayer, vect3Df(0.0f, -0.05f, 0.0f));
+		if(keysHeld()&KEY_CSTICK_RIGHT)rotatePlayer(&testPlayer, vect3Df(0.0f, 0.05f, 0.0f));
 
-		if(keysHeld()&KEY_CPAD_UP)moveCamera(&testCamera, vect3Df(0.0f, 0.0f, -0.4f));
-		if(keysHeld()&KEY_CPAD_DOWN)moveCamera(&testCamera, vect3Df(0.0f, 0.0f, 0.4f));
-		if(keysHeld()&KEY_CPAD_LEFT)moveCamera(&testCamera, vect3Df(-0.4f, 0.0f, 0.0f));
-		if(keysHeld()&KEY_CPAD_RIGHT)moveCamera(&testCamera, vect3Df(0.4f, 0.0f, 0.0f));
+		if(keysHeld()&KEY_CPAD_UP)movePlayer(&testPlayer, vect3Df(0.0f, 0.0f, -0.4f));
+		if(keysHeld()&KEY_CPAD_DOWN)movePlayer(&testPlayer, vect3Df(0.0f, 0.0f, 0.4f));
+		if(keysHeld()&KEY_CPAD_LEFT)movePlayer(&testPlayer, vect3Df(-0.4f, 0.0f, 0.0f));
+		if(keysHeld()&KEY_CPAD_RIGHT)movePlayer(&testPlayer, vect3Df(0.4f, 0.0f, 0.0f));
 
 
 		if(keysHeld()&KEY_X)testPortal1.position = vaddf(testPortal1.position, vect3Df(0.0f, 0.0f, -0.4f));
@@ -198,12 +199,12 @@ int main(int argc, char** argv)
 		if(keysHeld()&KEY_R || keysHeld()&KEY_L || keysHeld()&KEY_ZR || keysHeld()&KEY_ZL)
 		{
 			vect3Df_s position;
-			rectangle_s* rec = collideLineMapClosest(&testRoom, NULL, testCamera.position, vect3Df(-testCamera.orientation[2][0], -testCamera.orientation[2][1], -testCamera.orientation[2][2]), 1000.0f, &position, NULL);
+			rectangle_s* rec = collideLineMapClosest(&testRoom, NULL, testPlayer.camera.position, vect3Df(-testPlayer.camera.orientation[2][0], -testPlayer.camera.orientation[2][1], -testPlayer.camera.orientation[2][2]), 1000.0f, &position, NULL);
 			if(rec)
 			{
 				printf("%p\n", rec);
 				vect3Df_s normal = rec->normal;
-				vect3Df_s plane0 = vect3Df(testCamera.orientation[0][0], testCamera.orientation[0][1], testCamera.orientation[0][2]);
+				vect3Df_s plane0 = vect3Df(testPlayer.camera.orientation[0][0], testPlayer.camera.orientation[0][1], testPlayer.camera.orientation[0][2]);
 				plane0 = vnormf(vsubf(plane0, vmulf(normal, vdotf(normal, plane0))));
 
 				position = vaddf(position, vmulf(normal, -0.05f));
@@ -229,7 +230,7 @@ int main(int argc, char** argv)
 		}
 
 		md2InstanceUpdate(&gladosInstance);
-		updateCamera(&testCamera);
+		updatePlayer(&testPlayer, &testRoom);
 
 		gsDrawFrame();
 

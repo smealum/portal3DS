@@ -71,6 +71,8 @@ rectangle_s* addRoomRectangle(room_s* r, rectangle_s rec);
 void removeRoomRectangles(room_s* r);
 void drawRoom(room_s* r);
 
+vect3Df_s convertRectangleVector(vect3Di_s v);
+
 rectangle_s* collideLineMapClosest(room_s* r, rectangle_s* rec, vect3Df_s l, vect3Df_s u, float d, vect3Df_s* i, float* lk);
 
 #endif

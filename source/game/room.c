@@ -119,6 +119,11 @@ void getRectangleUnitVectors(rectangle_s* rec, vect3Di_s* v1, vect3Di_s* v2)
 	}
 }
 
+vect3Df_s convertRectangleVector(vect3Di_s v)
+{
+	return vect3Df(v.x*TILESIZE_FLOAT*2, v.y*HEIGHTUNIT_FLOAT, v.z*TILESIZE_FLOAT*2);
+}
+
 bool collideLineRectangle(rectangle_s* rec, vect3Df_s o, vect3Df_s v, float d, float* kk, vect3Df_s* ip)
 {
 	if(!rec)return false;
@@ -126,8 +131,8 @@ bool collideLineRectangle(rectangle_s* rec, vect3Df_s o, vect3Df_s v, float d, f
 	float p1=vdotf(v,n);
 	if(fabs(p1)>0.001f)
 	{
-		vect3Df_s p=vect3Df(rec->position.x*TILESIZE_FLOAT*2, rec->position.y*HEIGHTUNIT_FLOAT, rec->position.z*TILESIZE_FLOAT*2);
-		vect3Df_s s=vect3Df(rec->size.x*TILESIZE_FLOAT*2, rec->size.y*HEIGHTUNIT_FLOAT, rec->size.z*TILESIZE_FLOAT*2);
+		vect3Df_s p = convertRectangleVector(rec->position);
+		vect3Df_s s = convertRectangleVector(rec->size);
 		
 		float p2=vdotf(vsubf(p,o),n);
 
