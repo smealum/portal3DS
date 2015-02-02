@@ -17,6 +17,16 @@
 typedef float mtx44[4][4];
 typedef float mtx33[3][3];
 
+static inline float minf(float a, float b)
+{
+	return a<b?a:b;
+}
+
+static inline float maxf(float a, float b)
+{
+	return a>b?a:b;
+}
+
 typedef struct
 {
 	s32 x, y, z;
@@ -103,6 +113,13 @@ static inline vect3Df_s vprodf(vect3Df_s v1, vect3Df_s v2)
 	return vect3Df((v1.y*v2.z)-(v1.z*v2.y),(v1.z*v2.x)-(v1.x*v2.z),(v1.x*v2.y)-(v1.y*v2.x));
 }
 
+static inline vect3Df_s vevalf(float* m, vect3Df_s v) //3x3
+{
+	return vect3Df(((v.x*m[0])+(v.y*m[1])+(v.z*m[2])),
+				((v.x*m[3])+(v.y*m[4])+(v.z*m[5])),
+				((v.x*m[6])+(v.y*m[7])+(v.z*m[8])));
+}
+
 typedef struct
 {
 	float x, y, z, w;
@@ -164,6 +181,8 @@ void scaleMatrix(float* tm, float x, float y, float z);
 void rotateMatrixAxis(float* tm, float x, vect3Df_s a, bool r);
 
 void multMatrix33(float* m1, float* m2, float* m);
+void addMatrix33(float* m1, float* m2, float* m);
+void fixMatrix33(float* m);
 void transposeMatrix33(float* m1, float* m2);
 
 void initProjectionMatrix(float* m, float fovy, float aspect, float near, float far);

@@ -23,6 +23,39 @@ void multMatrix33(float* m1, float* m2, float* m) //3x3
 	for(i=0;i<3;i++)for(j=0;j<3;j++)m[j+i*3]=(m1[0+i*3]*m2[j+0*3])+(m1[1+i*3]*m2[j+1*3])+(m1[2+i*3]*m2[j+2*3]);
 }
 
+void addMatrix33(float* m1, float* m2, float* m) //3x3
+{
+	int i, j;
+	for(i=0;i<3;i++)for(j=0;j<3;j++)m[j+i*3]=m1[j+i*3]+m2[j+i*3];
+}
+
+void projectVectorPlane(vect3Df_s* v, vect3Df_s n)
+{
+	if(!v)return;
+	float r=vdotf(*v,n);
+	*v=vsubf(*v,vmulf(n,r));
+}
+
+void fixMatrix33(float* m) //3x3
+{
+	if(!m)return;
+	vect3Df_s x=vect3Df(m[0],m[3],m[6]);
+	vect3Df_s y=vect3Df(m[1],m[4],m[7]);
+	vect3Df_s z=vect3Df(m[2],m[5],m[8]);
+	
+	projectVectorPlane(&x,y);
+	projectVectorPlane(&z,y);
+	projectVectorPlane(&z,x);
+	
+	x=vnormf(x);
+	y=vnormf(y);
+	z=vnormf(z);
+	
+	m[0]=x.x;m[3]=x.y;m[6]=x.z;
+	m[1]=y.x;m[4]=y.y;m[7]=y.z;
+	m[2]=z.x;m[5]=z.y;m[8]=z.z;
+}
+
 void transposeMatrix44(float* m1, float* m2) //4x4
 {
 	int i, j;
@@ -179,6 +212,8 @@ void initProjectionMatrix(float* m, float fovy, float aspect, float near, float 
 	mp2[0xB]=-0.5;
 
 	multMatrix44(mp2, mp, m);
+
+	rotateMatrixZ(m, M_PI/2, false); //because framebuffer is sideways...
 }
 
 vect3Df_s getMatrixColumn(float* m, u8 i)

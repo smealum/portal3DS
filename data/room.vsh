@@ -9,6 +9,7 @@
 	.out o1, result.color, 0xF
 	.out o2, result.texcoord0, 0x3
 	.out o3, result.texcoord1, 0x3
+	.out o4, result.view, 0xF
 
 ; setup uniform map (required to use SHDR_GetUniformRegister)
 	.uniform c84, c87, projection      ; c84-c87 = projection matrix
@@ -25,6 +26,8 @@
 			dp4 r0,  c89,  v0  (0x1)
 			dp4 r0,  c90,  v0  (0x2)
 			mov r0,  c82       (0x3)
+
+			mov o4,   r0       (0x5)
 
 		; result.pos = projMtx * tempreg
 			dp4 o0,  c84,  r0  (0x0)

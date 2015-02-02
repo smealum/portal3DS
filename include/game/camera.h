@@ -24,7 +24,7 @@ void setCameraPosition(camera_s* c, vect3Df_s v);
 bool pointInCameraFrustum(camera_s* c, vect3Df_s pt);
 bool aabbInCameraFrustum(camera_s* c, vect3Df_s o, vect3Df_s s, int planes);
 
-vect3Df_s projectPointCamera(camera_s* c, vect3Df_s p);
+vect4Df_s projectPointCamera(camera_s* c, vect3Df_s p);
 vect3Df_s moveCameraVector(camera_s* c, vect3Df_s v);
 
 #endif

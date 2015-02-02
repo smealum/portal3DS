@@ -51,11 +51,11 @@ void drawPlayerGun(player_s* p)
 		gsLoadIdentity();
 
 		md2StartDrawing();
-		gsTranslate(debugVal[0], debugVal[1], debugVal[2]);
+		gsTranslate(1.3, -1.65, -3.1);
 		gsRotateY(p->tempAngle.y);
 		gsRotateX(-p->tempAngle.x);
-		gsRotateY(debugVal[4]);
-		gsRotateX(debugVal[3]);
+		gsRotateY(0.0);
+		gsRotateX(-0.1);
 		gsRotateZ(M_PI/2);
 		gsRotateY(-M_PI/2);
 		gsScale(1.0f/16, 1.0f/16, 1.0f/16);

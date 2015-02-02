@@ -18,6 +18,12 @@
 #include "game/portal.h"
 #include "game/player.h"
 
+#include "physics/OBB.h"
+
+#define RGB10(r, g, b) ((((r)&0x3FF)<<20)|(((g)&0x3FF)<<10)|(((b)&0x3FF)))
+
+float debugVal[10];
+
 char* testString;
 md2_instance_t gladosInstance;
 md2_model_t gladosModel;
@@ -88,8 +94,10 @@ void renderFrame(u32* outBuffer, u32* outDepthBuffer)
 	GPU_SetTextureEnable(GPU_TEXUNIT0);
 	
 	GPU_SetTexEnv(0, 
-		GPU_TEVSOURCES(GPU_TEXTURE0, GPU_PRIMARY_COLOR, GPU_PRIMARY_COLOR), 
 		GPU_TEVSOURCES(GPU_TEXTURE0, GPU_PRIMARY_COLOR, GPU_PRIMARY_COLOR),
+		GPU_TEVSOURCES(GPU_TEXTURE0, GPU_PRIMARY_COLOR, GPU_PRIMARY_COLOR),
+		// GPU_TEVSOURCES(0x1, 0x1, 0x1),
+		// GPU_TEVSOURCES(GPU_TEXTURE0, GPU_PRIMARY_COLOR, GPU_PRIMARY_COLOR),
 		GPU_TEVOPERANDS(0,0,0), 
 		GPU_TEVOPERANDS(0,0,0), 
 		GPU_MODULATE, GPU_MODULATE, 
@@ -99,6 +107,67 @@ void renderFrame(u32* outBuffer, u32* outDepthBuffer)
 	GPU_SetDummyTexEnv(3);
 	GPU_SetDummyTexEnv(4);
 	GPU_SetDummyTexEnv(5);
+
+	// // GPUCMD_AddMaskedWrite(GPUREG_01C6, 0x1, 0x00000001);
+	// GPUCMD_AddMaskedWrite(GPUREG_01C6, 0x1, 0x00000000);
+	// GPUCMD_AddMaskedWrite(GPUREG_008F, 0x1, 0x00000001);
+	// // GPUCMD_AddSingleParam(0x000100E0, 0x00000005);
+	// GPUCMD_AddSingleParam(0x000100E0, 0x00000000);
+	// GPUCMD_AddMaskedWrite(GPUREG_006D, 0x1, 0x00000001);
+
+	// static u32 param[0x100];
+
+	// param[0x0]=RGB10(0xFF, 0xFF, 0xFF);
+	// param[0x1]=0x00000000;
+	// param[0x2]=RGB10(0xFF, 0xFF, 0xFF);
+	// param[0x3]=RGB10(0x20, 0x20, 0x20);
+	// GPUCMD_Add(0x800F0140, param, 0x00000004);
+
+	// // param[0x0]=0x7A0E8000;
+	// // param[0x1]=0x0000EFC5;
+	// ((__fp16*)param)[0]=(__fp16)debugVal[0];
+	// ((__fp16*)param)[1]=(__fp16)debugVal[1];
+	// ((__fp16*)param)[2]=(__fp16)debugVal[2];
+	// GPUCMD_Add(0x800F0144, param, 0x00000002);
+
+	// // GPUCMD_AddSingleParam(0x00010149, 0x00000000);
+	// // GPUCMD_AddSingleParam(0x00010149, 0x00000001); // light type (directional ?)
+	// // GPUCMD_AddSingleParam(0x00010149, 0x00000002); // light type (point ?)
+	// // GPUCMD_AddSingleParam(0x00010149, 0x00000003); // light type (point ?)
+	// GPUCMD_AddSingleParam(0x00010149, 0x00000004); // light type
+
+	// // param[0x0]=0x000C3400;
+	// // param[0x1]=0x00033A36;
+	// param[0x0]=f32tof24(debugVal[3]);
+	// param[0x1]=f32tof24(debugVal[4]);
+	// GPUCMD_Add(0x8007014A, param, 0x00000002);
+
+	// GPUCMD_AddSingleParam(0x000F01C0, RGB10(0x00, 0x00, 0x00)); //global ambient
+
+	// GPUCMD_AddSingleParam(0x000101C2, 0x00000000); //num lights - 1
+	// GPUCMD_AddSingleParam(0x000F01D9, 0x00000000); //permutation
+
+	// // GPUCMD_AddSingleParam(0x000101C2, 0x00000003);
+	// // GPUCMD_AddSingleParam(0x000F01D9, 0x00003210);
+
+	// // GPUCMD_AddSingleParam(0x000F01C3, 0x80000400); //frag func0 ?
+	// // GPUCMD_AddSingleParam(0x000F01C3, 0x90000400);
+	// GPUCMD_AddSingleParam(0x000F01C3, 0x10000400);
+
+	// // GPUCMD_AddSingleParam(0x000B01C4, 0xFF00FFFF); //frag func1 ?
+	// GPUCMD_AddSingleParam(0x000B01C4, 0xF600FFFF);
+
+	// // GPUCMD_AddSingleParam(0x000401C4, 0x007F0000); //frag func1 ?
+	// GPUCMD_AddSingleParam(0x000401C4, 0x007E0000);
+
+	// param[0x0]=0x00000000;
+	// param[0x1]=0x00000000;
+	// param[0x2]=0x00000000;
+	// GPUCMD_Add(0x800F01D0, param, 0x00000003); //frag LUT selection ?
+
+	// param[0x0]=0x00BF0000;
+	// param[0x1]=0x00AF8000;
+	// GPUCMD_Add(0x8007004D, param, 0x00000002); //frag scaling factors ? (float24)
 
 	// textStartDrawing();
 	// textDrawString(0, 0, testString);
@@ -110,8 +179,6 @@ void renderFrame(u32* outBuffer, u32* outDepthBuffer)
 
 	GPU_FinishDrawing();
 }
-
-float debugVal[10] = {1.3, -1.65, -3.1, -0.1};
 
 int main(int argc, char** argv)
 {
@@ -169,6 +236,13 @@ int main(int argc, char** argv)
 	testPortal3.target = &testPortal4;
 	testPortal4.target = &testPortal3;
 
+	//init physics
+	initOBBs();
+	initAARs();
+	OBB_s* testObb = createOBB(0, vect3Df(1.0f, 1.0f, 1.0f), testPlayer.object.position, 1.0f, 1.0f, 0.0f);
+	AAR_s* testAar = createAAR(0, vaddf(testPlayer.object.position, vect3Df(-10.0f, -10.0f, -10.0f)), vect3Df(20.0f, 0.0f, 20.0f), vect3Df(0.0f, 1.0f, 0.0f));
+	generateGrid(NULL);
+
 	//background color (blue)
 	gsSetBackgroundColor(RGBA8(0x68, 0xB0, 0xD8, 0xFF));
 
@@ -192,25 +266,28 @@ int main(int argc, char** argv)
 		if(keysHeld()&KEY_CPAD_LEFT)movePlayer(&testPlayer, vect3Df(-0.4f, 0.0f, 0.0f));
 		if(keysHeld()&KEY_CPAD_RIGHT)movePlayer(&testPlayer, vect3Df(0.4f, 0.0f, 0.0f));
 
-		if(keysHeld()&KEY_X)debugVal[0]+=0.05f;
-		if(keysHeld()&KEY_B)debugVal[0]-=0.05f;
-		if(keysHeld()&KEY_Y)debugVal[1]+=0.05f;
-		if(keysHeld()&KEY_A)debugVal[1]-=0.05f;
+		if(keysHeld()&KEY_X)debugVal[0]+=0.05f*10;
+		if(keysHeld()&KEY_B)debugVal[0]-=0.05f*10;
+		if(keysHeld()&KEY_Y)debugVal[1]+=0.05f*10;
+		if(keysHeld()&KEY_A)debugVal[1]-=0.05f*10;
 
-		if(keysHeld()&KEY_DUP)debugVal[2]+=0.05f;
-		if(keysHeld()&KEY_DDOWN)debugVal[2]-=0.05f;
+		if(keysHeld()&KEY_DUP)debugVal[2]+=0.05f*10;
+		if(keysHeld()&KEY_DDOWN)debugVal[2]-=0.05f*10;
 		if(keysHeld()&KEY_DLEFT)debugVal[3]+=0.05f;
 		if(keysHeld()&KEY_DRIGHT)debugVal[3]-=0.05f;
 		if(keysHeld()&KEY_ZL)debugVal[4]+=0.05f;
 		if(keysHeld()&KEY_ZR)debugVal[4]-=0.05f;
 
-		printf("%f %f %f %f\n",debugVal[0],debugVal[1],debugVal[2],debugVal[3]);
+		// printf("%4.2f %4.2f %4.2f %4.2f %4.2f\n",debugVal[0],debugVal[1],debugVal[2],debugVal[3],debugVal[4]);
+		printf("%d : %f %f %f\n", (int)testObb->sleep, testObb->position.x, testObb->position.y, testObb->position.z);
 
 		if(keysDown()&KEY_R)shootPlayerGun(&testPlayer, &testRoom, &testPortal1);
 		if(keysDown()&KEY_L)shootPlayerGun(&testPlayer, &testRoom, &testPortal2);
 
 		md2InstanceUpdate(&gladosInstance);
 		updatePlayer(&testPlayer, &testRoom);
+
+		updateOBBs();
 
 		gsDrawFrame();
 

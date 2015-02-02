@@ -11,7 +11,6 @@ void initCamera(camera_s* c)
 	if(!c)return;
 
 	initProjectionMatrix((float*)c->projection, 1.3962634f, 240.0f/400.0f, 0.01f, 1000.0f);
-	rotateMatrixZ((float*)c->projection, M_PI/2, false); //because framebuffer is sideways...
 	loadIdentity44((float*)c->orientation);
 	c->position=vect3Df(0.0f, 0.0f, 0.0f);
 
@@ -130,13 +129,14 @@ bool aabbInCameraFrustum(camera_s* c, vect3Df_s o, vect3Df_s s, int planes)
 	return true;
 }
 
-vect3Df_s projectPointCamera(camera_s* c, vect3Df_s p)
+vect4Df_s projectPointCamera(camera_s* c, vect3Df_s p)
 {
-	if(!c)return vect3Df(0.0f, 0.0f, 0.0f);
+	if(!c)return vect4Df(0.0f, 0.0f, 0.0f, 0.0f);
 
 	vect4Df_s v = vect4Df(p.x, p.y, p.z, 1.0f);
 	v = multMatrix44Vect4((float*)c->modelview, v, false);
+	float depth = v.z / v.w;
 	v = multMatrix44Vect4((float*)c->projection, v, false);
 
-	return vect3Df(v.x/v.w, v.y/v.w, v.z/v.w);
+	return vect4Df(v.x/v.w, v.y/v.w, v.z/v.w, depth);
 }

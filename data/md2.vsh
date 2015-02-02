@@ -86,13 +86,15 @@
 	.const c81, -0.688191, -0.587785, -0.425320, 0.0
 
 	; stuff
-	.const c82, 82.0, 0.5774, 0.5, 1.0
+	.const c82, 82.0, 0.5774, 0.0, 1.0
  
 ; setup outmap
 	.out o0, result.position, 0xF
 	.out o1, result.color, 0xF
 	.out o2, result.texcoord0, 0x3
 	.out o3, result.texcoord1, 0x3
+	.out o4, result.view, 0xF
+	.out o5, result.normalquat, 0xF
 
 ; setup uniform map (required to use SHDR_GetUniformRegister)
 	.uniform c83, c83, frameParam      ; x = interp factor, y = 1 / skin width, z = 1 / skin height, w unused
@@ -146,6 +148,12 @@
 			dp4 r0,  c89,  r1  (0x1)
 			dp4 r0,  c90,  r1  (0x2)
 			mov r0,  c82       (0x3)
+
+		;mov o4, r0 (0x5)
+		mov o4, c82 (0xe)
+		mov o5, c82 (0xe)
+		;mov o5, r2 (0x6)
+		;mov o5, c82 (0x3)
 
 		; result.pos = projMtx * tempreg
 			dp4 o0,  c84,  r0  (0x0)
@@ -205,3 +213,4 @@
 	.opdesc xyzw, xxxx, wwww ; 0xb
 	.opdesc xyzw, -xxxx, wwww ; 0xc
 	.opdesc xy__, yzzz, xyzw ; 0xd
+	.opdesc xyzw, zzzw, xyzw ; 0xe
