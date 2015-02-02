@@ -70,6 +70,7 @@ void generateRoomGeometry(room_s* r);
 rectangle_s* addRoomRectangle(room_s* r, rectangle_s rec);
 void removeRoomRectangles(room_s* r);
 void drawRoom(room_s* r);
+void transferRoomRectangles(room_s* r);
 
 vect3Df_s convertRectangleVector(vect3Di_s v);
 

@@ -281,7 +281,7 @@ void drawPortals(portal_s* portals[], int n, renderSceneCallback_t callback, cam
 
 		GPU_SetScissorTest_(GPU_SCISSOR_NORMAL, topleft.x, topleft.y, bottomright.x, bottomright.y);
 
-		if(!i && depth==2)printf("%f\n",near);
+		// if(!i && depth==2)printf("%f\n",near);
 
 		gsPushMatrix();
 			camera_s camera=*c;

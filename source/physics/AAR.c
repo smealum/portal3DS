@@ -331,6 +331,7 @@ bool AAROBBContacts(AAR_s* a, OBB_s* o, vect3Df_s* v, bool port)
 		}
 	}else if(a->normal.y)
 	{
+		// printf("testing %4.2f, %4.2f, %4.2f\n", a->position.y, o->AABBo.y+o->AABBs.y, o->AABBo.y);
 		if(a->position.y>o->AABBo.y+o->AABBs.y || a->position.y<o->AABBo.y)return false;
 
 		int i;

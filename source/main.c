@@ -239,8 +239,9 @@ int main(int argc, char** argv)
 	//init physics
 	initOBBs();
 	initAARs();
-	OBB_s* testObb = createOBB(0, vect3Df(1.0f, 1.0f, 1.0f), testPlayer.object.position, 1.0f, 1.0f, 0.0f);
-	AAR_s* testAar = createAAR(0, vaddf(testPlayer.object.position, vect3Df(-10.0f, -10.0f, -10.0f)), vect3Df(20.0f, 0.0f, 20.0f), vect3Df(0.0f, 1.0f, 0.0f));
+	OBB_s* testObb = createOBB(0, vect3Df(1.0f, 1.0f, 1.0f), vaddf(testPlayer.object.position, vect3Df(0.0f, 0.0f, 10.0f)), 1.0f, 1.0f, 0.0f);
+	// AAR_s* testAar = createAAR(0, vaddf(testPlayer.object.position, vect3Df(-10.0f, -10.0f, -10.0f)), vect3Df(20.0f, 0.0f, 20.0f), vect3Df(0.0f, 1.0f, 0.0f));
+	transferRoomRectangles(&testRoom);
 	generateGrid(NULL);
 
 	//background color (blue)
