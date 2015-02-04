@@ -1,5 +1,5 @@
-#ifndef PHYSICS_H
-#define PHYSICS_H
+#ifndef POINTPHYSICS_H
+#define POINTPHYSICS_H
 
 #include "utils/math.h"
 #include "game/room.h"

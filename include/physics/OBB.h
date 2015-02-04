@@ -71,8 +71,8 @@ typedef struct
 
 extern OBB_s objects[NUMOBJECTS];
 
-void initOBB(OBB_s* o, vect3Df_s size, vect3Df_s pos, float mass, float cosine, float sine);
-void initTransformationMatrix(float* m, float cosine, float sine);
+void initOBB(OBB_s* o, vect3Df_s pos, vect3Df_s size, float mass, float angle);
+void initObbTransformationMatrix(float* m, float angle);
 void getOBBVertices(OBB_s* o, vect3Df_s* v);
 void drawOBB(OBB_s* o);
 void applyOBBImpulses(OBB_s* o);
@@ -83,7 +83,7 @@ void initOBBs(void);
 void updateOBBs(void);
 void drawOBBs(void);
 void wakeOBBs(void);
-OBB_s* createOBB(u8 id, vect3Df_s size, vect3Df_s position, float mass, float cosine, float sine);
+OBB_s* createOBB(vect3Df_s position, vect3Df_s size, float mass, float angle);
 void updateOBBPortals(OBB_s* o, u8 id, bool init);
 void getVertices(vect3Df_s s, vect3Df_s p, vect3Df_s u1, vect3Df_s u2, vect3Df_s u3, vect3Df_s* v);
 void collideOBBs(OBB_s* o1, OBB_s* o2);

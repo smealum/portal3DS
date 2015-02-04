@@ -26,7 +26,7 @@ static inline float divv(float a, float b) // b in 1-4096
 	return a/b;
 }
 
-void initOBB(OBB_s* o, vect3Df_s size, vect3Df_s pos, float mass, float cosine, float sine)
+void initOBB(OBB_s* o, vect3Df_s pos, vect3Df_s size, float mass, float angle)
 {
 	if(!o)return;
 	
@@ -46,7 +46,7 @@ void initOBB(OBB_s* o, vect3Df_s size, vect3Df_s pos, float mass, float cosine, 
 	o->moment=vect3Df(0,0,0);
 	o->forces=vect3Df(0,0,0);
 
-	initTransformationMatrix(o->transformationMatrix, cosine, sine);
+	initObbTransformationMatrix(o->transformationMatrix, angle);
 
 	float x2=(o->size.x * o->size.x);
 	float y2=(o->size.y * o->size.y);
@@ -436,7 +436,7 @@ void collideOBBs(OBB_s* o1, OBB_s* o2)
 	}
 }
 
-void initTransformationMatrix(float* m, float cosine, float sine)
+void initObbTransformationMatrix(float* m, float angle)
 {
 	if(!m)return;
 	int i;
@@ -444,11 +444,11 @@ void initTransformationMatrix(float* m, float cosine, float sine)
 
 	m[4]=(1.0f);
 
-	m[0]=cosine;
-	m[6]=sine;
+	m[0]=cos(angle);
+	m[6]=sin(angle);
 
-	m[2]=-sine;
-	m[8]=cosine;
+	m[2]=-sin(angle);
+	m[8]=cos(angle);
 }
 
 void getVertices(vect3Df_s s, vect3Df_s p, vect3Df_s u1, vect3Df_s u2, vect3Df_s u3, vect3Df_s* v)
@@ -913,14 +913,17 @@ void updateOBBs(void)
 	}
 }
 
-OBB_s* createOBB(u8 id, vect3Df_s size, vect3Df_s position, float mass, float cosine, float sine)
+OBB_s* createOBB(vect3Df_s position, vect3Df_s size, float mass, float angle)
 {
-	int i=id;
-		// if(!objects[i].used)
+	int i;
+	for(i=0;i<NUMOBJECTS;i++)
+	{
+		if(!objects[i].used)
 		{
-			initOBB(&objects[i],size,position,mass,cosine,sine);
+			initOBB(&objects[i], position, size, mass, angle);
 			return &objects[i];
 		}
+	}
 	return NULL;
 }
 

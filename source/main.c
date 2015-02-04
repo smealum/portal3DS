@@ -18,7 +18,7 @@
 #include "game/portal.h"
 #include "game/player.h"
 
-#include "physics/OBB.h"
+#include "physics/physics.h"
 
 #define RGB10(r, g, b) ((((r)&0x3FF)<<20)|(((g)&0x3FF)<<10)|(((b)&0x3FF)))
 
@@ -237,12 +237,11 @@ int main(int argc, char** argv)
 	testPortal4.target = &testPortal3;
 
 	//init physics
-	initOBBs();
-	initAARs();
-	OBB_s* testObb = createOBB(0, vect3Df(1.0f, 1.0f, 1.0f), vaddf(testPlayer.object.position, vect3Df(0.0f, 0.0f, 10.0f)), 1.0f, 1.0f, 0.0f);
-	// AAR_s* testAar = createAAR(0, vaddf(testPlayer.object.position, vect3Df(-10.0f, -10.0f, -10.0f)), vect3Df(20.0f, 0.0f, 20.0f), vect3Df(0.0f, 1.0f, 0.0f));
+	initPhysics();
+	OBB_s* testObb = NULL;
 	transferRoomRectangles(&testRoom);
 	generateGrid(NULL);
+	physicsCreateObb(&testObb, vaddf(testPlayer.object.position, vect3Df(0.0f, 0.0f, 10.0f)), vect3Df(1.0f, 1.0f, 1.0f), 1.0f, 0.0f);
 
 	//background color (blue)
 	gsSetBackgroundColor(RGBA8(0x68, 0xB0, 0xD8, 0xFF));
@@ -280,7 +279,7 @@ int main(int argc, char** argv)
 		if(keysHeld()&KEY_ZR)debugVal[4]-=0.05f;
 
 		// printf("%4.2f %4.2f %4.2f %4.2f %4.2f\n",debugVal[0],debugVal[1],debugVal[2],debugVal[3],debugVal[4]);
-		printf("%d : %f %f %f\n", (int)testObb->sleep, testObb->position.x, testObb->position.y, testObb->position.z);
+		if(testObb)printf("%d : %f %f %f\n", (int)testObb->sleep, testObb->position.x, testObb->position.y, testObb->position.z);
 
 		if(keysDown()&KEY_R)shootPlayerGun(&testPlayer, &testRoom, &testPortal1);
 		if(keysDown()&KEY_L)shootPlayerGun(&testPlayer, &testRoom, &testPortal2);
@@ -288,12 +287,12 @@ int main(int argc, char** argv)
 		md2InstanceUpdate(&gladosInstance);
 		updatePlayer(&testPlayer, &testRoom);
 
-		updateOBBs();
-
 		gsDrawFrame();
 
 		gspWaitForEvent(GSPEVENT_VBlank0, true);
 	}
+
+	exitPhysics();
 
 	gsExit();
 	gfxExit();
