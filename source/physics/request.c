@@ -37,7 +37,7 @@ request_s* createNewRequest(requestTypes_t t)
 	request_s* r=getNewRequest();
 	if(!r)return r;
 	r->type=t;
-	r->data=malloc(requestTypes[t].dataSize);
+	r->data=requestTypes[t].dataSize?malloc(requestTypes[t].dataSize):NULL;
 	return r;
 }
 
@@ -77,11 +77,62 @@ void requestCreateObbHandler(struct physicsThread_s* p, request_s* r)
 	if(!p || !r)return;
 	requestCreateObbData_s* d=(requestCreateObbData_s*)r->data;
 
-	if(d->out)*d->out = createOBB(d->position, d->size, d->mass, d->angle);
+	OBB_s* o = createOBB(d->position, d->size, d->mass, d->angle);
+	if(d->out)*d->out = o;
+}
+
+//REQUEST_CREATE_AAR
+typedef struct
+{
+	AAR_s** out;
+	vect3Df_s position, size, normal;
+}requestCreateAarData_s;
+
+request_s* createRequestCreateAar(AAR_s** out, vect3Df_s position, vect3Df_s size, vect3Df_s normal)
+{
+	request_s* r=createNewRequest(REQUEST_CREATE_AAR);
+	if(!r)return r;
+	requestCreateAarData_s* d=(requestCreateAarData_s*)r->data;
+
+	if(size.x<0){position.x+=size.x;size.x=-size.x;}
+	if(size.y<0){position.y+=size.y;size.y=-size.y;}
+	if(size.z<0){position.z+=size.z;size.z=-size.z;}
+
+	d->out = out;
+	d->position = position;
+	d->size = size;
+	d->normal = normal;
+
+	return r;
+}
+
+void requestCreateAarHandler(struct physicsThread_s* p, request_s* r)
+{
+	if(!p || !r)return;
+	requestCreateAarData_s* d=(requestCreateAarData_s*)r->data;
+
+	AAR_s* a = createAAR(d->position, d->size, d->normal);
+	if(d->out)*d->out = a;
+}
+
+//REQUEST_GENERATE_GRID
+
+request_s* createRequestGenerateGrid()
+{
+	return createNewRequest(REQUEST_GENERATE_GRID);
+}
+
+void requestGenerateGridHandler(struct physicsThread_s* p, request_s* r)
+{
+	if(!p || !r)return;
+
+	generateGrid(NULL);
 }
 
 requestType_s requestTypes[NUM_REQUEST_TYPES]= {
 	(requestType_s){requestCreateObbHandler, sizeof(requestCreateObbData_s)}, // REQUEST_CREATE_OBB
+	(requestType_s){requestCreateAarHandler, sizeof(requestCreateAarData_s)}, // REQUEST_CREATE_AAR
+	(requestType_s){requestGenerateGridHandler, 0}, // REQUEST_GENERATE_GRID
 };
 
 //request

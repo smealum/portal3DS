@@ -38,7 +38,7 @@ void toggleAAR(u16 id);
 void generateGrid(grid_s* g);
 void updateAAR(u16 id, vect3Df_s position);
 void AARsOBBContacts(OBB_s* o, bool sleep);
-AAR_s* createAAR(u16 id, vect3Df_s position, vect3Df_s size, vect3Df_s normal);
+AAR_s* createAAR(vect3Df_s position, vect3Df_s size, vect3Df_s normal);
 bool AAROBBContacts(AAR_s* a, OBB_s* o, vect3Df_s* v, bool port);
 
 #endif

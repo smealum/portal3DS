@@ -240,7 +240,7 @@ int main(int argc, char** argv)
 	initPhysics();
 	OBB_s* testObb = NULL;
 	transferRoomRectangles(&testRoom);
-	generateGrid(NULL);
+	physicsGenerateGrid();
 	physicsCreateObb(&testObb, vaddf(testPlayer.object.position, vect3Df(0.0f, 0.0f, 10.0f)), vect3Df(1.0f, 1.0f, 1.0f), 1.0f, 0.0f);
 
 	//background color (blue)

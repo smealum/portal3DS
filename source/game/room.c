@@ -6,7 +6,7 @@
 #include "game/room.h"
 #include "gfx/gs.h"
 
-#include "physics/AAR.h"
+#include "physics/physics.h"
 
 #include "room_vsh_shbin.h"
 
@@ -92,20 +92,6 @@ void initRoom(room_s* r, u16 w, u16 h, vect3Df_s p)
 	// }else r->materials=NULL;
 }
 
-s16 transferRoomRectangle(int i, vect3Df_s pos, vect3Df_s size, vect3Df_s normal)
-{
-	if(size.x<0){pos.x+=size.x;size.x=-size.x;}
-	if(size.y<0){pos.y+=size.y;size.y=-size.y;}
-	if(size.z<0){pos.z+=size.z;size.z=-size.z;}
-	if(normal.y)
-	{
-		printf("%f %f %f\n",pos.x,pos.y,pos.z);
-		printf("%f %f %f\n",size.x,size.y,size.z);
-		printf("%f %f %f\n",normal.x,normal.y,normal.z);
-	}
-	return createAAR(i, pos, size, vmulf(normal,-1.0f));
-}
-
 void transferRoomRectangles(room_s* r)
 {
 	if(!r)return;
@@ -114,8 +100,7 @@ void transferRoomRectangles(room_s* r)
 	while(lc)
 	{
 		// lc->data.AARid=
-		// transferRoomRectangle(i, vaddf(convertRectangleVector(vect3Di(r->position.x,0,r->position.y)), convertRectangleVector(lc->data.position)), convertRectangleVector(lc->data.size), lc->data.normal);
-		transferRoomRectangle(i, convertRectangleVector(lc->data.position), convertRectangleVector(lc->data.size), lc->data.normal);
+		physicsCreateAar(NULL, convertRectangleVector(lc->data.position), convertRectangleVector(lc->data.size), vmulf(lc->data.normal, -1.0f));
 		lc=lc->next;
 		i++;
 	}

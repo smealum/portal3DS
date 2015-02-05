@@ -139,21 +139,20 @@ void getOBBNodes(grid_s* g, OBB_s* o, u16* x, u16* X, u16* z, u16* Z)
 	*X=M.x/NODESIZE;*Z=M.z/NODESIZE;
 }
 
-AAR_s* createAAR(u16 id, vect3Df_s position, vect3Df_s size, vect3Df_s normal)
+AAR_s* createAAR(vect3Df_s position, vect3Df_s size, vect3Df_s normal)
 {
-	int i=id;
-	// for(i=0;i<NUMAARS;i++)
-	// {
+	int i;
+	for(i=0;i<NUMAARS;i++)
+	{
 		if(!aaRectangles[i].used)
 		{
 			aaRectangles[i].used=true;
 			aaRectangles[i].position=position;
 			aaRectangles[i].size=size;
 			aaRectangles[i].normal=normal;
-			// fifoSendValue32(FIFO_USER_08,i);
 			return &aaRectangles[i];
 		}
-	// }
+	}
 	return NULL;
 }
 
@@ -407,6 +406,8 @@ bool AAROBBContacts(AAR_s* a, OBB_s* o, vect3Df_s* v, bool port)
 
 void AARsOBBContacts(OBB_s* o, bool sleep)
 {
+	if(!o || !AARgrid.nodes)return;
+
 	int i, j, k;
 	// bool port=portal[0].used&&portal[1].used;
 	bool port=false;
@@ -419,6 +420,10 @@ void AARsOBBContacts(OBB_s* o, bool sleep)
 		bool lalala[NUMAARS];
 		for(i=0;i<NUMAARS;i++)lalala[i]=0;
 		o->groundID=-1;
+		x = maxi(x, 0);
+		X = mini(X, AARgrid.width);
+		z = maxi(z, 0);
+		Z = mini(Z, AARgrid.height);
 		for(i=x;i<=X;i++)
 		{
 			for(j=z;j<=Z;j++)

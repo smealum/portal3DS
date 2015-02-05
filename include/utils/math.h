@@ -27,6 +27,16 @@ static inline float maxf(float a, float b)
 	return a>b?a:b;
 }
 
+static inline int mini(int a, int b)
+{
+	return a<b?a:b;
+}
+
+static inline int maxi(int a, int b)
+{
+	return a>b?a:b;
+}
+
 typedef struct
 {
 	s32 x, y, z;
