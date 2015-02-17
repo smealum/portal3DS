@@ -56,6 +56,7 @@ void gsRotateZ(float z);
 void gsScale(float x, float y, float z);
 void gsTranslate(float x, float y, float z);
 int gsMultMatrix(float* data);
+int gsMultMatrix3(float* data);
 
 int gsVboInit(gsVbo_s* vbo);
 int gsVboCreate(gsVbo_s* vbo, u32 size);

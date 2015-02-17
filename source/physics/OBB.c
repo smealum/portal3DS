@@ -2,6 +2,7 @@
 #include "physics/PIC.h"
 #include "physics/OBB.h"
 #include "game/portal.h"
+#include "gfx/gs.h"
 
 #define TIMEPREC (6)
 
@@ -26,7 +27,7 @@ static inline float divv(float a, float b) // b in 1-4096
 	return a/b;
 }
 
-void initOBB(OBB_s* o, vect3Df_s pos, vect3Df_s size, float mass, float angle)
+void initOBB(OBB_s* o, vect3Df_s pos, vect3Df_s size, md2_instance_t* model, float mass, float angle)
 {
 	if(!o)return;
 	
@@ -68,6 +69,8 @@ void initOBB(OBB_s* o, vect3Df_s pos, vect3Df_s size, float mass, float angle)
 	// 	updateOBBPortals(o,0,true);
 	// 	updateOBBPortals(o,1,true);
 	// }
+
+	o->modelInstance=model;
 }
 
 void initOBBs(void)
@@ -913,14 +916,15 @@ void updateOBBs(void)
 	}
 }
 
-OBB_s* createOBB(vect3Df_s position, vect3Df_s size, float mass, float angle)
+OBB_s* createOBB(vect3Df_s position, vect3Df_s size, md2_instance_t* model, float mass, float angle)
 {
 	int i;
 	for(i=0;i<NUMOBJECTS;i++)
 	{
 		if(!objects[i].used)
 		{
-			initOBB(&objects[i], position, size, mass, angle);
+			initOBB(&objects[i], position, size, model, mass, angle);
+			printf("created object %d\n",i);
 			return &objects[i];
 		}
 	}
@@ -934,6 +938,7 @@ void drawOBBs(void)
 	{
 		if(objects[i].used)
 		{
+			if(keysHeld()&KEY_SELECT)printf("drawing object %d %p\n",i,objects[i].modelInstance);
 			drawOBB(&objects[i]);
 		}
 	}
@@ -941,5 +946,13 @@ void drawOBBs(void)
 
 void drawOBB(OBB_s* o)
 {
+	if(!o || !o->modelInstance)return;
 
+	gsPushMatrix();
+		md2StartDrawing();
+		gsTranslate(o->position.x,o->position.y,o->position.z);
+		gsMultMatrix3(o->transformationMatrix);
+		if(keysHeld()&KEY_SELECT)printf("D%d : %f %f %f\n", (int)o->sleep, o->position.x, o->position.y, o->position.z);
+		md2InstanceDraw(o->modelInstance);
+	gsPopMatrix();
 }

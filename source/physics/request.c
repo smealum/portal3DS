@@ -54,10 +54,11 @@ typedef struct
 {
 	OBB_s** out;
 	vect3Df_s position, size;
+	md2_instance_t* model;
 	float mass, angle;
 }requestCreateObbData_s;
 
-request_s* createRequestCreateObb(OBB_s** out, vect3Df_s position, vect3Df_s size, float mass, float angle)
+request_s* createRequestCreateObb(OBB_s** out, vect3Df_s position, vect3Df_s size, md2_instance_t* model, float mass, float angle)
 {
 	request_s* r=createNewRequest(REQUEST_CREATE_OBB);
 	if(!r)return r;
@@ -66,6 +67,7 @@ request_s* createRequestCreateObb(OBB_s** out, vect3Df_s position, vect3Df_s siz
 	d->out = out;
 	d->position = position;
 	d->size = size;
+	d->model = model;
 	d->mass = mass;
 	d->angle = angle;
 
@@ -77,7 +79,7 @@ void requestCreateObbHandler(struct physicsThread_s* p, request_s* r)
 	if(!p || !r)return;
 	requestCreateObbData_s* d=(requestCreateObbData_s*)r->data;
 
-	OBB_s* o = createOBB(d->position, d->size, d->mass, d->angle);
+	OBB_s* o = createOBB(d->position, d->size, d->model, d->mass, d->angle);
 	if(d->out)*d->out = o;
 }
 

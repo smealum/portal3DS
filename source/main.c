@@ -25,6 +25,9 @@
 
 float debugVal[10];
 
+extern md2_model_t cubeModel, cubeDispenserModel;
+extern texture_s storageCubeTexture, companionCubeTexture, cubeDispenserTexture;
+
 char* testString;
 md2_instance_t gladosInstance;
 md2_model_t gladosModel;
@@ -71,6 +74,7 @@ void drawScene(camera_s* c, int depth, u8 stencil)
 		drawRoom(&testRoom);
 
 		drawCubeDispensers();
+		drawOBBs();
 
 		drawPortals((portal_s*[]){&testPortal1, &testPortal2}, 2, drawScene, c, depth, stencil);
 	gsPopMatrix();
@@ -249,7 +253,9 @@ int main(int argc, char** argv)
 	OBB_s* testObb = NULL;
 	transferRoomRectangles(&testRoom);
 	physicsGenerateGrid();
-	physicsCreateObb(&testObb, vaddf(testPlayer.object.position, vect3Df(0.0f, 0.0f, 10.0f)), vect3Df(1.0f, 1.0f, 1.0f), 1.0f, 0.0f);
+	md2_instance_t modelInstance;
+	md2InstanceInit(&modelInstance, &cubeModel, &companionCubeTexture);
+	physicsCreateObb(&testObb, vaddf(testPlayer.object.position, vect3Df(0.0f, 0.0f, 10.0f)), vect3Df(1.0f, 1.0f, 1.0f), &modelInstance, 1.0f, 0.0f);
 
 	//background color (blue)
 	gsSetBackgroundColor(RGBA8(0x68, 0xB0, 0xD8, 0xFF));

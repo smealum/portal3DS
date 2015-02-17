@@ -38,7 +38,7 @@ void readRectangle(rectangle_s* rec, FILE* f)
 	readVect3Di(&rec->size, f);
 	readVect3Df(&rec->normal, f, true);
 
-	printf("rec : %d %d %d\n", rec->position.x, rec->position.y, rec->position.z);
+	// printf("rec : %d %d %d\n", rec->position.x, rec->position.y, rec->position.z);
 
 	fread(&rec->portalable, sizeof(bool), 1, f);
 	

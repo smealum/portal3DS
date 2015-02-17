@@ -222,6 +222,20 @@ int gsMultMatrix(float* data)
 	return 0;
 }
 
+int gsMultMatrix3(float* data)
+{
+	if(!data)return -1;
+	
+	mtx44 tmp;
+	loadIdentity44((float*)tmp);
+	memcpy(&tmp[0][0], &data[0], sizeof(float)*3);
+	memcpy(&tmp[1][0], &data[3], sizeof(float)*3);
+	memcpy(&tmp[2][0], &data[3*2], sizeof(float)*3);
+	gsMultMatrix((float*)tmp);
+
+	return 0;
+}
+
 void gsLoadIdentity()
 {
 	loadIdentity44(gsGetMatrix(gsCurrentMatrixType));
@@ -514,14 +528,14 @@ void gsDrawFrame()
 			float interaxial=slider*0.12f*10;
 
 			//adjust left gpu buffer for 3D !
-			{mtx44 m; loadIdentity44((float*)m); translateMatrix((float*)m, -interaxial*0.5f, 0.0f, 0.0f); gsAdjustBufferMatrices(m);}
+			{mtx44 m; loadIdentity44((float*)m); translateMatrix((float*)m, interaxial*0.5f, 0.0f, 0.0f); gsAdjustBufferMatrices(m);}
 
 			//draw left framebuffer
 			GPUCMD_FlushAndRun(NULL);
 
 			//while GPU starts drawing the left buffer, adjust right one for 3D !
 			GPUCMD_SetBuffer(gsGpuCmdRight, gsGpuCmdSize, offset);
-			{mtx44 m; loadIdentity44((float*)m); translateMatrix((float*)m, interaxial*0.5f, 0.0f, 0.0f); gsAdjustBufferMatrices(m);}
+			{mtx44 m; loadIdentity44((float*)m); translateMatrix((float*)m, -interaxial*0.5f, 0.0f, 0.0f); gsAdjustBufferMatrices(m);}
 
 			//we wait for the left buffer to finish drawing
 			gspWaitForP3D();
