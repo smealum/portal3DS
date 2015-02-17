@@ -90,7 +90,7 @@ void md2ComputeAnimations(md2_model_t* mdl)
 {
 	if(!mdl || !mdl->frames || !mdl->header.num_frames)return;
 
-	int i, n=0;
+	int i, n=1;
 	char* oldstr=mdl->frames[0].name;
 
 	for(i=0; i<mdl->header.num_frames; i++)

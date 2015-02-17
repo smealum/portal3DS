@@ -7,6 +7,7 @@
 cubeDispenser_s cubeDispenser[NUMCUBEDISPENSERS];
 md2_model_t cubeModel, cubeDispenserModel;
 texture_s storageCubeTexture, companionCubeTexture, cubeDispenserTexture;
+md2_instance_t storageCubeModelInstance, companionCubeModelInstance;
 
 void initCubes(void)
 {
@@ -23,6 +24,9 @@ void initCubes(void)
 	textureLoad(&storageCubeTexture, "storagecube.png", GPU_TEXTURE_MAG_FILTER(GPU_LINEAR)|GPU_TEXTURE_MIN_FILTER(GPU_LINEAR), 0);
 	textureLoad(&companionCubeTexture, "companion.png", GPU_TEXTURE_MAG_FILTER(GPU_LINEAR)|GPU_TEXTURE_MIN_FILTER(GPU_LINEAR), 0);
 	textureLoad(&cubeDispenserTexture, "cubedispenser.png", GPU_TEXTURE_MAG_FILTER(GPU_LINEAR)|GPU_TEXTURE_MIN_FILTER(GPU_LINEAR), 0);
+
+	md2InstanceInit(&storageCubeModelInstance, &cubeModel, &storageCubeTexture);
+	md2InstanceInit(&companionCubeModelInstance, &cubeModel, &companionCubeTexture);
 }
 
 void exitCubes(void)
@@ -84,8 +88,6 @@ void initCubeDispenser(room_s* r, cubeDispenser_s* cd, vect3Di_s pos, bool compa
 	// pos=vect3Di(pos.x+r->position.x, pos.y, pos.z+r->position.y);
 	cd->position=convertRectangleVector(pos);
 
-	printf("disp %f %f %f\n",cd->position.x,cd->position.y,cd->position.z);
-	
 	cd->companion=companion;
 	cd->currentCube=NULL;
 	
@@ -137,7 +139,7 @@ void resetCubeDispenserCube(cubeDispenser_s* cd)
 {
 	if(!cd)return;
 
-	// resetBox(cd->currentCube, vectMultInt(cd->position,4));
+	// if(cd->currentCube)resetBox(cd->currentCube, vectMultInt(cd->position,4));
 	md2InstanceChangeAnimation(&cd->modelInstance,1,true);
 }
 
@@ -145,23 +147,21 @@ void updateCubeDispenser(cubeDispenser_s* cd)
 {
 	if(!cd)return;
 
-	return;
-	
-	// if(cd->currentCube && !cd->currentCube->used)cd->currentCube=NULL;
-	// if(cd->active && !cd->oldActive)
-	// {
-	// 	if(!cd->currentCube)
-	// 	{
-	// 		cd->currentCube=createBox(vectMultInt(cd->position,4),inttof32(1),(cd->companion)?(&companionCubeModel):(&storageCubeModel),0);
-	// 		if(cd->currentCube)cd->currentCube->spawner=(void*)cd;
-	// 	}else{
-	// 		createEmancipator(&cd->currentCube->modelInstance,vectDivInt(cd->currentCube->position,4),cd->currentCube->transformationMatrix);
-	// 		if(cd->id==gravityGunTarget)gravityGunTarget=-1;
-	// 		resetCubeDispenserCube(cd);
-	// 	}
-	// 	md2InstanceChangeAnimation(&cd->modelInstance,1,true);
-	// }
-	
+	if(cd->currentCube && !cd->currentCube->used)cd->currentCube=NULL;
+	if(cd->active && !cd->oldActive)
+	{
+		if(!cd->currentCube)
+		{
+			physicsCreateObb(&cd->currentCube, cd->position, vect3Df(1.0f, 1.0f, 1.0f), (cd->companion)?(&companionCubeModelInstance):(&storageCubeModelInstance), 1.0f, 0.0f);
+			// if(cd->currentCube)cd->currentCube->spawner=(void*)cd;
+		}else{
+			// createEmancipator(&cd->currentCube->modelInstance,vectDivInt(cd->currentCube->position,4),cd->currentCube->transformationMatrix);
+			// if(cd->id==gravityGunTarget)gravityGunTarget=-1;
+			resetCubeDispenserCube(cd);
+		}
+		md2InstanceChangeAnimation(&cd->modelInstance,1,true);
+	}
+
 	md2InstanceUpdate(&cd->modelInstance);
 	cd->oldActive=cd->active;
 }

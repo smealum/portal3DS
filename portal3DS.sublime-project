@@ -1,0 +1,21 @@
+{
+	"folders":
+	[
+		{
+			"follow_symlinks": true,
+			"path": "source"
+		},
+		{
+			"follow_symlinks": true,
+			"path": "include"
+		},
+		{
+			"follow_symlinks": true,
+			"path": "C:\\devkitPro\\ctrulib\\libctru\\source"
+		},
+		{
+			"follow_symlinks": true,
+			"path": "C:\\devkitPro\\ctrulib\\libctru\\include"
+		}
+	]
+}
