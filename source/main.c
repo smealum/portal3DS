@@ -17,6 +17,7 @@
 #include "game/room_io.h"
 #include "game/portal.h"
 #include "game/player.h"
+#include "game/cubes.h"
 
 #include "physics/physics.h"
 
@@ -68,6 +69,8 @@ void drawScene(camera_s* c, int depth, u8 stencil)
 		md2InstanceDraw(&gladosInstance);
 
 		drawRoom(&testRoom);
+
+		drawCubeDispensers();
 
 		drawPortals((portal_s*[]){&testPortal1, &testPortal2}, 2, drawScene, c, depth, stencil);
 	gsPopMatrix();
@@ -216,6 +219,12 @@ int main(int argc, char** argv)
 	playerInit();
 	initPlayer(&testPlayer);
 
+	//init physics
+	initPhysics();
+
+	//init game elements
+	initCubes();
+
 	//init room
 	roomInit();
 	readRoom("test1.map", &testRoom, MAP_READ_ENTITIES);
@@ -237,7 +246,6 @@ int main(int argc, char** argv)
 	testPortal4.target = &testPortal3;
 
 	//init physics
-	initPhysics();
 	OBB_s* testObb = NULL;
 	transferRoomRectangles(&testRoom);
 	physicsGenerateGrid();
@@ -266,10 +274,13 @@ int main(int argc, char** argv)
 		if(keysHeld()&KEY_CPAD_LEFT)movePlayer(&testPlayer, vect3Df(-0.4f, 0.0f, 0.0f));
 		if(keysHeld()&KEY_CPAD_RIGHT)movePlayer(&testPlayer, vect3Df(0.4f, 0.0f, 0.0f));
 
-		if(keysHeld()&KEY_X)debugVal[0]+=0.05f*10;
-		if(keysHeld()&KEY_B)debugVal[0]-=0.05f*10;
-		if(keysHeld()&KEY_Y)debugVal[1]+=0.05f*10;
-		if(keysHeld()&KEY_A)debugVal[1]-=0.05f*10;
+		// if(keysHeld()&KEY_X)debugVal[0]+=0.05f*10;
+		// if(keysHeld()&KEY_B)debugVal[0]-=0.05f*10;
+		// if(keysHeld()&KEY_Y)debugVal[1]+=0.05f*10;
+		// if(keysHeld()&KEY_A)debugVal[1]-=0.05f*10;
+
+		if(keysHeld()&KEY_X)movePlayer(&testPlayer, vect3Df(0.0f, 0.4f, 0.0f));
+		if(keysHeld()&KEY_B)movePlayer(&testPlayer, vect3Df(0.0f, -0.4f, 0.0f));
 
 		if(keysHeld()&KEY_DUP)debugVal[2]+=0.05f*10;
 		if(keysHeld()&KEY_DDOWN)debugVal[2]-=0.05f*10;
@@ -279,7 +290,7 @@ int main(int argc, char** argv)
 		if(keysHeld()&KEY_ZR)debugVal[4]-=0.05f;
 
 		// printf("%4.2f %4.2f %4.2f %4.2f %4.2f\n",debugVal[0],debugVal[1],debugVal[2],debugVal[3],debugVal[4]);
-		if(testObb)printf("%d : %f %f %f\n", (int)testObb->sleep, testObb->position.x, testObb->position.y, testObb->position.z);
+		if(testObb && keysHeld()&KEY_SELECT)printf("%d : %f %f %f\n", (int)testObb->sleep, testObb->position.x, testObb->position.y, testObb->position.z);
 
 		if(keysDown()&KEY_R)shootPlayerGun(&testPlayer, &testRoom, &testPortal1);
 		if(keysDown()&KEY_L)shootPlayerGun(&testPlayer, &testRoom, &testPortal2);
@@ -287,11 +298,14 @@ int main(int argc, char** argv)
 		md2InstanceUpdate(&gladosInstance);
 		updatePlayer(&testPlayer, &testRoom);
 
+		updateCubeDispensers();
+
 		gsDrawFrame();
 
 		gspWaitForEvent(GSPEVENT_VBlank0, true);
 	}
 
+	exitCubes();
 	exitPhysics();
 
 	gsExit();

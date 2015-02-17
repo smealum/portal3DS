@@ -136,6 +136,8 @@ int textureLoad(texture_s* t, const char* fn, u32 param, int mipmap)
 	t->mipmap=mipmap;
 	t->used=true;
 
+	printf("successfully read texture\n");
+
 	return 0;
 }
 

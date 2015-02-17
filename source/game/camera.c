@@ -58,7 +58,9 @@ vect3Df_s moveCameraVector(camera_s* c, vect3Df_s v)
 	if(!c)NULL;
 	
 	vect3Df_s v1=vect3Df(c->orientation[2][0],c->orientation[2][1],c->orientation[2][2]);
-	v1=vnormf(vsubf(v1,vmulf(normGravityVector,vdotf(normGravityVector,v1))));
+	
+	//TEMP REMOVED (should be enabled)
+	// v1=vnormf(vsubf(v1,vmulf(normGravityVector,vdotf(normGravityVector,v1))));
 	
 	return vect3Df((v.z*v1.x)+(v.x*c->orientation[0][0]), (v.z*v1.y)+(v.x*c->orientation[0][1]), (v.z*v1.z)+(v.x*c->orientation[0][2]));
 }

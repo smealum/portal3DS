@@ -54,11 +54,11 @@ void drawPlayerGun(player_s* p)
 		gsTranslate(1.3, -1.65, -3.1);
 		gsRotateY(p->tempAngle.y);
 		gsRotateX(-p->tempAngle.x);
-		gsRotateY(0.0);
 		gsRotateX(-0.1);
 		gsRotateZ(M_PI/2);
 		gsRotateY(-M_PI/2);
-		gsScale(1.0f/16, 1.0f/16, 1.0f/16);
+		gsRotateX(-M_PI/2);
+		gsScale(1.0f/2, 1.0f/2, 1.0f/2);
 		md2InstanceDraw(&p->gunInstance);
 	gsPopMatrix();
 }

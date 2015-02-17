@@ -535,7 +535,7 @@ void applyOBBImpulsePlane(OBB_s* o, u8 pID)
 		if(vmagf(tangent)<1)return;
 		tangent=vnormf(tangent);
 
-		float kTangent=invMass+vdotf(tangent,vprodf(vevalf(o->invWInertiaMatrix,(vprodf(r, tangent))), r));			
+		float kTangent=invMass+vdotf(tangent,vprodf(vevalf(o->invWInertiaMatrix,(vprodf(r, tangent))), r));
 
 		float vt = vdotf(v, tangent);
 		//float dPt = divf32((-vt),kTangent);

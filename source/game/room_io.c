@@ -1,9 +1,12 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <3ds.h>
+
 #include "game/room_io.h"
 #include "game/player.h"
 #include "game/portal.h"
+#include "game/cubes.h"
+
 #include "utils/filesystem.h"
 
 void readVect3Di(vect3Di_s* v, FILE* f)
@@ -35,7 +38,7 @@ void readRectangle(rectangle_s* rec, FILE* f)
 	readVect3Di(&rec->size, f);
 	readVect3Df(&rec->normal, f, true);
 
-	// printf("rec : %d %d %d\n", rec->position.x, rec->position.y, rec->position.z);
+	printf("rec : %d %d %d\n", rec->position.x, rec->position.y, rec->position.z);
 
 	fread(&rec->portalable, sizeof(bool), 1, f);
 	
@@ -63,7 +66,7 @@ void readRectangles(room_s* r, FILE* f)
 extern player_s testPlayer;
 extern portal_s testPortal1, testPortal2;
 
-void readEntity(u8 i, FILE* f)
+void readEntity(room_s* r, u8 i, FILE* f)
 {
 	if(!f)return;
 	u8 type=0, dir=0; vect3Di_s v;
@@ -133,7 +136,7 @@ void readEntity(u8 i, FILE* f)
 			{
 				vect3Di_s p; readVect3Di(&p,f);
 				s16 target=-1; fread(&target, sizeof(s16), 1, f);
-				// cubeDispenser_struct* e=createCubeDispenser(NULL, p, true);
+				cubeDispenser_s* e=createCubeDispenser(r, p, true);
 				// entityEntityArray[i]=(void*)e;
 				// entityTargetTypeArray[i]=DISPENSER_TARGET;
 			}
@@ -232,12 +235,12 @@ void readEntity(u8 i, FILE* f)
 	}
 }
 
-void readEntities(FILE* f)
+void readEntities(room_s* r, FILE* f)
 {
 	if(!f)return;
 
 	u16 cnt; fread(&cnt,sizeof(u16),1,f);
-	int i; for(i=0;i<cnt;i++)readEntity(i,f);
+	int i; for(i=0;i<cnt;i++)readEntity(r,i,f);
 	// for(i=0;i<cnt;i++)addEntityTarget(i,cnt,entityEntityArray[i],entityTargetTypeArray[i]);
 }
 
@@ -264,7 +267,7 @@ void readRoom(char* filename, room_s* r, u8 flags)
 	fseek(f, h.rectanglesPosition, SEEK_SET);
 	fread(&r->rectangles.num,sizeof(int),1,f);
 
-	printf("RECTANGLE NUMBER %d", r->rectangles.num);
+	printf("RECTANGLE NUMBER %d\n", r->rectangles.num);
 	
 	readRectangles(r, f);
 
@@ -279,7 +282,7 @@ void readRoom(char* filename, room_s* r, u8 flags)
 	if(flags&MAP_READ_ENTITIES)
 	{
 		fseek(f, h.entityPosition, SEEK_SET);
-		readEntities(f);
+		readEntities(r, f);
 	}
 
 	// //sludge stuff

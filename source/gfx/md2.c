@@ -230,6 +230,8 @@ int md2ReadModel(md2_model_t *mdl, const char *filename)
 
 	md2ComputeAnimations(mdl);
 
+	printf("successfully read md2\n");
+
 	return 1;
 }
 
@@ -367,5 +369,9 @@ void md2InstanceDraw(md2_instance_t* mi)
 {
 	if(!mi || !mi->model || !mi->texture)return;
 
-	md2RenderFrame(mi->model, mi->currentFrame, mi->nextFrame, mi->interpolation, mi->texture);
+	gsPushMatrix();
+		gsScale(1.0f/8, 1.0f/8, 1.0f/8);
+		gsRotateX(M_PI/2);
+		md2RenderFrame(mi->model, mi->currentFrame, mi->nextFrame, mi->interpolation, mi->texture);
+	gsPopMatrix();
 }

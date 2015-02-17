@@ -64,6 +64,7 @@ void popRectangle(rectangleList_s* p)
 rectangle_s* addRoomRectangle(room_s* r, rectangle_s rec)
 {
 	if((!rec.size.x && (!rec.size.z || !rec.size.y)) || (!rec.size.y && !rec.size.z))return NULL;
+	rec.hide=false;
 	return addRectangle(rec, &r->rectangles);
 }
 
@@ -249,6 +250,7 @@ void generateRoomGeometry(room_s* r)
 		listCell_s* l=r->rectangles.first;
 		while(l)
 		{
+			if(l->data.hide){l=l->next; continue;}
 			texture_s* t=getRectangleTexture(&l->data);
 			int i=findTexture(t, tmpTextures, r->numIndexBuffers);
 			if(i<0)tmpTextures[i=(r->numIndexBuffers++)]=t;
@@ -272,6 +274,8 @@ void generateRoomGeometry(room_s* r)
 		listCell_s* l=r->rectangles.first;
 		while(l)
 		{
+			if(l->data.hide){l=l->next; continue;}
+
 			texture_s* t=getRectangleTexture(&l->data);
 			int b=findTexture(t, r->indexBufferTextures, r->numIndexBuffers);
 			if(b<0)
