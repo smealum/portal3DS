@@ -6,6 +6,7 @@
 #include "game/player.h"
 #include "game/portal.h"
 #include "game/cubes.h"
+#include "game/energyball.h"
 
 #include "utils/filesystem.h"
 
@@ -83,7 +84,7 @@ void readEntity(room_s* r, u8 i, FILE* f)
 			{
 				vect3Di_s p; readVect3Di(&p,f);
 				s16 target=-1; fread(&target, sizeof(s16), 1, f);
-				// energyDevice_struct* e=createEnergyDevice(NULL, p, dir, type);
+				energyDevice_s* e=createEnergyDevice(r, p, dir, type);
 				// if(e)entityActivatorArray[i]=&e->activator;
 				// entityTargetArray[i]=target;
 			}
@@ -92,7 +93,7 @@ void readEntity(room_s* r, u8 i, FILE* f)
 			//energy ball launcher
 			{
 				vect3Di_s p; readVect3Di(&p,f);
-				// createEnergyDevice(NULL, p, dir, type);
+				createEnergyDevice(r, p, dir, type);
 			}
 			break;
 		case 2:
