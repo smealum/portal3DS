@@ -19,6 +19,7 @@
 #include "game/player.h"
 #include "game/cubes.h"
 #include "game/energyball.h"
+#include "game/platform.h"
 
 #include "physics/physics.h"
 
@@ -77,6 +78,7 @@ void drawScene(camera_s* c, int depth, u8 stencil)
 		drawCubeDispensers();
 		drawEnergyDevices();
 		drawEnergyBalls();
+		drawPlatforms();
 		drawOBBs();
 
 		drawPortals((portal_s*[]){&testPortal1, &testPortal2}, 2, drawScene, c, depth, stencil);
@@ -232,6 +234,7 @@ int main(int argc, char** argv)
 	//init game elements
 	initCubes();
 	initEnergyBalls();
+	initPlatforms();
 
 	//init room
 	roomInit();

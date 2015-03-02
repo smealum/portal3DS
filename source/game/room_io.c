@@ -7,6 +7,7 @@
 #include "game/portal.h"
 #include "game/cubes.h"
 #include "game/energyball.h"
+#include "game/platform.h"
 
 #include "utils/filesystem.h"
 
@@ -157,7 +158,7 @@ void readEntity(room_s* r, u8 i, FILE* f)
 				readVect3Di(&p1,f);
 				readVect3Di(&p2,f);
 				s16 target=-1; fread(&target, sizeof(s16), 1, f);
-				// platform_struct* e=createPlatform(NULL, p1, p2, true);
+				platform_s* e=createPlatform(r, p1, p2, true);
 				// entityEntityArray[i]=(void*)e;
 				// entityTargetTypeArray[i]=PLATFORM_TARGET;
 			}
