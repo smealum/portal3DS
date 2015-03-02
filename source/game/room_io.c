@@ -8,6 +8,7 @@
 #include "game/cubes.h"
 #include "game/energyball.h"
 #include "game/platform.h"
+#include "game/bigbutton.h"
 
 #include "utils/filesystem.h"
 
@@ -113,7 +114,7 @@ void readEntity(room_s* r, u8 i, FILE* f)
 			{
 				vect3Di_s p; readVect3Di(&p,f);
 				s16 target=-1; fread(&target, sizeof(s16), 1, f);
-				// bigButton_struct* e=createBigButton(NULL, p);
+				bigButton_s* e=createBigButton(r, p);
 				// if(e)entityActivatorArray[i]=&e->activator;
 				// entityTargetArray[i]=target;
 			}
