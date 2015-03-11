@@ -6,6 +6,8 @@
 #include "gfx/gs.h"
 #include "utils/math.h"
 
+#define GS_RENDER_MODES (16)
+
 //will be moved into ctrulib at some point
 #define CONFIG_3D_SLIDERSTATE (*(float*)0x1FF81080)
 
@@ -41,6 +43,9 @@ u32* gsGpuCmdRight;
 //background color (blue)
 u32 gsBackgroundColor;
 
+int gsRenderMode;
+gsRenderMode_s gsRenderModes[GS_RENDER_MODES];
+
 //----------------------
 //   GS SYSTEM STUFF
 //----------------------
@@ -73,11 +78,65 @@ void gsInit(shaderProgram_s* shader, gsCallback drawTop, gsCallback drawBottom)
 	GPU_Reset(NULL, gsGpuCmd, gsGpuCmdSize);
 
 	gsSetShader(shader);
+
+	gsRenderMode = -1;
+
+	int i;
+	for(i=0; i<GS_RENDER_MODES; i++)
+	{
+		gsRenderModes[i].used = false;
+	}
 }
 
 void gsExit(void)
 {
 	svcCloseHandle(linearAllocMutex);
+}
+
+int gsRegisterRenderMode(gsRenderModeCallback init, gsRenderModeCallback exit)
+{
+	if(!init && !exit)return -1;
+
+	int i;
+	for(i=0; i<GS_RENDER_MODES; i++)
+	{
+		if(!gsRenderModes[i].used)
+		{
+			gsRenderMode_s* grm = &gsRenderModes[i];
+
+			grm->init = init;
+			grm->exit = exit;
+			grm->used = true;
+
+			return i;
+		}
+	}
+
+	return -1;
+}
+
+void gsUnregisterRenderMode(int mode)
+{
+	if(mode < 0 || mode >= GS_RENDER_MODES)return;
+}
+
+void gsRenderModeExit(void)
+{
+	if(gsRenderMode >= 0 && gsRenderMode < GS_RENDER_MODES && gsRenderModes[gsRenderMode].used && gsRenderModes[gsRenderMode].exit)gsRenderModes[gsRenderMode].exit();
+	gsRenderMode = -1;
+}
+
+void gsSwitchRenderMode(int mode)
+{
+	if(mode == -1)gsRenderModeExit();
+	if(mode < 0 || mode >= GS_RENDER_MODES)return;
+	if(mode == gsRenderMode)return;
+	if(!gsRenderModes[mode].used)return;
+
+	gsRenderModeExit();
+	if(gsRenderModes[mode].init)gsRenderModes[mode].init();
+	gsRenderMode = mode;
+
 }
 
 void gsSetShader(shaderProgram_s* shader)
@@ -573,5 +632,6 @@ void gsDrawFrame()
 		GX_SetMemoryFill(NULL, (u32*)gsGpuOut, gsBackgroundColor, (u32*)&gsGpuOut[0x2EE00], 0x201, (u32*)gsGpuDOut, 0x00000000, (u32*)&gsGpuDOut[0x2EE00], 0x201);
 		// gspWaitForPSC0();
 		gfxSwapBuffersGpu();
+
 	}
 }

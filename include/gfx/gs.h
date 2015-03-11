@@ -25,11 +25,24 @@ typedef struct
 	u32 commandsSize;
 }gsVbo_s;
 
+typedef void (*gsRenderModeCallback)(void);
+
+typedef struct
+{
+	gsRenderModeCallback init;
+	gsRenderModeCallback exit;
+	bool used;
+}gsRenderMode_s;
+
 typedef void (*gsCallback)(u32* outBuffer, u32* outDepthBuffer);
 
 void gsInit(shaderProgram_s* shader, gsCallback drawTop, gsCallback drawBottom);
 void gsDrawFrame();
 void gsExit(void);
+
+int gsRegisterRenderMode(gsRenderModeCallback init, gsRenderModeCallback exit);
+void gsUnregisterRenderMode(int mode);
+void gsSwitchRenderMode(int mode);
 
 void gsSetShader(shaderProgram_s* shader);
 void gsSetBackgroundColor(u32 color);

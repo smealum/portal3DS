@@ -120,7 +120,7 @@ void drawCubeDispenser(cubeDispenser_s* cd)
 	if(!cd)return;
 
 	gsPushMatrix();
-		md2StartDrawing();
+		gsSwitchRenderMode(md2GsMode);
 		gsTranslate(cd->position.x,cd->position.y,cd->position.z);
 		md2InstanceDraw(&cd->modelInstance);
 	gsPopMatrix();

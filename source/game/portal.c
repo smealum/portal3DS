@@ -198,6 +198,8 @@ void drawPortals(portal_s* portals[], int n, renderSceneCallback_t callback, cam
 	if(!portals || !portalVertexData || !callback || !c || !depth)return;
 	int i;
 
+	gsSwitchRenderMode(-1);
+	
 	GPU_SetAttributeBuffers(
 		1, // number of attributes
 		(u32*)osConvertVirtToPhys(portalBaseAddr), // we use the start of linear heap as base since that's where all our buffers are located

@@ -106,7 +106,7 @@ void drawBigButton(bigButton_s* bb)
 	if(!bb || !bb->used)return;
 
 	gsPushMatrix();
-		md2StartDrawing();
+		gsSwitchRenderMode(md2GsMode);
 
 		gsTranslate(bb->position.x, bb->position.y, bb->position.z);
 

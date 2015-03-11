@@ -949,7 +949,7 @@ void drawOBB(OBB_s* o)
 	if(!o || !o->modelInstance)return;
 
 	gsPushMatrix();
-		md2StartDrawing();
+		gsSwitchRenderMode(md2GsMode);
 		gsTranslate(o->position.x,o->position.y,o->position.z);
 		gsMultMatrix3(o->transformationMatrix);
 		if(keysHeld()&KEY_SELECT)printf("D%d : %f %f %f\n", (int)o->sleep, o->position.x, o->position.y, o->position.z);

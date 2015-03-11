@@ -50,7 +50,7 @@ void drawPlayerGun(player_s* p)
 		useCamera(&p->camera);
 		gsLoadIdentity();
 
-		md2StartDrawing();
+		gsSwitchRenderMode(md2GsMode);
 		gsTranslate(1.3, -1.65, -3.1);
 		gsRotateY(p->tempAngle.y);
 		gsRotateX(-p->tempAngle.x);

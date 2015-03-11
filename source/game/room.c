@@ -323,6 +323,8 @@ void drawRoom(room_s* r)
 {
 	if(!r)return;
 
+	gsSwitchRenderMode(-1);
+
 	gsSetShader(&roomProgram);
 
 	GPU_SetAttributeBuffers(

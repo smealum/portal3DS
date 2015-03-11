@@ -145,7 +145,7 @@ void drawEnergyDevice(energyDevice_s* ed)
 	if(!ed)return;
 
 	gsPushMatrix();
-		md2StartDrawing();
+		gsSwitchRenderMode(md2GsMode);
 
 		gsTranslate(ed->position.x, ed->position.y, ed->position.z);
 		
@@ -254,7 +254,7 @@ void drawEnergyBall(energyBall_s* eb)
 	// TODO : decaying alpha
 
 	gsPushMatrix();
-		md2StartDrawing();
+		gsSwitchRenderMode(md2GsMode);
 
 		float angle=(eb->modelInstance.currentFrame*1.0f+eb->modelInstance.interpolation);
 

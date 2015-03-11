@@ -49,6 +49,8 @@ int md2UniformScale1;
 int md2UniformTranslation1;
 int md2UniformFrameParam;
 
+int md2GsMode;
+
 void md2Init()
 {
 	md2Dvlb = DVLB_ParseFile((u32*)md2_vsh_shbin, md2_vsh_shbin_size);
@@ -63,10 +65,13 @@ void md2Init()
 	md2UniformScale1 = shaderInstanceGetUniformLocation(md2Program.vertexShader, "scale1");
 	md2UniformTranslation1 = shaderInstanceGetUniformLocation(md2Program.vertexShader, "translation1");
 	md2UniformFrameParam = shaderInstanceGetUniformLocation(md2Program.vertexShader, "frameParam");
+
+	md2GsMode = gsRegisterRenderMode(md2StartDrawing, NULL);
 }
 
 void md2Exit()
 {
+	gsUnregisterRenderMode(md2GsMode);
 	shaderProgramFree(&md2Program);
 	DVLB_Free(md2Dvlb);
 }

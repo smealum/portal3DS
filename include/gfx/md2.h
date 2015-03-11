@@ -110,6 +110,8 @@ typedef struct
 	md2_model_t* model;
 }md2_instance_t;
 
+extern int md2GsMode;
+
 void md2Init();
 void md2Exit();
 void md2StartDrawing();

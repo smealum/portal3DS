@@ -68,7 +68,7 @@ void drawScene(camera_s* c, int depth, u8 stencil)
 		gsLoadIdentity();
 		useCamera(c);
 
-		md2StartDrawing();
+		gsSwitchRenderMode(md2GsMode);
 		md2InstanceDraw(&gladosInstance);
 
 		drawRoom(&testRoom);

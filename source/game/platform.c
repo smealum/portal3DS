@@ -80,7 +80,7 @@ void drawPlatform(platform_s* pf)
 	if(!pf)return;
 
 	gsPushMatrix();
-		md2StartDrawing();
+		gsSwitchRenderMode(md2GsMode);
 		gsTranslate(pf->position.x, pf->position.y, pf->position.z);
 		md2InstanceDraw(&platformModelInstance);
 	gsPopMatrix();
