@@ -16,6 +16,8 @@ DVLB_s* portalDvlb;
 shaderProgram_s portalProgram;
 const u32 portalBaseAddr=0x14000000;
 
+portal_s portals[NUM_PORTALS];
+
 typedef struct
 {
 	vect3Df_s position;
@@ -58,6 +60,9 @@ void portalInit()
 	shaderProgramSetVsh(&portalProgram, &portalDvlb->DVLE[0]);
 
 	generatePortalGeometry(&portalVertexData, &portalNumVertices, &portalOutlineVertexData, &portalOutlineNumVertices);
+
+	int i;
+	for(i=0; i<NUM_PORTALS; i++)initPortal(&portals[i]);
 }
 
 void portalExit()

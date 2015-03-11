@@ -67,7 +67,6 @@ void readRectangles(room_s* r, FILE* f)
 }
 
 extern player_s testPlayer;
-extern portal_s testPortal1, testPortal2;
 
 void readEntity(room_s* r, u8 i, FILE* f)
 {
@@ -195,8 +194,6 @@ void readEntity(room_s* r, u8 i, FILE* f)
 				u8 o; fread(&o,sizeof(u8),1,f);
 				// printf("start : %d %d %d\n", p.x, p.y, p.z);
 				testPlayer.object.position = vect3Df(p.x*TILESIZE_FLOAT*2, p.y*HEIGHTUNIT_FLOAT, p.z*TILESIZE_FLOAT*2);
-				testPortal1.position=vect3Df(p.x*TILESIZE_FLOAT*2, p.y*HEIGHTUNIT_FLOAT, p.z*TILESIZE_FLOAT*2);
-				testPortal2.position=vect3Df(p.x*TILESIZE_FLOAT*2, p.y*HEIGHTUNIT_FLOAT, p.z*TILESIZE_FLOAT*2);
 				// setupWallDoor(NULL, &entryWallDoor, p, o);
 				// if(entryWallDoor.used)
 				// {

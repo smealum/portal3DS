@@ -5,6 +5,8 @@
 #include "game/camera.h"
 #include "physics/AAR.h"
 
+#define NUM_PORTALS (2)
+
 typedef struct portal_s
 {
 	vect3Df_s position;
@@ -13,6 +15,8 @@ typedef struct portal_s
 	struct portal_s* target;
 	AAR_s guideAAR[4];
 }portal_s;
+
+extern portal_s portals[NUM_PORTALS];
 
 typedef void (*renderSceneCallback_t)(camera_s* c, int depth, u8 stencil);
 

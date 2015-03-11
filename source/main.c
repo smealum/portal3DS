@@ -41,9 +41,6 @@ player_s testPlayer;
 //object position and rotation angle
 vect3Df_s position, angle;
 
-portal_s testPortal1, testPortal2;
-portal_s testPortal3, testPortal4;
-
 void drawBottom(u32* outBuffer, u32* outDepthBuffer)
 {
 
@@ -83,7 +80,7 @@ void drawScene(camera_s* c, int depth, u8 stencil)
 		drawBigButtons();
 		drawOBBs();
 
-		drawPortals((portal_s*[]){&testPortal1, &testPortal2}, 2, drawScene, c, depth, stencil);
+		drawPortals((portal_s*[]){&portals[0], &portals[1]}, 2, drawScene, c, depth, stencil);
 	gsPopMatrix();
 }
 
@@ -245,19 +242,8 @@ int main(int argc, char** argv)
 
 	//init portal
 	portalInit();
-	initPortal(&testPortal1);
-	initPortal(&testPortal2);
-	initPortal(&testPortal3);
-	initPortal(&testPortal4);
-
-	updatePortalOrientation(&testPortal2, vect3Df(1.0f, 0.0f, 0.0f), vect3Df(0.0f, 1.0f, 0.0f));
-	testPortal2.position.y-=4.0f;
-
-	testPortal1.target = &testPortal2;
-	testPortal2.target = &testPortal1;
-
-	testPortal3.target = &testPortal4;
-	testPortal4.target = &testPortal3;
+	portals[0].target = &portals[1];
+	portals[1].target = &portals[0];
 
 	//init physics
 	OBB_s* testObb = NULL;
@@ -308,8 +294,8 @@ int main(int argc, char** argv)
 		// printf("%4.2f %4.2f %4.2f %4.2f %4.2f\n",debugVal[0],debugVal[1],debugVal[2],debugVal[3],debugVal[4]);
 		if(testObb && keysHeld()&KEY_SELECT)printf("%d : %f %f %f\n", (int)testObb->sleep, testObb->position.x, testObb->position.y, testObb->position.z);
 
-		if(keysDown()&KEY_R)shootPlayerGun(&testPlayer, &testRoom, &testPortal1);
-		if(keysDown()&KEY_L)shootPlayerGun(&testPlayer, &testRoom, &testPortal2);
+		if(keysDown()&KEY_R)shootPlayerGun(&testPlayer, &testRoom, &portals[0]);
+		if(keysDown()&KEY_L)shootPlayerGun(&testPlayer, &testRoom, &portals[1]);
 
 		md2InstanceUpdate(&gladosInstance);
 		updatePlayer(&testPlayer, &testRoom);
