@@ -733,6 +733,51 @@ void wakeOBBs(void)
 	}
 }
 
+void getBoxAABB(OBB_s* o, vect3Df_s* s)
+{
+	if(!o || !s)return;
+	
+	s->x=fabs((o->transformationMatrix[0]*o->size.x))+fabs((o->transformationMatrix[1]*o->size.y))+fabs((o->transformationMatrix[2]*o->size.z));
+	s->y=fabs((o->transformationMatrix[3]*o->size.x))+fabs((o->transformationMatrix[4]*o->size.y))+fabs((o->transformationMatrix[5]*o->size.z));
+	s->z=fabs((o->transformationMatrix[6]*o->size.x))+fabs((o->transformationMatrix[7]*o->size.y))+fabs((o->transformationMatrix[8]*o->size.z));
+}
+
+bool intersectAABBAAR(vect3Df_s o1, vect3Df_s s, vect3Df_s o2, vect3Df_s sp)
+{
+	const vect3Df_s v=vsubf(o2,o1);
+	
+	if(!sp.x)return !((v.x>s.x || v.x<-s.x) || (v.y-sp.y>s.y || v.y+sp.y<-s.y) || (v.z-sp.z>s.z || v.z+sp.z<-s.z));
+	else if(!sp.y)return !((v.y>s.y || v.y<-s.y) || (v.x-sp.x>s.x || v.x+sp.x<-s.x) || (v.z-sp.z>s.z || v.z+sp.z<-s.z));
+	else return !((v.z>s.z || v.z<-s.z) || (v.y-sp.y>s.y || v.y+sp.y<-s.y) || (v.x-sp.x>s.x || v.x+sp.x<-s.x));
+}
+
+bool intersectOBBPortal(portal_s* p, OBB_s* o)
+{
+	if(!p || !o)return false;
+	
+	vect3Df_s s;
+	getBoxAABB(o, &s);
+	vect3Df_s sp=vect3Df(fabs(p->plane[0].x*PORTAL_WIDTH)+fabs(p->plane[1].x*PORTAL_HEIGHT),fabs(p->plane[0].y*PORTAL_WIDTH)+fabs(p->plane[1].y*PORTAL_HEIGHT),fabs(p->plane[0].z*PORTAL_WIDTH)+fabs(p->plane[1].z*PORTAL_HEIGHT));
+		
+	return intersectAABBAAR(o->position, s, p->position, sp);
+}
+
+void ejectPortalOBBs(portal_s* p)
+{
+	if(!p)return;
+	
+	int i;
+	for(i=0;i<NUMOBJECTS;i++)
+	{
+		if(objects[i].used && intersectOBBPortal(p, &objects[i]))
+		{
+			applyOBBForce(&objects[i], objects[i].position, vmulf(p->normal, 200.0f));
+			objects[i].sleep=false;
+			objects[i].counter=0;
+		}
+	}
+}
+
 void calculateOBBEnergy(OBB_s* o)
 {
 	if(!o)return;
@@ -799,6 +844,7 @@ void simulate(OBB_s* o, float dt)
 
 	calculateOBBEnergy(o);
 	bool oldSleep=o->sleep;
+	// printf("energy %f\n", o->energy);
 	if(o->energy>=SLEEPTHRESHOLD*10)o->sleep=false;
 	else if(o->energy<=SLEEPTHRESHOLD)
 	{

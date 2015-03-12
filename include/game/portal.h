@@ -40,4 +40,6 @@ void updatePortalOrientation(portal_s* p, vect3Df_s plane0, vect3Df_s normal);
 
 void generateGuideAAR(portal_s* p);
 
+void ejectPortalOBBs(portal_s* p);
+
 #endif

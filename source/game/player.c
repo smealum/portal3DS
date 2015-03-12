@@ -155,5 +155,7 @@ void shootPlayerGun(player_s* p, room_s* r, portal_s* portal)
 
 		portal->position = position;
 		updatePortalOrientation(portal, plane0, normal);
+		ejectPortalOBBs(portal);
+		ejectPortalOBBs(portal->target);
 	}
 }

@@ -13,7 +13,7 @@
 #define MAXPENETRATIONBOX (1<<6)
 
 // #define SLEEPTHRESHOLD (50)
-#define SLEEPTHRESHOLD (0.0f)
+#define SLEEPTHRESHOLD (0.05f)
 #define SLEEPTIMETHRESHOLD (48)
 
 static const u8 OBBSegments[NUMOBBSEGMENTS][2]={{0,1},{1,2},{3,2},{0,3},
