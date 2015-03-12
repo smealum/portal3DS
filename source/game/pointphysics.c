@@ -1,6 +1,7 @@
 #include <3ds.h>
 #include "game/pointphysics.h"
 #include "game/room.h"
+#include "game/portal.h"
 
 void initPhysicalPoint(physicalPoint_s* pp, vect3Df_s position, float radius)
 {
@@ -20,6 +21,45 @@ void updatePhysicalPoint(physicalPoint_s* pp)
 	if(!pp)return;
 
 	// pp->speed=vaddf(pp->speed, gravityVector);
+}
+
+bool isPortalInRectangle(vect3Df_s pr, vect3Df_s sr, portal_s* p, vect3Df_s* o)
+{
+	*o=vsubf(pr,p->position);
+
+	if(!sr.x)return fabs(o->x) < 0.1f;
+	else if(!sr.y)return fabs(o->y) < 0.1f;
+	else return fabs(o->z) < 0.1f;
+}
+
+void collidePortal(vect3Df_s pr, vect3Df_s sr, portal_s* p, vect3Df_s* point)
+{
+	vect3Df_s o;
+	if(!isPortalInRectangle(pr,sr,p,&o))return;
+	vect3Df_s v=vsubf(*point,p->position);
+
+	const vect3Df_s u1=p->plane[0], u2=p->plane[1];
+
+	float xp=vdotf(v,u1)+PORTAL_WIDTH;
+	float yp=vdotf(v,u2)+PORTAL_HEIGHT;
+
+	// printf("IN PORTAL ? %f %f\n", xp, yp);
+	if(xp<0 || yp<0 || xp>=PORTAL_WIDTH*2 || yp>=PORTAL_HEIGHT*2)return;
+	float d1=(xp), d2=(yp), d3=PORTAL_WIDTH*2-(xp), d4=PORTAL_HEIGHT*2-(yp);
+
+	if(d1<d2 && d1<d3 && d1<d4)
+	{
+		*point=vaddf(*point,vmulf(u1,-d1));
+	}else if(d2<d1 && d2<d3 && d2<d4)
+	{
+		*point=vaddf(*point,vmulf(u2,-d2));
+	}else if(d3<d1 && d3<d2 && d3<d4)
+	{
+		*point=vaddf(*point,vmulf(u1,d3));
+	}else{
+		*point=vaddf(*point,vmulf(u2,d4));
+	}
+	// printf("YES %f %f %f %f\n",d1,d2,d3,d4);
 }
 
 vect3Df_s getClosestPointRectangle(vect3Df_s rectOrigin, vect3Df_s rectSize, vect3Df_s o)
@@ -78,6 +118,13 @@ bool collideRectangle(physicalPoint_s* o, vect3Df_s p, vect3Df_s s)
 	if(!o)return false;
 
 	vect3Df_s o2 = getClosestPointRectangle(p, s, o->position);
+
+	int i;
+	for(i=0; i < NUM_PORTALS; i++)
+	{
+		if(portals[i].target)collidePortal(p, s, &portals[i], &o2);
+	}
+
 	vect3Df_s v = vsubf(o2, o->position);
 
 	float gval = vdotf(v, normGravityVector);
@@ -110,7 +157,7 @@ bool checkObjectCollision(physicalPoint_s* o, room_s* r)
 	// int i;
 	// for(i=0;i<NUMPLATFORMS;i++)
 	// {
-	// 	if(platform[i].used && collideRectangle(o,r,addVect(platform[i].position,vect(-PLATFORMSIZE,0,-PLATFORMSIZE)),vect(PLATFORMSIZE*2,0,PLATFORMSIZE*2))) //add culling
+	// 	if(platform[i].used && collideRectangle(o,r,vaddf(platform[i].position,vect(-PLATFORMSIZE,0,-PLATFORMSIZE)),vect(PLATFORMSIZE*2,0,PLATFORMSIZE*2))) //add culling
 	// 	{
 	// 		platform[i].touched=true;
 	// 		ret=true;

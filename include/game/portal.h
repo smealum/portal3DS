@@ -7,6 +7,9 @@
 
 #define NUM_PORTALS (2)
 
+#define PORTAL_HEIGHT (4.0f)
+#define PORTAL_WIDTH (2.0f)
+
 typedef struct portal_s
 {
 	vect3Df_s position;

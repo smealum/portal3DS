@@ -7,8 +7,6 @@
 
 #include "portal_vsh_shbin.h"
 
-#define PORTAL_HEIGHT (4.0f)
-#define PORTAL_WIDTH (2.0f)
 #define PORTAL_OUTLINE (0.2f)
 #define PORTAL_DETAIL (32)
 
@@ -199,7 +197,7 @@ void drawPortals(portal_s* portals[], int n, renderSceneCallback_t callback, cam
 	int i;
 
 	gsSwitchRenderMode(-1);
-	
+
 	GPU_SetAttributeBuffers(
 		1, // number of attributes
 		(u32*)osConvertVirtToPhys(portalBaseAddr), // we use the start of linear heap as base since that's where all our buffers are located
