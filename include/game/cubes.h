@@ -4,16 +4,17 @@
 #include "utils/math.h"
 #include "game/room.h"
 #include "gfx/md2.h"
+#include "game/activator.h"
 #include "physics/physics.h"
 
 #define NUMCUBEDISPENSERS (8)
 
 typedef struct
 {
+	activatableObject_s ao;
 	vect3Df_s position;
 	md2_instance_t modelInstance;
 	bool companion;
-	bool active, oldActive;
 	rectangle_s* openingRectangle;
 	OBB_s* currentCube;
 	bool used;

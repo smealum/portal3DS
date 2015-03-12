@@ -4,6 +4,7 @@
 #include "utils/math.h"
 #include "game/room.h"
 #include "gfx/md2.h"
+#include "game/activator.h"
 #include "physics/physics.h"
 
 #define NUMBIGBUTTONS (16)
@@ -12,7 +13,7 @@ typedef struct
 {
 	room_s* room;
 	rectangle_s* surface;
-	// activator_struct activator;
+	activator_s activator;
 	md2_instance_t modelInstance;
 	vect3Df_s position;
 	bool active;

@@ -51,7 +51,7 @@ void initEnergyDevice(room_s* r, energyDevice_s* ed, vect3Di_s pos, deviceOrient
 {
 	if(!ed)return;
 	
-	// initActivator(&ed->activator);
+	initActivator(&ed->activator);
 	md2InstanceInit(&ed->modelInstance, type?(&energyLauncherModel):(&energyCatcherModel), &energyLauncherTexture);
 	ed->orientation=or;
 	
@@ -201,7 +201,7 @@ void updateEnergyDevice(energyDevice_s* ed)
 		if(ed->active)
 		{
 			ed->modelInstance.texture=&energyLauncherActiveTexture;
-			// useActivator(&ed->activator);
+			useActivator(&ed->activator);
 		}
 	}
 	

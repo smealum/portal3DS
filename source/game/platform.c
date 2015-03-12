@@ -52,8 +52,8 @@ void initPlatform(platform_s* pf, room_s* r, vect3Di_s orig, vect3Di_s dest, u8 
 	pf->touched=false;
 	pf->backandforth=true;
 	
-	pf->oldactive=false;
-	pf->active=true;
+	initActivatableObject(&pf->ao);
+	pf->ao.active=true;
 	
 	// addPlatform(id,vmulf(pf->origin,4),vmulf(pf->destination,4),BAF); //TEMP
 	
@@ -106,9 +106,9 @@ void updatePlatform(platform_s* pf)
 	// 	p->object->speed=addVect(p->object->speed,pf->velocity);
 	// }
 	
-	// if(pf->oldactive!=pf->active)togglePlatform(pf->id, pf->active);
+	// if(pf->ao.oldActive!=pf->ao.active)togglePlatform(pf->id, pf->ao.active);
 	
-	pf->oldactive=pf->active;
+	pf->ao.oldActive=pf->ao.active;
 	pf->velocity=vect3Df(0,0,0);
 	pf->oldTouched=pf->touched;
 	pf->touched=false;

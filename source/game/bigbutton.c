@@ -80,7 +80,7 @@ void initBigButton(bigButton_s* bb, room_s* r, vect3Di_s pos)
 	// pos=vect(pos.x+r->position.x, pos.y, pos.z+r->position.y);
 	bb->position=convertRectangleVector(pos);
 	
-	// initActivator(&bb->activator);
+	initActivator(&bb->activator);
 	bb->active=false;
 	
 	bb->used=true;
@@ -140,10 +140,10 @@ void updateBigButton(bigButton_s* bb)
 	if(bb->active)
 	{
 		md2InstanceChangeAnimation(&bb->modelInstance,1,false);
-		// useActivator(&bb->activator);
+		useActivator(&bb->activator);
 	}else{
 		md2InstanceChangeAnimation(&bb->modelInstance,0,false);
-		// unuseActivator(&bb->activator);
+		unuseActivator(&bb->activator);
 	}
 	
 	md2InstanceUpdate(&bb->modelInstance);

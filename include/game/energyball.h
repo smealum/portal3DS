@@ -7,6 +7,7 @@
 #include "utils/math.h"
 #include "game/room.h"
 #include "gfx/md2.h"
+#include "game/activator.h"
 #include "physics/physics.h"
 
 typedef enum
@@ -25,7 +26,7 @@ typedef struct
 	deviceOrientation_t orientation;
 	rectangle_s* surface;
 	vect3Df_s position;
-	// activator_struct activator;
+	activator_s activator;
 	bool type; //true=launcher
 	bool active;
 	bool used;

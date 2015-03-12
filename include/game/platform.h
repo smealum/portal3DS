@@ -4,17 +4,19 @@
 #include "utils/math.h"
 #include "game/room.h"
 #include "gfx/md2.h"
+#include "game/activator.h"
 #include "physics/physics.h"
 
 #define NUMPLATFORMS (8)
 
 typedef struct
 {
+	activatableObject_s ao;
 	vect3Df_s position, velocity;
 	vect3Df_s origin, destination;
 	bool direction; //true=orig->dest
 	bool touched, oldTouched;
-	bool active, oldactive, backandforth;
+	bool backandforth;
 	bool used;
 	u8 id;
 }platform_s;

@@ -96,8 +96,8 @@ void initCubeDispenser(room_s* r, cubeDispenser_s* cd, vect3Di_s pos, bool compa
 	
 	cd->used=true;
 
-	cd->active=true;
-	cd->oldActive=false;
+	initActivatableObject(&cd->ao);
+	cd->ao.active=true;
 }
 
 cubeDispenser_s* createCubeDispenser(room_s* r, vect3Di_s pos, bool companion)
@@ -149,7 +149,7 @@ void updateCubeDispenser(cubeDispenser_s* cd)
 	if(!cd)return;
 
 	if(cd->currentCube && !cd->currentCube->used)cd->currentCube=NULL;
-	if(cd->active && !cd->oldActive)
+	if(cd->ao.active && !cd->ao.oldActive)
 	{
 		if(!cd->currentCube)
 		{
@@ -164,7 +164,7 @@ void updateCubeDispenser(cubeDispenser_s* cd)
 	}
 
 	md2InstanceUpdate(&cd->modelInstance);
-	cd->oldActive=cd->active;
+	cd->ao.oldActive = cd->ao.active;
 }
 
 void updateCubeDispensers(void)
