@@ -9,8 +9,16 @@
 #include "game/energyball.h"
 #include "game/platform.h"
 #include "game/bigbutton.h"
+#include "game/activator.h"
 
 #include "utils/filesystem.h"
+
+#define NUMENTITIES (256)
+
+s16 entityTargetArray[NUMENTITIES];
+activator_s* entityActivatorArray[NUMENTITIES];
+void* entityEntityArray[NUMENTITIES];
+activatorTarget_t entityTargetTypeArray[NUMENTITIES];
 
 void readVect3Di(vect3Di_s* v, FILE* f)
 {
@@ -68,6 +76,19 @@ void readRectangles(room_s* r, FILE* f)
 
 extern player_s testPlayer;
 
+void addEntityTarget(u8 k, u8 n, void* target, activatorTarget_t type)
+{
+	if(!target)return;
+	int i;
+	for(i=0;i<n;i++)
+	{
+		if(entityTargetArray[i]==k && entityActivatorArray[i])
+		{
+			addActivatorTarget(entityActivatorArray[i], target, type);
+		}
+	}
+}
+
 void readEntity(room_s* r, u8 i, FILE* f)
 {
 	if(!f)return;
@@ -75,9 +96,9 @@ void readEntity(room_s* r, u8 i, FILE* f)
 	fread(&type, sizeof(u8), 1, f);
 	readVect3Di(&v, f);
 	fread(&dir, sizeof(u8), 1, f);
-	// entityTargetArray[i]=-1;
-	// entityActivatorArray[i]=NULL;
-	// entityEntityArray[i]=NULL;
+	entityTargetArray[i]=-1;
+	entityActivatorArray[i]=NULL;
+	entityEntityArray[i]=NULL;
 	switch(type)
 	{
 		case 0:
@@ -86,8 +107,8 @@ void readEntity(room_s* r, u8 i, FILE* f)
 				vect3Di_s p; readVect3Di(&p,f);
 				s16 target=-1; fread(&target, sizeof(s16), 1, f);
 				energyDevice_s* e=createEnergyDevice(r, p, dir, type);
-				// if(e)entityActivatorArray[i]=&e->activator;
-				// entityTargetArray[i]=target;
+				if(e)entityActivatorArray[i]=&e->activator;
+				entityTargetArray[i]=target;
 			}
 			break;
 		case 1:
@@ -114,8 +135,8 @@ void readEntity(room_s* r, u8 i, FILE* f)
 				vect3Di_s p; readVect3Di(&p,f);
 				s16 target=-1; fread(&target, sizeof(s16), 1, f);
 				bigButton_s* e=createBigButton(r, p);
-				// if(e)entityActivatorArray[i]=&e->activator;
-				// entityTargetArray[i]=target;
+				if(e)entityActivatorArray[i]=&e->activator;
+				entityTargetArray[i]=target;
 			}
 			break;
 		case 4:
@@ -139,8 +160,8 @@ void readEntity(room_s* r, u8 i, FILE* f)
 				vect3Di_s p; readVect3Di(&p,f);
 				s16 target=-1; fread(&target, sizeof(s16), 1, f);
 				cubeDispenser_s* e=createCubeDispenser(r, p, true);
-				// entityEntityArray[i]=(void*)e;
-				// entityTargetTypeArray[i]=DISPENSER_TARGET;
+				entityEntityArray[i]=(void*)e;
+				entityTargetTypeArray[i]=DISPENSER_TARGET;
 			}
 			break;
 		case 8:
@@ -159,8 +180,8 @@ void readEntity(room_s* r, u8 i, FILE* f)
 				readVect3Di(&p2,f);
 				s16 target=-1; fread(&target, sizeof(s16), 1, f);
 				platform_s* e=createPlatform(r, p1, p2, true);
-				// entityEntityArray[i]=(void*)e;
-				// entityTargetTypeArray[i]=PLATFORM_TARGET;
+				entityEntityArray[i]=(void*)e;
+				entityTargetTypeArray[i]=PLATFORM_TARGET;
 			}
 			return;
 		case 10:
