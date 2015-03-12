@@ -771,7 +771,7 @@ void ejectPortalOBBs(portal_s* p)
 	{
 		if(objects[i].used && intersectOBBPortal(p, &objects[i]))
 		{
-			applyOBBForce(&objects[i], objects[i].position, vmulf(p->normal, 200.0f));
+			applyOBBForce(&objects[i], objects[i].position, vmulf(p->normal, -100.0f));
 			objects[i].sleep=false;
 			objects[i].counter=0;
 		}

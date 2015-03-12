@@ -472,26 +472,26 @@ void generateGuideAAR(portal_s* p)
 	if(!p)return;
 	
 	p->guideAAR[0].used=true;
-	p->guideAAR[0].position=vsubf(p->position,vmulf(vaddf(vdivf(p->plane[0],PORTALFRACTIONX),vdivf(p->plane[1],PORTALFRACTIONY)),4));
-	p->guideAAR[0].size=vmulf(vaddf(vdivf(vmulf(p->plane[0],2),PORTALFRACTIONX),vdivf(p->normal,-8)),4);
+	p->guideAAR[0].position=vsubf(p->position,vmulf(vaddf(vmulf(p->plane[0],PORTAL_WIDTH),vmulf(p->plane[1],PORTAL_HEIGHT)),4));
+	p->guideAAR[0].size=vmulf(vaddf(vmulf(vmulf(p->plane[0],2),PORTAL_WIDTH),vmulf(p->normal,8)),4);
 	p->guideAAR[0].normal=p->plane[1];
 	fixAAR(&p->guideAAR[0]);
 	
 	p->guideAAR[1].used=true;
-	p->guideAAR[1].position=vsubf(p->position,vmulf(vaddf(vdivf(p->plane[0],PORTALFRACTIONX),vdivf(p->plane[1],PORTALFRACTIONY)),4));
-	p->guideAAR[1].size=vmulf(vaddf(vdivf(vmulf(p->plane[1],2),PORTALFRACTIONX),vdivf(p->normal,-8)),4);
+	p->guideAAR[1].position=vsubf(p->position,vmulf(vaddf(vmulf(p->plane[0],PORTAL_WIDTH),vmulf(p->plane[1],PORTAL_HEIGHT)),4));
+	p->guideAAR[1].size=vmulf(vaddf(vmulf(vmulf(p->plane[1],2),PORTAL_WIDTH),vmulf(p->normal,8)),4);
 	p->guideAAR[1].normal=p->plane[0];
 	fixAAR(&p->guideAAR[1]);
 	
 	p->guideAAR[2].used=true;
-	p->guideAAR[2].position=vaddf(p->position,vmulf(vaddf(vdivf(p->plane[0],PORTALFRACTIONX),vdivf(p->plane[1],PORTALFRACTIONY)),4));
-	p->guideAAR[2].size=vmulf(vaddf(vdivf(vmulf(p->plane[0],2),PORTALFRACTIONX),vdivf(p->normal,-8)),4);
+	p->guideAAR[2].position=vaddf(p->position,vmulf(vaddf(vmulf(p->plane[0],PORTAL_WIDTH),vmulf(p->plane[1],PORTAL_HEIGHT)),4));
+	p->guideAAR[2].size=vmulf(vaddf(vmulf(vmulf(p->plane[0],2),PORTAL_WIDTH),vmulf(p->normal,8)),4);
 	p->guideAAR[2].normal=vmulf(p->plane[1],-1);
 	fixAAR(&p->guideAAR[2]);
 	
 	p->guideAAR[3].used=true;
-	p->guideAAR[3].position=vsubf(p->position,vmulf(vaddf(vdivf(p->plane[0],PORTALFRACTIONX),vdivf(p->plane[1],PORTALFRACTIONY)),4));
-	p->guideAAR[3].size=vmulf(vaddf(vdivf(vmulf(p->plane[1],2),PORTALFRACTIONX),vdivf(p->normal,-8)),4);
+	p->guideAAR[3].position=vsubf(p->position,vmulf(vaddf(vmulf(p->plane[0],PORTAL_WIDTH),vmulf(p->plane[1],PORTAL_HEIGHT)),4));
+	p->guideAAR[3].size=vmulf(vaddf(vmulf(vmulf(p->plane[1],2),PORTAL_WIDTH),vmulf(p->normal,8)),4);
 	p->guideAAR[3].normal=vmulf(p->plane[0],-1);
 	fixAAR(&p->guideAAR[3]);
 }

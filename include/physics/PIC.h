@@ -1,9 +1,6 @@
 #ifndef PIC_H
 #define PIC_H
 
-#define PORTALFRACTIONX (12)
-#define PORTALFRACTIONY (6)
-
 #define PISIGNALDATA (6)
 #define PISIGNALMASK ((1<<PISIGNALDATA)-1)
 
