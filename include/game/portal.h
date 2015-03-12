@@ -32,8 +32,12 @@ void initPortal(portal_s* p);
 void drawPortals(portal_s* portals[], int n, renderSceneCallback_t callback, camera_s* c, int depth, u8 stencil);
 
 vect3Df_s warpPortalVector(portal_s* p, vect3Df_s v);
+void warpPortalMatrix(portal_s* p, float* m);
+
 bool isPointInPortal(portal_s* p, vect3Df_s o, vect3Df_s *v, float* x, float* y, float* z);
 
 void updatePortalOrientation(portal_s* p, vect3Df_s plane0, vect3Df_s normal);
+
+void generateGuideAAR(portal_s* p);
 
 #endif

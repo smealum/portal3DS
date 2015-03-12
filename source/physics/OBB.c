@@ -64,11 +64,10 @@ void initOBB(OBB_s* o, vect3Df_s pos, vect3Df_s size, md2_instance_t* model, flo
 	//rotateMatrixX(o->transformationMatrix,4096,false);
 	//rotateMatrixZ(o->transformationMatrix,4096,false);
 	
-	// if(portal[0].used&&portal[1].used)
-	// {
-	// 	updateOBBPortals(o,0,true);
-	// 	updateOBBPortals(o,1,true);
-	// }
+	for(i=0; i < NUM_PORTALS; i++)
+	{
+		if(portals[i].target)updateOBBPortals(o,i,true);
+	}
 
 	o->modelInstance=model;
 }
@@ -856,39 +855,38 @@ bool pointInFrontOfPortal(portal_s* p, vect3Df_s pos, float* z) //assuming corre
 	const vect3Df_s v2=vsubf(pos, p->position); //then, project onto portal base
 	vect3Df_s v=vect3Df(vdotf(p->plane[0],v2),vdotf(p->plane[1],v2),0);
 	*z=vdotf(p->normal,v2);
-	return (v.y>-PORTALSIZEY*4 && v.y<PORTALSIZEY*4 && v.x>-PORTALSIZEX*4 && v.x<PORTALSIZEX*4);
+	return (v.y>-PORTAL_HEIGHT && v.y<PORTAL_HEIGHT && v.x>-PORTAL_WIDTH && v.x<PORTAL_WIDTH);
 }
 
-// void updateOBBPortals(OBB_s* o, u8 id, bool init)
-// {
-// 	if(!o&&id<2)return;
+void updateOBBPortals(OBB_s* o, u8 id, bool init)
+{
+	if(!o&&id<2)return;
 
-// 	float z;
-// 	o->oldPortal[id]=o->portal[id];
-// 	o->portal[id]=((vdotf(vsubf(o->position,portal[id].position),portal[id].normal)>0)&1)|(((pointInFrontOfPortal(&portal[id],o->position,&z))&1)<<1);
+	float z;
+	o->oldPortal[id]=o->portal[id];
+	o->portal[id]=((vdotf(vsubf(o->position,portals[id].position),portals[id].normal)>0)&1)|(((pointInFrontOfPortal(&portals[id],o->position,&z))&1)<<1);
+
+	// printf("portal %d %f\n",o->portal[id]&2,z);
 	
-// 	switch(init)
-// 	{
-// 		case false:
-// 			if(((o->oldPortal[id]&1) && !(o->portal[id]&1) && (o->oldPortal[id]&2 || o->portal[id]&2)) || (o->portal[id]&2 && z<=0 && z>-16))
-// 			{
-// 				o->position=vaddf(portal[id].targetPortal->position,warpVector(&portal[id],vsubf(o->position,portal[id].position)));
-// 				o->velocity=warpVector(&portal[id],o->velocity);
-// 				o->forces=warpVector(&portal[id],o->forces);
-// 				o->angularVelocity=warpVector(&portal[id],o->angularVelocity);
-// 				o->moment=warpVector(&portal[id],o->moment);
-				
-// 				warpMatrix(&portal[id], o->transformationMatrix);
-// 				warpMatrix(&portal[id], o->invWInertiaMatrix);
-				
-// 				o->portaled=true;
-// 			}
-// 			break;
-// 		default:
-// 			o->oldPortal[id]=o->portal[id];
-// 			break;
-// 	}
-// }
+	if(init)
+	{
+		o->oldPortal[id]=o->portal[id];
+	}else if(portals[id].target && (z>=0.0f && o->oldPortalZ[id]<=0.0f))
+	{
+		// printf("WARP object (%d %d)\n", (int)(o->portal[id]&2 && z<=0.0f && z>-0.1f), (int)(((o->oldPortal[id]&1) && !(o->portal[id]&1) && (o->oldPortal[id]&2 || o->portal[id]&2))));
+		o->position=vaddf(portals[id].target->position,warpPortalVector(&portals[id],vsubf(o->position,portals[id].position)));
+		o->velocity=warpPortalVector(&portals[id],o->velocity);
+		o->forces=warpPortalVector(&portals[id],o->forces);
+		o->angularVelocity=warpPortalVector(&portals[id],o->angularVelocity);
+		o->moment=warpPortalVector(&portals[id],o->moment);
+		
+		warpPortalMatrix(&portals[id], o->transformationMatrix);
+		warpPortalMatrix(&portals[id], o->invWInertiaMatrix);
+		
+		o->portaled=true;
+	}
+	o->oldPortalZ[id] = z;
+}
 
 void updateOBB(OBB_s* o)
 {
@@ -896,11 +894,11 @@ void updateOBB(OBB_s* o)
 	
 	simulate(o,0.015f);
 	
-	// if(portal[0].used && portal[1].used)
-	// {
-	// 	updateOBBPortals(o,0,false);
-	// 	updateOBBPortals(o,1,false);
-	// }
+	int i;
+	for(i=0; i < NUM_PORTALS; i++)
+	{
+		if(portals[i].target)updateOBBPortals(o,i,false);
+	}
 }
 
 void updateOBBs(void)

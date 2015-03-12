@@ -62,6 +62,7 @@ typedef struct
 	md2_instance_t* modelInstance;
 	u8 portal[2];
 	u8 oldPortal[2];
+	float oldPortalZ[2];
 	float energy;
 	u16 counter;
 	s16 groundID;

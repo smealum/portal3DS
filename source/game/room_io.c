@@ -138,7 +138,7 @@ void readEntity(room_s* r, u8 i, FILE* f)
 			{
 				vect3Di_s p; readVect3Di(&p,f);
 				s16 target=-1; fread(&target, sizeof(s16), 1, f);
-				cubeDispenser_s* e=createCubeDispenser(r, p, true);
+				// cubeDispenser_s* e=createCubeDispenser(r, p, true);
 				// entityEntityArray[i]=(void*)e;
 				// entityTargetTypeArray[i]=DISPENSER_TARGET;
 			}

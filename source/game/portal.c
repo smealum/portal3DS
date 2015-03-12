@@ -104,6 +104,8 @@ void updatePortalOrientation(portal_s* p, vect3Df_s plane0, vect3Df_s normal)
 	p->matrix[3+1*4] = 0.0f;
 	p->matrix[3+2*4] = 0.0f;
 	p->matrix[3+3*4] = 1.0f;
+
+	generateGuideAAR(p);
 }
 
 vect3Df_s warpPortalVector(portal_s* p, vect3Df_s v)
@@ -119,6 +121,19 @@ vect3Df_s warpPortalVector(portal_s* p, vect3Df_s v)
 	v.z = -v.z;
 	
 	return multMatrix44Vect3(p2->matrix, v, false);
+}
+
+void warpPortalMatrix(portal_s* p, float* m) //3x3
+{
+	if(!m)return;
+	
+	vect3Df_s x=warpPortalVector(p,vect3Df(m[0],m[3],m[6]));
+	vect3Df_s y=warpPortalVector(p,vect3Df(m[1],m[4],m[7]));
+	vect3Df_s z=warpPortalVector(p,vect3Df(m[2],m[5],m[8]));
+	
+	m[0]=x.x;m[3]=x.y;m[6]=x.z;
+	m[1]=y.x;m[4]=y.y;m[7]=y.z;
+	m[2]=z.x;m[5]=z.y;m[8]=z.z;
 }
 
 bool isPointInPortal(portal_s* p, vect3Df_s o, vect3Df_s *v, float* x, float* y, float* z)
