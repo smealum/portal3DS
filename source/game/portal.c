@@ -75,6 +75,7 @@ void initPortal(portal_s* p)
 	// p->position = vect3Df();
 	p->target = NULL;
 	updatePortalOrientation(p, vect3Df(0.0f, 0.0f, 1.0f), vect3Df(-1.0f, 0.0f, 0.0f));
+	p->color = vect3Df(1.0f, 1.0f, 1.0f);
 }
 
 void updatePortalOrientation(portal_s* p, vect3Df_s plane0, vect3Df_s normal)
@@ -240,9 +241,14 @@ void drawPortals(portal_s* portals[], int n, renderSceneCallback_t callback, cam
 		shaderInstanceSetBool(portalProgram.vertexShader, 0, true);
 		gsSetShader(&portalProgram);
 
+		//TEMP
+		int colorUniformLoc = shaderInstanceGetUniformLocation(portalProgram.vertexShader, "color");
+
 		for(i=0; i<n; i++)
 		{
 			portal_s* p = portals[i];
+
+			GPU_SetFloatUniform(GPU_VERTEX_SHADER, colorUniformLoc, (u32*)(float[]){1.0f, p->color.z, p->color.y, p->color.x}, 1);
 
 			gsPushMatrix();
 				gsTranslate(p->position.x, p->position.y, p->position.z);
@@ -254,6 +260,7 @@ void drawPortals(portal_s* portals[], int n, renderSceneCallback_t callback, cam
 			gsPopMatrix();
 		}
 
+		GPU_SetFloatUniform(GPU_VERTEX_SHADER, colorUniformLoc, (u32*)(float[]){1.0f, 1.0f, 1.0f, 1.0f}, 1);
 		GPUCMD_AddWrite(GPUREG_ATTRIBBUFFER0_CONFIG0, (u32)portalVertexData-portalBaseAddr);
 
 		GPU_SetDepthTestAndWriteMask(true, GPU_GEQUAL, GPU_WRITE_COLOR);

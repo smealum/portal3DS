@@ -14,6 +14,7 @@ typedef struct portal_s
 {
 	vect3Df_s position;
 	vect3Df_s normal, plane[2];
+	vect3Df_s color;
 	float matrix[4*4];
 	struct portal_s* target;
 	AAR_s guideAAR[4];

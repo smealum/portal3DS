@@ -246,6 +246,8 @@ int main(int argc, char** argv)
 	portalInit();
 	portals[0].target = &portals[1];
 	portals[1].target = &portals[0];
+	portals[0].color = vect3Df(1.0f, 0.7f, 0.0f);
+	portals[1].color = vect3Df(0.0f, 0.7f, 1.0f);
 
 	//init physics
 	OBB_s* testObb = NULL;

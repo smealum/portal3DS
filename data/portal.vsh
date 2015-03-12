@@ -11,6 +11,7 @@
 	.out o3, result.texcoord1, 0x3
 
 ; setup uniform map (required to use SHDR_GetUniformRegister)
+	.uniform c80, c80, color      ; c80 = color
 	.uniform c84, c87, projection      ; c84-c87 = projection matrix
 	.uniform c88, c91, modelview       ; c88-c91 = modelview matrix
 
@@ -41,7 +42,7 @@
 			mov o3,  c82       (0x5)
 
 		; result.color = EXPERIMENTS !			
-			mov o1,  c82       (0x5)
+			mov o1,  c80       (0x5)
 			
 		end
 		nop
