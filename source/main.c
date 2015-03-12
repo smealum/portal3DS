@@ -87,7 +87,7 @@ void drawScene(camera_s* c, int depth, u8 stencil)
 // topscreen
 void renderFrame(u32* outBuffer, u32* outDepthBuffer)
 {
-	GPU_SetViewport((u32*)osConvertVirtToPhys((u32)outDepthBuffer),(u32*)osConvertVirtToPhys((u32)outBuffer),0,0,240*2,400);
+	GPU_SetViewport((u32*)osConvertVirtToPhys((u32)outDepthBuffer),(u32*)osConvertVirtToPhys((u32)outBuffer),0,0,240,400);
 	
 	GPU_DepthRange(-1.0f, 0.0f);
 	GPU_SetFaceCulling(GPU_CULL_FRONT_CCW);

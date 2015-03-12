@@ -202,16 +202,16 @@ void getPortalBoundingBox(portal_s* p, camera_s* c, vect3Di_s* topleft, vect3Di_
 	if(v.y > MY) MY = v.y;
 	if(*depth > -v.w) *depth = -v.w;
 
-	topleft->x = (mX+1.0f)*240*2/2;
+	topleft->x = (mX+1.0f)*240/2;
 	topleft->y = (mY+1.0f)*400/2;
 
-	bottomright->x = (MX+1.0f)*240*2/2;
+	bottomright->x = (MX+1.0f)*240/2;
 	bottomright->y = (MY+1.0f)*400/2;
 
 	if(topleft->x < 0) topleft->x = 0;
 	if(topleft->y < 0) topleft->y = 0;
 
-	if(bottomright->x > 240*2) bottomright->x = 240*2;
+	if(bottomright->x > 240) bottomright->x = 240;
 	if(bottomright->y > 400) bottomright->y = 400;
 }
 
@@ -309,6 +309,9 @@ void drawPortals(portal_s* portals[], int n, renderSceneCallback_t callback, cam
 		float near;
 		vect3Di_s bottomright, topleft;
 		getPortalBoundingBox(p, c, &topleft, &bottomright, &near);
+		
+		//TODO : improve
+		if(bottomright.x-topleft.x <= 0 || bottomright.y-topleft.y <= 0)continue;
 
 		GPU_SetScissorTest_(GPU_SCISSOR_NORMAL, topleft.x, topleft.y, bottomright.x, bottomright.y);
 

@@ -613,7 +613,7 @@ void gsDrawFrame()
 
 			//we wait for the left buffer to finish drawing
 			gsSafeWait(gspEvents[GSPEVENT_P3D]);
-			GX_SetDisplayTransfer(NULL, (u32*)gsGpuOut, 0x019001E0, (u32*)gfxGetFramebuffer(GFX_TOP, GFX_LEFT, NULL, NULL), 0x019001E0, 0x01001000);
+			GX_SetDisplayTransfer(NULL, (u32*)gsGpuOut, 0x019000F0, (u32*)gfxGetFramebuffer(GFX_TOP, GFX_LEFT, NULL, NULL), 0x019000F0, 0x00001000);
 			gsSafeWait(gspEvents[GSPEVENT_PPF]);
 
 			//we draw the right buffer, wait for it to finish and then switch back to left one
@@ -626,7 +626,7 @@ void gsDrawFrame()
 			gsSafeWait(gspEvents[GSPEVENT_P3D]);
 
 			//transfer from GPU output buffer to actual framebuffer
-			GX_SetDisplayTransfer(NULL, (u32*)gsGpuOut, 0x019001E0, (u32*)gfxGetFramebuffer(GFX_TOP, GFX_RIGHT, NULL, NULL), 0x019001E0, 0x01001000);
+			GX_SetDisplayTransfer(NULL, (u32*)gsGpuOut, 0x019000F0, (u32*)gfxGetFramebuffer(GFX_TOP, GFX_RIGHT, NULL, NULL), 0x019000F0, 0x00001000);
 			gsSafeWait(gspEvents[GSPEVENT_PPF]);
 			GPUCMD_SetBuffer(gsGpuCmd, gsGpuCmdSize, 0);
 		}else{
@@ -636,8 +636,8 @@ void gsDrawFrame()
 			GPUCMD_FlushAndRun(NULL);
 			gsSafeWait(gspEvents[GSPEVENT_P3D]);
 
-			//clear the screen
-			GX_SetDisplayTransfer(NULL, (u32*)gsGpuOut, 0x019001E0, (u32*)gfxGetFramebuffer(GFX_TOP, GFX_LEFT, NULL, NULL), 0x019001E0, 0x01001000);
+			//transfer from GPU output buffer to actual framebuffer
+			GX_SetDisplayTransfer(NULL, (u32*)gsGpuOut, 0x019000F0, (u32*)gfxGetFramebuffer(GFX_TOP, GFX_LEFT, NULL, NULL), 0x019000F0, 0x00001000);
 			gsSafeWait(gspEvents[GSPEVENT_PPF]);
 		}
 
