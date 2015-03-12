@@ -185,8 +185,10 @@ void renderFrame(u32* outBuffer, u32* outDepthBuffer)
 
 	// //draw object
 		gsMatrixMode(GS_MODELVIEW);
-		drawPlayerGun(&testPlayer);
 		drawScene(&testPlayer.camera, 2, 0);
+		GPU_SetStencilTest(false, GPU_ALWAYS, 0x00, 0xFF, 0x00);
+		GPU_SetScissorTest_(GPU_SCISSOR_NORMAL, 0, 0, 240, 400);
+		drawPlayerGun(&testPlayer);
 
 	GPU_FinishDrawing();
 }

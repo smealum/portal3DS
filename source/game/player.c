@@ -4,8 +4,24 @@
 #include "gfx/texture.h"
 #include "game/player.h"
 
+#include "passthrough_vsh_shbin.h"
+
 md2_model_t gunModel;
 texture_s gunTexture;
+
+DVLB_s* passthroughDvlb;
+shaderProgram_s passthroughProgram;
+
+const u32 rectangleBaseAddr=0x14000000;
+
+float rectangleData[] = {1.0f, 1.0f, 0.0f,
+						1.0f, -1.0f, 0.0f,
+						-1.0f, -1.0f, 0.0f,
+						1.0f, 1.0f, 0.0f,
+						-1.0f, -1.0f, 0.0f,
+						-1.0f, 1.0f, 0.0f};
+
+u32* rectangleVertexData = NULL;
 
 void playerInit(void)
 {
@@ -27,6 +43,16 @@ void initPlayer(player_s* p)
 	md2InstanceInit(&p->gunInstance, &gunModel, &gunTexture);
 
 	p->oldInPortal = p->inPortal = false;
+
+	passthroughDvlb = DVLB_ParseFile((u32*)passthrough_vsh_shbin, passthrough_vsh_shbin_size);
+	shaderProgramInit(&passthroughProgram);
+
+	if(!passthroughDvlb)return;
+
+	shaderProgramSetVsh(&passthroughProgram, &passthroughDvlb->DVLE[0]);
+
+	rectangleVertexData = linearAlloc(sizeof(rectangleData));
+	memcpy(rectangleVertexData, rectangleData, sizeof(rectangleData));
 }
 
 void warpPlayer(portal_s* p, player_s* pl)
@@ -107,7 +133,28 @@ void drawPlayerGun(player_s* p)
 		useCamera(&p->camera);
 		gsLoadIdentity();
 
+		GPU_SetDepthTestAndWriteMask(true, GPU_ALWAYS, GPU_WRITE_DEPTH);
+		gsSwitchRenderMode(-1);
+
+		GPU_SetAttributeBuffers(
+			1, // number of attributes
+			(u32*)osConvertVirtToPhys(rectangleBaseAddr), // we use the start of linear heap as base since that's where all our buffers are located
+			GPU_ATTRIBFMT(0, 3, GPU_FLOAT), // we want v0 (vertex position)
+			0xFFE, // mask : we want v0
+			0x0, // permutation : we use identity
+			1, // number of buffers : we have one attribute per buffer
+			(u32[]){(u32)rectangleVertexData-rectangleBaseAddr}, // buffer offsets (placeholders)
+			(u64[]){0x0}, // attribute permutations for each buffer
+			(u8[]){1} // number of attributes for each buffer
+			);
+
+		gsSetShader(&passthroughProgram);
+
+		GPU_DrawArray(GPU_TRIANGLES, 6);
+
+		GPU_SetDepthTestAndWriteMask(true, GPU_GREATER, GPU_WRITE_ALL);
 		gsSwitchRenderMode(md2GsMode);
+
 		gsTranslate(1.3, -1.65, -3.1);
 		gsRotateY(p->tempAngle.y);
 		gsRotateX(-p->tempAngle.x);
@@ -116,6 +163,7 @@ void drawPlayerGun(player_s* p)
 		gsRotateY(-M_PI/2);
 		gsRotateX(-M_PI/2);
 		gsScale(3.0f/8, 3.0f/8, 3.0f/8);
+
 		md2InstanceDraw(&p->gunInstance);
 	gsPopMatrix();
 }
