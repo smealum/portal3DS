@@ -6,6 +6,7 @@
 #include "game/player.h"
 #include "game/portal.h"
 #include "game/cubes.h"
+#include "game/door.h"
 #include "game/energyball.h"
 #include "game/platform.h"
 #include "game/bigbutton.h"
@@ -189,9 +190,9 @@ void readEntity(room_s* r, u8 i, FILE* f)
 			{
 				vect3Di_s p; readVect3Di(&p,f);
 				u8 orientation; fread(&orientation, sizeof(u8), 1, f);
-				// door_struct* e=createDoor(NULL, p, orientation%2);
-				// entityEntityArray[i]=(void*)e;
-				// entityTargetTypeArray[i]=DOOR_TARGET;
+				door_s* e=createDoor(NULL, p, orientation%2);
+				entityEntityArray[i]=(void*)e;
+				entityTargetTypeArray[i]=DOOR_TARGET;
 			}
 			break;
 		case 11:
