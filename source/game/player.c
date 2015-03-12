@@ -1,4 +1,5 @@
 #include <3ds.h>
+#include <string.h>
 #include "gfx/gs.h"
 #include "gfx/texture.h"
 #include "game/player.h"
@@ -24,6 +25,55 @@ void initPlayer(player_s* p)
 	initPhysicalPoint(&p->object, vect3Df(0,0,0), PLAYER_RADIUS);
 	initCamera(&p->camera);
 	md2InstanceInit(&p->gunInstance, &gunModel, &gunTexture);
+
+	p->oldInPortal = p->inPortal = false;
+}
+
+void warpPlayer(portal_s* p, player_s* pl)
+{
+	if(!p || !pl)return;
+	camera_s* c = &pl->camera;
+
+	camera_s new_camera = *c;
+
+	float tmp1[4*4], tmp2[4*4];
+	transposeMatrix44(p->target->matrix, tmp1);
+	new_camera.position = vaddf(p->target->position, warpPortalVector(p, vsubf(c->position, p->position)));
+	multMatrix44((float*)new_camera.orientation, p->matrix, tmp2);
+	rotateMatrixY(tmp1, M_PI, true);
+	multMatrix44(tmp2, tmp1, (float*)new_camera.orientation);
+
+	memcpy(new_camera.modelview, new_camera.orientation, sizeof(mtx44));
+	translateMatrix((float*)new_camera.modelview, -new_camera.position.x, -new_camera.position.y, -new_camera.position.z);
+
+	pl->object.position = new_camera.position;
+	pl->object.speed = warpPortalVector(p, pl->object.speed);
+	*c = new_camera;
+}
+
+void checkPortalPlayerWarp(player_s* pl, portal_s* p)
+{
+	if(!pl || !p)return;
+	vect3Df_s v;
+	float x, y, z;
+	bool r=isPointInPortal(p, pl->object.position, &v, &x, &y, &z);
+	if(r)
+	{
+		// printf("z : %f\n",p->oldPlayerZ);
+		if(p->oldPlayerR && (z>=0.0f && p->oldPlayerZ<=0.0f))
+		{
+			// currentPortal=p;
+			warpPlayer(p, pl);
+			// gravityGunTarget=-1;
+		}
+
+		pl->oldInPortal=pl->inPortal;
+
+		if(fabs(z) < PLAYER_RADIUS)pl->inPortal=true;
+		else pl->inPortal=false;
+	}
+	p->oldPlayerR = r;
+	p->oldPlayerZ = z;
 }
 
 void updatePlayer(player_s* p, room_s* r)
@@ -32,6 +82,13 @@ void updatePlayer(player_s* p, room_s* r)
 
 	md2InstanceUpdate(&p->gunInstance);
 	collideObjectRoom(&p->object, r);
+
+	int i;
+	for(i=0; i < NUM_PORTALS; i++)
+	{
+		if(portals[i].target)checkPortalPlayerWarp(p, &portals[i]);
+	}
+
 	updateCamera(&p->camera);
 
 	p->camera.position = p->object.position;

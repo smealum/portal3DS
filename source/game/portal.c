@@ -121,6 +121,17 @@ vect3Df_s warpPortalVector(portal_s* p, vect3Df_s v)
 	return multMatrix44Vect3(p2->matrix, v, false);
 }
 
+bool isPointInPortal(portal_s* p, vect3Df_s o, vect3Df_s *v, float* x, float* y, float* z)
+{
+	if(!x || !y || !z || !v || !p)return false;
+	*v=vsubf(o,p->position);
+	const vect3Df_s u1=p->plane[0], u2=p->plane[1];
+	*x=vdotf(*v,u1);
+	*y=vdotf(*v,u2);
+	*z=vdotf(*v,p->normal);
+	return !(*x<-PORTAL_WIDTH || *y<-PORTAL_HEIGHT || *x>=PORTAL_WIDTH || *y>=PORTAL_HEIGHT || *z>3.0f);
+}
+
 void GPU_SetScissorTest_(GPU_SCISSORMODE mode, u32 x, u32 y, u32 w, u32 h)
 {
 	u32 param[4];

@@ -23,6 +23,7 @@ typedef struct
 	physicalPoint_s object;
 	camera_s camera;
 	vect3Df_s tempAngle;
+	bool inPortal, oldInPortal;
 }player_s;
 
 void playerInit(void);
