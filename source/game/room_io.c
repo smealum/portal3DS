@@ -263,7 +263,7 @@ void readEntities(room_s* r, FILE* f)
 
 	u16 cnt; fread(&cnt,sizeof(u16),1,f);
 	int i; for(i=0;i<cnt;i++)readEntity(r,i,f);
-	// for(i=0;i<cnt;i++)addEntityTarget(i,cnt,entityEntityArray[i],entityTargetTypeArray[i]);
+	for(i=0;i<cnt;i++)addEntityTarget(i,cnt,entityEntityArray[i],entityTargetTypeArray[i]);
 }
 
 void readHeader(mapHeader_s* h, FILE* f)
