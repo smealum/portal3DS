@@ -563,6 +563,21 @@ int gsVboDraw(gsVbo_s* vbo)
 	return 0;
 }
 
+extern Handle gspEventThread;
+extern Handle gspEvents[GSPEVENT_MAX];
+
+//stolen from blargsnes
+void gsSafeWait(Handle evt)
+{
+	// sometimes, we end up waiting for a given event, but for whatever reason the associated action failed to start
+	// and we end up 'freezing'
+	// this method of waiting avoids that
+	// it's dirty and doesn't solve the actual issue but atleast it avoids a freeze
+	
+	Result res = svcWaitSynchronization(evt, 40*1000*1000);
+	if(!res)svcClearEvent(evt);
+}
+
 void gsDrawFrame()
 {
 	if(gsDrawTop)
@@ -597,40 +612,40 @@ void gsDrawFrame()
 			{mtx44 m; loadIdentity44((float*)m); translateMatrix((float*)m, -interaxial*0.5f, 0.0f, 0.0f); gsAdjustBufferMatrices(m);}
 
 			//we wait for the left buffer to finish drawing
-			gspWaitForP3D();
+			gsSafeWait(gspEvents[GSPEVENT_P3D]);
 			GX_SetDisplayTransfer(NULL, (u32*)gsGpuOut, 0x019001E0, (u32*)gfxGetFramebuffer(GFX_TOP, GFX_LEFT, NULL, NULL), 0x019001E0, 0x01001000);
-			gspWaitForPPF();
+			gsSafeWait(gspEvents[GSPEVENT_PPF]);
 
 			//we draw the right buffer, wait for it to finish and then switch back to left one
 			//clear the screen
 			GX_SetMemoryFill(NULL, (u32*)gsGpuOut, gsBackgroundColor, (u32*)&gsGpuOut[0x2EE00], 0x201, (u32*)gsGpuDOut, 0x00000000, (u32*)&gsGpuDOut[0x2EE00], 0x201);
-			gspWaitForPSC0();
+			gsSafeWait(gspEvents[GSPEVENT_PSC0]);
 
 			//draw the right framebuffer
 			GPUCMD_FlushAndRun(NULL);
-			gspWaitForP3D();
+			gsSafeWait(gspEvents[GSPEVENT_P3D]);
 
 			//transfer from GPU output buffer to actual framebuffer
 			GX_SetDisplayTransfer(NULL, (u32*)gsGpuOut, 0x019001E0, (u32*)gfxGetFramebuffer(GFX_TOP, GFX_RIGHT, NULL, NULL), 0x019001E0, 0x01001000);
-			gspWaitForPPF();
+			gsSafeWait(gspEvents[GSPEVENT_PPF]);
 			GPUCMD_SetBuffer(gsGpuCmd, gsGpuCmdSize, 0);
 		}else{
 			//boring old 2D !
 
 			//draw the frame
 			GPUCMD_FlushAndRun(NULL);
-			gspWaitForP3D();
+			gsSafeWait(gspEvents[GSPEVENT_P3D]);
 
 			//clear the screen
 			GX_SetDisplayTransfer(NULL, (u32*)gsGpuOut, 0x019001E0, (u32*)gfxGetFramebuffer(GFX_TOP, GFX_LEFT, NULL, NULL), 0x019001E0, 0x01001000);
-			// gspWaitForPPF();
+			gsSafeWait(gspEvents[GSPEVENT_PPF]);
 		}
 
 		gsDrawBottom(NULL, NULL);
 
 		//clear the screen
 		GX_SetMemoryFill(NULL, (u32*)gsGpuOut, gsBackgroundColor, (u32*)&gsGpuOut[0x2EE00], 0x201, (u32*)gsGpuDOut, 0x00000000, (u32*)&gsGpuDOut[0x2EE00], 0x201);
-		// gspWaitForPSC0();
+		gsSafeWait(gspEvents[GSPEVENT_PSC0]);
 		gfxSwapBuffersGpu();
 
 	}
