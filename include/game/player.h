@@ -24,6 +24,7 @@ typedef struct
 	camera_s camera;
 	vect3Df_s tempAngle;
 	bool inPortal, oldInPortal;
+	bool flying;
 }player_s;
 
 void playerInit(void);

@@ -273,10 +273,19 @@ int main(int argc, char** argv)
 		irrstCstickRead(&cstick);
 		rotatePlayer(&testPlayer, vect3Df((abs(cstick.dy)<5)?0:(-cstick.dy*0.001f), (abs(cstick.dx)<5)?0:(cstick.dx*0.001f), 0.0f));
 
-		if(keysHeld()&KEY_CPAD_UP)movePlayer(&testPlayer, vect3Df(0.0f, 0.0f, -0.4f));
-		if(keysHeld()&KEY_CPAD_DOWN)movePlayer(&testPlayer, vect3Df(0.0f, 0.0f, 0.4f));
-		if(keysHeld()&KEY_CPAD_LEFT)movePlayer(&testPlayer, vect3Df(-0.4f, 0.0f, 0.0f));
-		if(keysHeld()&KEY_CPAD_RIGHT)movePlayer(&testPlayer, vect3Df(0.4f, 0.0f, 0.0f));
+		if(testPlayer.flying)
+		{
+			if(keysHeld()&KEY_CPAD_UP)movePlayer(&testPlayer, vect3Df(0.0f, 0.0f, -0.4f));
+			if(keysHeld()&KEY_CPAD_DOWN)movePlayer(&testPlayer, vect3Df(0.0f, 0.0f, 0.4f));
+			if(keysHeld()&KEY_CPAD_LEFT)movePlayer(&testPlayer, vect3Df(-0.4f, 0.0f, 0.0f));
+			if(keysHeld()&KEY_CPAD_RIGHT)movePlayer(&testPlayer, vect3Df(0.4f, 0.0f, 0.0f));
+		}else if(testPlayer.object.contact)
+		{
+			if(keysHeld()&KEY_CPAD_UP)movePlayer(&testPlayer, vect3Df(0.0f, 0.0f, -0.2f));
+			if(keysHeld()&KEY_CPAD_DOWN)movePlayer(&testPlayer, vect3Df(0.0f, 0.0f, 0.2f));
+			if(keysHeld()&KEY_CPAD_LEFT)movePlayer(&testPlayer, vect3Df(-0.2f, 0.0f, 0.0f));
+			if(keysHeld()&KEY_CPAD_RIGHT)movePlayer(&testPlayer, vect3Df(0.2f, 0.0f, 0.0f));
+		}
 
 		// if(keysHeld()&KEY_X)debugVal[0]+=0.05f*10;
 		// if(keysHeld()&KEY_B)debugVal[0]-=0.05f*10;
@@ -291,7 +300,8 @@ int main(int argc, char** argv)
 		if(keysHeld()&KEY_DLEFT)debugVal[3]+=0.05f;
 		if(keysHeld()&KEY_DRIGHT)debugVal[3]-=0.05f;
 		if(keysHeld()&KEY_ZL)debugVal[4]+=0.05f;
-		if(keysHeld()&KEY_ZR)debugVal[4]-=0.05f;
+		// if(keysHeld()&KEY_ZR)debugVal[4]-=0.05f;
+		if(keysDown()&KEY_ZR)testPlayer.flying^=1;
 
 		// printf("%4.2f %4.2f %4.2f %4.2f %4.2f\n",debugVal[0],debugVal[1],debugVal[2],debugVal[3],debugVal[4]);
 		if(testObb && keysHeld()&KEY_SELECT)printf("%d : %f %f %f\n", (int)testObb->sleep, testObb->position.x, testObb->position.y, testObb->position.z);

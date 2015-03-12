@@ -187,24 +187,24 @@ void collideObjectRoom(physicalPoint_s* pp, room_s* r)
 	pp->position = vaddf(pp->position,pp->speed);
 	ret = checkObjectCollision(pp, r);
 	
-	// pp->contact=ret;
+	pp->contact=ret;
 	
-	// vect3Df_s os=pp->speed;
-	// pp->speed=vect3Df(pp->position.x-oldPosition.x, pp->position.y-oldPosition.y, pp->position.z-oldPosition.z);
-	// pp->speed=vect3Df((os.x*pp->speed.x>0)?(pp->speed.x):(0),(os.y*pp->speed.y>0)?(pp->speed.y):(0),(os.z*pp->speed.z>0)?(pp->speed.z):(0));
+	vect3Df_s os=pp->speed;
+	pp->speed=vect3Df(pp->position.x-oldPosition.x, pp->position.y-oldPosition.y, pp->position.z-oldPosition.z);
+	pp->speed=vect3Df((os.x*pp->speed.x>0)?(pp->speed.x):(0),(os.y*pp->speed.y>0)?(pp->speed.y):(0),(os.z*pp->speed.z>0)?(pp->speed.z):(0));
 
-	// if(pp->contact)
-	// {
-	// 	 //floor friction
-	// 	vect3Df_s s=vsubf(pp->speed,vmulf(normGravityVector,dotProduct(normGravityVector,pp->speed)));
-	// 	pp->speed=vsubf(pp->speed,vectDivInt(s,2));
-	// }else{
-	// 	//air friction
-	// 	vect3Df_s s=vsubf(pp->speed,vmulf(normGravityVector,dotProduct(normGravityVector,pp->speed)));
-	// 	pp->speed=vsubf(pp->speed,vectDivInt(s,32));
-	// }
+	if(pp->contact)
+	{
+		 //floor friction
+		vect3Df_s s=vsubf(pp->speed,vmulf(normGravityVector,vdotf(normGravityVector,pp->speed)));
+		pp->speed=vsubf(pp->speed,vdivf(s,2));
+	}else{
+		//air friction
+		vect3Df_s s=vsubf(pp->speed,vmulf(normGravityVector,vdotf(normGravityVector,pp->speed)));
+		pp->speed=vsubf(pp->speed,vdivf(s,32));
+	}
 
-	// if(abs(pp->speed.x)<3)pp->speed.x=0;
-	// if(abs(pp->speed.z)<3)pp->speed.z=0;
+	if(fabs(pp->speed.x)<0.01f)pp->speed.x=0;
+	if(fabs(pp->speed.z)<0.01f)pp->speed.z=0;
 }
 

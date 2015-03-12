@@ -534,7 +534,7 @@ void applyOBBImpulsePlane(OBB_s* o, u8 pID)
 	{
 		vect3Df_s tangent=vect3Df(0,0,0);
 		tangent=vsubf(v,(vmulf(cp->normal,vdotf(v, cp->normal))));
-		if(vmagf(tangent)<1)return;
+		if(vmagf(tangent)<0.01f)return;
 		tangent=vnormf(tangent);
 
 		float kTangent=invMass+vdotf(tangent,vprodf(vevalf(o->invWInertiaMatrix,(vprodf(r, tangent))), r));
@@ -601,7 +601,7 @@ void applyOBBImpulseOBB(OBB_s* o, u8 pID)
 	{
 		vect3Df_s tangent=vect3Df(0,0,0);
 		tangent=vsubf(dv,(vmulf(cp->normal,vdotf(dv, cp->normal))));
-		if(vmagf(tangent)<1)return;
+		if(vmagf(tangent)<0.01f)return;
 		tangent=vnormf(tangent);
 
 		float kTangent=invMass1+invMass2+vdotf(tangent,vaddf(vprodf(vevalf(o->invWInertiaMatrix,(vprodf(r1, tangent))), r1),

@@ -53,6 +53,8 @@ void initPlayer(player_s* p)
 
 	rectangleVertexData = linearAlloc(sizeof(rectangleData));
 	memcpy(rectangleVertexData, rectangleData, sizeof(rectangleData));
+
+	p->flying = true;
 }
 
 void warpPlayer(portal_s* p, player_s* pl)
@@ -102,11 +104,15 @@ void checkPortalPlayerWarp(player_s* pl, portal_s* p)
 	p->oldPlayerZ = z;
 }
 
+extern vect3Df_s normGravityVector;
+
 void updatePlayer(player_s* p, room_s* r)
 {
 	if(!p)return;
 
 	md2InstanceUpdate(&p->gunInstance);
+	if(!p->flying) p->object.speed = vaddf(p->object.speed, vmulf(normGravityVector, 0.04f));
+	vect3Df_s prevPosition = p->object.position;
 	collideObjectRoom(&p->object, r);
 
 	int i;
@@ -117,9 +123,28 @@ void updatePlayer(player_s* p, room_s* r)
 
 	updateCamera(&p->camera);
 
+	float alignment = -vdotf(vect3Df(p->camera.orientation[0][0],p->camera.orientation[0][1],p->camera.orientation[0][2]), normGravityVector);
+	// printf("alignment : %f  \n",alignment);
+
+	{
+		if(alignment>0.001)
+		{
+			if(alignment>0.125)rotateMatrixZ((float*)p->camera.orientation, -0.5f*0.15f, true);
+			else if(alignment>0.0625)rotateMatrixZ((float*)p->camera.orientation, -0.25f*0.15f, true);
+			else if(alignment>0.03125)rotateMatrixZ((float*)p->camera.orientation, -0.125f*0.07f, true);
+		}else if(alignment<-0.001)
+		{
+			if(alignment<-0.125)rotateMatrixZ((float*)p->camera.orientation, 0.5f*0.15f, true);
+			else if(alignment<-0.0625)rotateMatrixZ((float*)p->camera.orientation, 0.25f*0.15f, true);
+			else if(alignment<-0.03125)rotateMatrixZ((float*)p->camera.orientation, 0.125f*0.07f, true);
+		}
+	}
+	
+	// fixMatrix(c->orientation); //compensate floating point errors
+
 	p->camera.position = p->object.position;
 	
-	p->object.speed = vect3Df(0,0,0); //TEMP
+	if(p->flying) p->object.speed = vect3Df(0,0,0); //TEMP
 	p->tempAngle = vmulf(p->tempAngle, 0.65f);
 }
 
@@ -172,7 +197,7 @@ void movePlayer(player_s* p, vect3Df_s v)
 {
 	if(!p)return;
 
-	p->object.speed = vaddf(p->object.speed, moveCameraVector(&p->camera, v));
+	p->object.speed = vaddf(p->object.speed, moveCameraVector(&p->camera, v, p->flying));
 }
 
 void rotatePlayer(player_s* p, vect3Df_s v)
