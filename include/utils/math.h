@@ -62,6 +62,16 @@ static inline vect3Di_s vmuli(vect3Di_s v, s32 f)
 	return (vect3Di_s){v.x*f,v.y*f,v.z*f};
 }
 
+static inline vect3Di_s vmini(vect3Di_s u, vect3Di_s v)
+{
+	return vect3Di(mini(u.x,v.x),mini(u.y,v.y),mini(u.z,v.z));
+}
+
+static inline vect3Di_s vmaxi(vect3Di_s u, vect3Di_s v)
+{
+	return vect3Di(maxi(u.x,v.x),maxi(u.y,v.y),maxi(u.z,v.z));
+}
+
 typedef struct
 {
 	float x, y, z;

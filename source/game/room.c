@@ -40,6 +40,116 @@ void initRectangleList(rectangleList_s* p)
 	p->num=0;
 }
 
+vect3Di_s orientVector(vect3Di_s v, u8 k)
+{
+	vect3Di_s u;
+
+	switch(k)
+	{
+		case 0:
+			u.x=-v.z;
+			u.y=v.y;
+			u.z=v.x;
+			break;
+		case 1:
+			u.x=v.z;
+			u.y=v.y;
+			u.z=-v.x;
+			break;
+		case 4:
+			u.x=v.x;
+			u.y=v.y;
+			u.z=-v.z;
+			break;
+		default:
+			u=v;
+			break;
+	}
+
+	return u;
+}
+
+void invertRectangle(rectangle_s* rec)
+{
+	if(!rec)return;
+
+	if(rec->size.x)
+	{
+		rec->position.x+=rec->size.x;
+		rec->size.x=-rec->size.x;
+	}else{
+		rec->position.z+=rec->size.z;
+		rec->size.z=-rec->size.z;
+	}
+}
+
+void roomOriginSize(room_s* r, vect3Di_s* o, vect3Di_s* s)
+{
+	if(!r || (!o && !s))return;
+
+	vect3Di_s m=vect3Di(8192,8192,8192); vect3Di_s M=vect3Di(0,0,0);
+
+	listCell_s *lc=r->rectangles.first;
+
+	while(lc)
+	{
+		m=vmini(lc->data.position,m);
+		m=vmini(vaddi(lc->data.position,lc->data.size),m);
+		M=vmaxi(lc->data.position,M);
+		M=vmaxi(vaddi(lc->data.position,lc->data.size),M);
+		lc=lc->next;
+	}
+
+	if(o)*o=m;
+	if(s)*s=vsubi(M,m);
+}
+
+
+void insertRoom(room_s* r1, room_s* r2, vect3Di_s v, u8 orientation)
+{
+	if(!r1 || !r2)return;
+
+	listCell_s *lc=r2->rectangles.first;
+
+	vect3Di_s o=vect3Di(0,0,0), s=vect3Di(0,0,0);
+	roomOriginSize(r2,&o,&s);
+
+	switch(orientation) //TODO : do pre-rotation ?
+	{
+		case 0:
+			v.z-=s.x/2; //not a mistake
+			break;
+		case 1:
+			v.z+=s.x/2; //not a mistake
+			break;
+		case 4:	case 5:
+			v.x-=s.x/2;
+			break;
+	}
+	v.y-=4;
+
+	while(lc)
+	{
+		rectangle_s rec=lc->data;
+		rec.position=vsubi(rec.position,o);
+
+		//rotate
+		rec.position=orientVector(rec.position,orientation);
+		rec.size=orientVector(rec.size,orientation);
+		if(!(orientation%2) || orientation==1)invertRectangle(&rec);
+
+		rec.position=vaddi(rec.position,v);
+		rectangle_s* recp=addRoomRectangle(r1, rec);
+		if(recp)
+		{
+			// recp->hide=true; //TEMP ?
+			recp->collides=!lc->data.portalable;
+			// recp->lightData.vertex=lc->data.lightData.vertex;
+		}
+		lc=lc->next;
+	}
+}
+
 rectangle_s* addRectangle(rectangle_s r, rectangleList_s* p)
 {
 	listCell_s* pc=(listCell_s*)malloc(sizeof(listCell_s));

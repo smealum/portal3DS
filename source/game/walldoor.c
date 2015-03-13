@@ -108,8 +108,8 @@ void setupWallDoor(room_s* r, wallDoor_s* wd, vect3Di_s position, u8 orientation
 	// initElevator(&wd->elevator, r, addVect(position,vectMultInt(wallDoorV2[wd->orientation],7)), orientation, true);
 	// setElevatorArriving(&wd->elevator,2048);
 
-	// //elevator room
-	// insertRoom(r,&elevatorRoom,position,orientation);
+	//elevator room
+	insertRoom(r,&elevatorRoom,position,orientation);
 }
 
 // bool pointInWallDoorRoom(wallDoor_s* wd, vect3Df_s p)
