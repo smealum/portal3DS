@@ -2,6 +2,7 @@
 #include "game/pointphysics.h"
 #include "game/room.h"
 #include "game/portal.h"
+#include "game/platform.h"
 #include "game/elevator.h"
 #include "game/walldoor.h"
 
@@ -205,16 +206,16 @@ bool checkObjectCollision(physicalPoint_s* o, room_s* r)
 		l = l->next;
 	}
 
-	// //platforms
-	// int i;
-	// for(i=0;i<NUMPLATFORMS;i++)
-	// {
-	// 	if(platform[i].used && collideRectangle(o,r,vaddf(platform[i].position,vect3Df(-PLATFORMSIZE,0,-PLATFORMSIZE)),vect3Df(PLATFORMSIZE*2,0,PLATFORMSIZE*2))) //add culling
-	// 	{
-	// 		platform[i].touched=true;
-	// 		ret=true;
-	// 	}
-	// }
+	//platforms
+	int i;
+	for(i=0;i<NUMPLATFORMS;i++)
+	{
+		if(platform[i].used && collideRectangle(o,vaddf(platform[i].position,vect3Df(-PLATFORMSIZE,0,-PLATFORMSIZE)),vect3Df(PLATFORMSIZE*2,0,PLATFORMSIZE*2))) //add culling
+		{
+			platform[i].touched=true;
+			ret=true;
+		}
+	}
 
 	//elevators
 	u8 val=0;

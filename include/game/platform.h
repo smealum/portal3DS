@@ -8,6 +8,7 @@
 #include "physics/physics.h"
 
 #define NUMPLATFORMS (8)
+#define PLATFORMSIZE (TILESIZE*3) //half
 
 typedef struct
 {
