@@ -12,6 +12,7 @@
 #include "game/platform.h"
 #include "game/bigbutton.h"
 #include "game/activator.h"
+#include "game/sludge.h"
 
 #include "utils/filesystem.h"
 
@@ -76,6 +77,20 @@ void readRectangles(room_s* r, FILE* f)
 	}
 }
 
+void readSludgeRectangles(FILE* f)
+{
+	if(!f)return;
+	int i, k;
+
+	fread(&k,sizeof(int),1,f);
+	for(i=0;i<k;i++)
+	{
+		rectangle_s rec;
+		readRectangle(&rec, f);
+		addSludgeRectangle(&rec);
+	}
+}
+
 extern player_s testPlayer;
 
 void addEntityTarget(u8 k, u8 n, void* target, activatorTarget_t type)
@@ -126,7 +141,7 @@ void readEntity(room_s* r, u8 i, FILE* f)
 				vect3Di_s p; readVect3Di(&p,f);
 				u8 d; fread(&d, sizeof(u8), 1, f);
 				s16 target=-1; fread(&target, sizeof(s16), 1, f);
-				// timedButton_struct* e=createTimedButton(r, p, (d+2)*8192);
+				// timedButton_s* e=createTimedButton(r, p, (d+2)*8192);
 				// if(e)entityActivatorArray[i]=&e->activator;
 				// entityTargetArray[i]=target;
 			}
@@ -303,9 +318,9 @@ void readRoom(char* filename, room_s* r, u8 flags)
 		readEntities(r, f);
 	}
 
-	// //sludge stuff
-	// fseek(f, h.sludgePosition, SEEK_SET);
-	// 	readSludgeRectangles(f);
+	//sludge stuff
+	fseek(f, h.sludgePosition, SEEK_SET);
+	readSludgeRectangles(f);
 
 	// //info
 	// if(flags&MAP_READ_INFO)

@@ -331,6 +331,34 @@ int findTexture(texture_s* t, texture_s** tb, int n)
 	return -1;
 }
 
+void generateRectangleGeometry(rectangle_s* rec, vect3Di_s* texCoords, rectangleVertex_s* vbuf, int* numvert, u16* ibuf, int* numind)
+{
+	if(!rec || !texCoords || !vbuf || !ibuf || !numvert || !numind)return;
+
+	vect3Di_s v1, v2;
+	getRectangleUnitVectors(rec, &v1, &v2);
+
+	int vertexIndices[4];
+	vect3Di_s vertices[4] = {rec->position, vaddi(rec->position, v1), vaddi(rec->position, rec->size), vaddi(rec->position, v2)};
+	
+	// printf("%f %f, %f %f\n", (texCoords[0].x)*0.0078125, (texCoords[0].y)*0.0078125, (texCoords[2].x)*0.0078125, (texCoords[2].y)*0.0078125);
+
+	int i;
+	for(i=0; i<4; i++)
+	{
+		vertexIndices[i] = (*numvert)++;
+		vbuf[vertexIndices[i]] = (rectangleVertex_s){vertices[i].x, vertices[i].y, vertices[i].z, (texCoords[i].x), (texCoords[i].y)};
+	}
+
+	ibuf[(*numind)++] = vertexIndices[0];
+	ibuf[(*numind)++] = vertexIndices[1];
+	ibuf[(*numind)++] = vertexIndices[3];
+
+	ibuf[(*numind)++] = vertexIndices[1];
+	ibuf[(*numind)++] = vertexIndices[2];
+	ibuf[(*numind)++] = vertexIndices[3];
+}
+
 void generateRoomGeometry(room_s* r)
 {
 	if(!r)return;
@@ -393,31 +421,9 @@ void generateRoomGeometry(room_s* r)
 				r->indexBufferTextures[b=r->numIndexBuffers++]=t;
 			}
 
-			vect3Di_s v1, v2;
-			getRectangleUnitVectors(&l->data, &v1, &v2);
-
-			int vertexIndices[4];
 			vect3Di_s texCoords[4];
-			vect3Di_s vertices[4] = {l->data.position, vaddi(l->data.position, v1), vaddi(l->data.position, l->data.size), vaddi(l->data.position, v2)};
-			
 			getMaterialTextureCoord(&l->data, texCoords);
-
-			// printf("%f %f, %f %f\n", (texCoords[0].x)*0.0078125, (texCoords[0].y)*0.0078125, (texCoords[2].x)*0.0078125, (texCoords[2].y)*0.0078125);
-
-			int i;
-			for(i=0; i<4; i++)
-			{
-				vertexIndices[i] = r->numVertices++;
-				r->vertexBuffer[vertexIndices[i]] = (rectangleVertex_s){vertices[i].x, vertices[i].y, vertices[i].z, (texCoords[i].x), (texCoords[i].y)};
-			}
-
-			r->indexBuffers[b][r->numIndices[b]++] = vertexIndices[0];
-			r->indexBuffers[b][r->numIndices[b]++] = vertexIndices[1];
-			r->indexBuffers[b][r->numIndices[b]++] = vertexIndices[3];
-
-			r->indexBuffers[b][r->numIndices[b]++] = vertexIndices[1];
-			r->indexBuffers[b][r->numIndices[b]++] = vertexIndices[2];
-			r->indexBuffers[b][r->numIndices[b]++] = vertexIndices[3];
+			generateRectangleGeometry(&l->data, texCoords, r->vertexBuffer, &r->numVertices, r->indexBuffers[b], &r->numIndices[b]);
 
 			l=l->next;
 		}
