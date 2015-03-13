@@ -6,6 +6,7 @@
 #include "game/room.h"
 #include "game/portal.h"
 #include "game/player.h"
+#include "game/elevator.h"
 
 typedef struct
 {
@@ -16,7 +17,7 @@ typedef struct
 	md2_instance_t modelInstance;
 	material_s* frameMaterial;
 	rectangle_s* rectangle;
-	// elevator_s elevator;
+	elevator_s elevator;
 	bool override;
 	bool used;
 }wallDoor_s;

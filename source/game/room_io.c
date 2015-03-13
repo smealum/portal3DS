@@ -216,28 +216,23 @@ void readEntity(room_s* r, u8 i, FILE* f)
 				vect3Di_s p; readVect3Di(&p,f);
 				u8 o; fread(&o,sizeof(u8),1,f);
 				printf("start : %d %d %d\n", p.x, p.y, p.z);
-				testPlayer.object.position = vect3Df(p.x*TILESIZE_FLOAT*2, p.y*HEIGHTUNIT_FLOAT, p.z*TILESIZE_FLOAT*2);
 				setupWallDoor(r, &entryWallDoor, p, o);
-				// if(entryWallDoor.used)
-				// {
-				// 	getPlayer()->object->position=addVect(entryWallDoor.elevator.realPosition,vect(0,PLAYERRADIUS*5,0));
-				// 	switch(o)
-				// 	{
-				// 		case 0:
-				// 			rotateCamera(NULL, vect(0,-8192,0));
-				// 			break;
-				// 		case 1:
-				// 			rotateCamera(NULL, vect(0,8192,0));
-				// 			break;
-				// 		case 4:
-				// 			rotateCamera(NULL, vect(0,8192*2,0));
-				// 			break;
-				// 	}
-				// 	getPlayer()->object->speed=vect(0,0,0);
-				// 	moveCamera(NULL, vect(0,0,PLAYERGROUNDSPEED*10));
-				// 	getPlayer()->object->position=addVect(getPlayer()->object->position,getPlayer()->object->speed);
-				// 	getPlayer()->object->speed=vect(0,0,0);
-				// }
+				if(entryWallDoor.used)
+				{
+					testPlayer.object.position=vaddf(entryWallDoor.elevator.realPosition,vect3Df(0,PLAYER_RADIUS*5,0));
+					switch(o)
+					{
+						case 0:
+							rotateCamera(NULL, vect3Df(0,-M_PI/2,0));
+							break;
+						case 1:
+							rotateCamera(NULL, vect3Df(0,M_PI/2,0));
+							break;
+						case 4:
+							rotateCamera(NULL, vect3Df(0,M_PI*2,0));
+							break;
+					}
+				}
 				entityEntityArray[i]=(void*)&entryWallDoor;
 				entityTargetTypeArray[i]=WALLDOOR_TARGET;
 			}

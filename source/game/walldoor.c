@@ -3,6 +3,7 @@
 #include <3ds.h>
 #include "game/walldoor.h"
 #include "game/room_io.h"
+#include "game/elevator.h"
 #include "gfx/gs.h"
 
 #define DOORFRAMELENGTH (8)
@@ -46,8 +47,6 @@ vect3Df_s wallDoorV2f[]={{-1,0,0},
 					{0,0,-1},
 					{0,0,1}};
 
-vect3Df_s elevatorRoomSize;
-
 void initWallDoor(wallDoor_s* wd)
 {
 	if(!wd)return;
@@ -70,7 +69,6 @@ void initWallDoors(void)
 
 	readRoom("elevatorroom.map", &elevatorRoom, MAP_READ_LIGHT);
 	// roomResetOrigin(&elevatorRoom);
-	// roomOriginSize(&elevatorRoom, NULL, &elevatorRoomSize);
 }
 
 void exitWallDoors(void)
@@ -101,46 +99,46 @@ void setupWallDoor(room_s* r, wallDoor_s* wd, vect3Di_s position, u8 orientation
 	rec.position=vaddi(position,vsubi(vect3Di(0,-4,0),wallDoorV1[orientation]));
 	rec.size=vaddi(vect3Di(0,8,0),vmuli(wallDoorV1[orientation],2));
 	rec.normal=wallDoorV2f[orientation];
-	// wd->rectangle=addRoomRectangle(r, rec);
-	// if(wd->rectangle)wd->rectangle->hide=true;
+	wd->rectangle=addRoomRectangle(r, rec);
+	if(wd->rectangle)wd->rectangle->hide=true;
 
-	// //elevator
-	// initElevator(&wd->elevator, r, addVect(position,vectMultInt(wallDoorV2[wd->orientation],7)), orientation, true);
-	// setElevatorArriving(&wd->elevator,2048);
+	//elevator
+	initElevator(&wd->elevator, r, vaddi(position,vmuli(wallDoorV2[wd->orientation],7)), orientation, true);
+	setElevatorArriving(&wd->elevator, 2.5f);
 
 	//elevator room
-	insertRoom(r,&elevatorRoom,position,orientation);
+	insertRoom(r, &elevatorRoom, position, orientation);
 }
 
-// bool pointInWallDoorRoom(wallDoor_s* wd, vect3Df_s p)
-// {
-// 	if(!wd)return false;
-// 	float v1=vdotf(vsubf(p,wd->position),wallDoorV1f[wd->orientation]);
-// 	float v2=vdotf(vsubf(p,wd->position),wallDoorV2f[wd->orientation]);
-// 	return (v1<=5)&&(wd->gridPosition.y-2<=p.y)&&(v2<=8) && (v1>=-5)&&(wd->gridPosition.y+22>=p.y)&&(v2>0);
-// }
+bool pointInWallDoorRoom(wallDoor_s* wd, vect3Df_s p)
+{
+	if(!wd)return false;
+	float v1=vdotf(vsubf(p,wd->position), wallDoorV1f[wd->orientation]);
+	float v2=vdotf(vsubf(p,wd->position), wallDoorV2f[wd->orientation]);
+	return (v1<=18)&&(wd->gridPosition.y-2<=p.y)&&(v2<=30) && (v1>=-18)&&(wd->gridPosition.y+22>=p.y)&&(v2>0);
+}
 
 void updateWallDoor(player_s* pl, wallDoor_s* wd)
 {
 	if(!wd || !pl)return;
 
-	// bool pin=pointInWallDoorRoom(wd, pl->relativePosition);
+	bool pin=pointInWallDoorRoom(wd, pl->object.position);
 
-	// if(pin || wd->override)
-	// {
-	// 	if(wd->modelInstance.currentAnim==0)
-	// 	{
-	// 		md2InstanceChangeAnimation(&wd->modelInstance, 2, false);
-	// 		md2InstanceChangeAnimation(&wd->modelInstance, 1, true);
-	// 	}
-	// 	// updateElevator(&wd->elevator);
-	// }else{
-	// 	if(wd->modelInstance.currentAnim==2)
-	// 	{
-	// 		md2InstanceChangeAnimation(&wd->modelInstance, 0, false);
-	// 		md2InstanceChangeAnimation(&wd->modelInstance, 3, true);
-	// 	}
-	// }
+	if(pin || wd->override)
+	{
+		if(wd->modelInstance.currentAnim==0)
+		{
+			md2InstanceChangeAnimation(&wd->modelInstance, 2, false);
+			md2InstanceChangeAnimation(&wd->modelInstance, 1, true);
+		}
+		updateElevator(&wd->elevator);
+	}else{
+		if(wd->modelInstance.currentAnim==2)
+		{
+			md2InstanceChangeAnimation(&wd->modelInstance, 0, false);
+			md2InstanceChangeAnimation(&wd->modelInstance, 3, true);
+		}
+	}
 
 	if(wd->rectangle)
 	{
@@ -224,7 +222,7 @@ void drawWallDoor(wallDoor_s* wd)
 		md2InstanceDraw(&wd->modelInstance);
 	gsPopMatrix();
 
-	// drawElevator(&wd->elevator);
+	drawElevator(&wd->elevator);
 }
 
 void drawWallDoors(void)

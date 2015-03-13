@@ -241,6 +241,7 @@ int main(int argc, char** argv)
 	initEnergyBalls();
 	initPlatforms();
 	initBigButtons();
+	initElevators();
 	initWallDoors();
 	initDoors();
 
@@ -256,12 +257,10 @@ int main(int argc, char** argv)
 	portals[1].color = vect3Df(0.0f, 0.7f, 1.0f);
 
 	//init physics
-	OBB_s* testObb = NULL;
 	transferRoomRectangles(&testRoom);
 	physicsGenerateGrid();
 	md2_instance_t modelInstance;
 	md2InstanceInit(&modelInstance, &cubeModel, &companionCubeTexture);
-	physicsCreateObb(&testObb, vaddf(testPlayer.object.position, vect3Df(0.0f, 0.0f, 10.0f)), vect3Df(1.0f, 1.0f, 1.0f), &modelInstance, 1.0f, 0.0f);
 
 	//background color (blue)
 	gsSetBackgroundColor(RGBA8(0x68, 0xB0, 0xD8, 0xFF));
@@ -312,7 +311,6 @@ int main(int argc, char** argv)
 		if(keysDown()&KEY_ZR)testPlayer.flying^=1;
 
 		// printf("%4.2f %4.2f %4.2f %4.2f %4.2f\n",debugVal[0],debugVal[1],debugVal[2],debugVal[3],debugVal[4]);
-		if(testObb && keysHeld()&KEY_SELECT)printf("%d : %f %f %f\n", (int)testObb->sleep, testObb->position.x, testObb->position.y, testObb->position.z);
 
 		if(keysDown()&KEY_R)shootPlayerGun(&testPlayer, &testRoom, &portals[0]);
 		if(keysDown()&KEY_L)shootPlayerGun(&testPlayer, &testRoom, &portals[1]);

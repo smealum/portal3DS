@@ -54,7 +54,7 @@ void initPlayer(player_s* p)
 	rectangleVertexData = linearAlloc(sizeof(rectangleData));
 	memcpy(rectangleVertexData, rectangleData, sizeof(rectangleData));
 
-	p->flying = true;
+	p->flying = false;
 }
 
 void warpPlayer(portal_s* p, player_s* pl)

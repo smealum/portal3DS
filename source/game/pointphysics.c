@@ -2,6 +2,8 @@
 #include "game/pointphysics.h"
 #include "game/room.h"
 #include "game/portal.h"
+#include "game/elevator.h"
+#include "game/walldoor.h"
 
 void initPhysicalPoint(physicalPoint_s* pp, vect3Df_s position, float radius)
 {
@@ -142,6 +144,56 @@ bool collideRectangle(physicalPoint_s* o, vect3Df_s p, vect3Df_s s)
 	return false;
 }
 
+u8 checkObjectElevatorCollision(physicalPoint_s* o, room_s* r, elevator_s* ev)
+{
+	if(!o || !r || !ev)return 0;
+
+	u8 ret=0;
+
+	if(collideRectangle(o,vaddf(ev->realPosition,vect3Df(-ELEVATOR_SIZE/2,0,-ELEVATOR_SIZE/2)),vect3Df(ELEVATOR_SIZE,0,ELEVATOR_SIZE)))ret=2;
+
+	vect3Df_s u=vect3Df(o->position.x-ev->position.x,0,o->position.z-ev->position.z);
+	float v=vmagf(u);
+
+	if(fabs(o->position.y-ev->position.y)>ELEVATOR_HEIGHT)return ret;
+
+	if(ev->state==ELEVATOR_OPEN)
+	{
+		switch(ev->direction&(~(1<<ELEVATOR_UPDOWNBIT)))
+		{
+			case 1:
+				if(u.x<-(v*cos(ELEVATOR_ANGLE)))return ret;
+				break;
+			case 4:
+				if(u.z>(v*cos(ELEVATOR_ANGLE)))return ret;
+				break;
+			case 5:
+				if(u.z<-(v*cos(ELEVATOR_ANGLE)))return ret;
+				break;
+			default:
+				if(u.x>(v*cos(ELEVATOR_ANGLE)))return ret;
+				break;
+		}
+	}
+
+	if(v<ELEVATOR_RADIUS_IN)
+	{
+		if(v+o->radius>=ELEVATOR_RADIUS_IN)
+		{
+			u=vdivf(vmulf(u,ELEVATOR_RADIUS_IN-o->radius-v),v);
+			o->position=vaddf(o->position,u);
+			ret=1;
+		}
+	}else if(v<o->radius+ELEVATOR_RADIUS_OUT)
+	{
+		u=vdivf(vmulf(u,o->radius+ELEVATOR_RADIUS_OUT-v),v);
+		o->position=vaddf(o->position,u);
+		ret=1;
+	}
+
+	return ret;
+}
+
 bool checkObjectCollision(physicalPoint_s* o, room_s* r)
 {	
 	bool ret=false;
@@ -149,7 +201,7 @@ bool checkObjectCollision(physicalPoint_s* o, room_s* r)
 	listCell_s* l = r->rectangles.first;
 	while(l)
 	{
-		ret = collideRectangle(o, convertRectangleVector(l->data.position), convertRectangleVector(l->data.size)) || ret;
+		if(l->data.collides) ret = collideRectangle(o, convertRectangleVector(l->data.position), convertRectangleVector(l->data.size)) || ret;
 		l = l->next;
 	}
 
@@ -157,17 +209,17 @@ bool checkObjectCollision(physicalPoint_s* o, room_s* r)
 	// int i;
 	// for(i=0;i<NUMPLATFORMS;i++)
 	// {
-	// 	if(platform[i].used && collideRectangle(o,r,vaddf(platform[i].position,vect(-PLATFORMSIZE,0,-PLATFORMSIZE)),vect(PLATFORMSIZE*2,0,PLATFORMSIZE*2))) //add culling
+	// 	if(platform[i].used && collideRectangle(o,r,vaddf(platform[i].position,vect3Df(-PLATFORMSIZE,0,-PLATFORMSIZE)),vect3Df(PLATFORMSIZE*2,0,PLATFORMSIZE*2))) //add culling
 	// 	{
 	// 		platform[i].touched=true;
 	// 		ret=true;
 	// 	}
 	// }
 
-	// //elevators
-	// u8 val=0;
-	// if((entryWallDoor.used && checkObjectElevatorCollision(o,r,&entryWallDoor.elevator)) || (exitWallDoor.used && (val=checkObjectElevatorCollision(o,r,&exitWallDoor.elevator))))ret=true;
-	// if(val==2)closeElevator(&exitWallDoor.elevator);
+	//elevators
+	u8 val=0;
+	if((entryWallDoor.used && checkObjectElevatorCollision(o,r,&entryWallDoor.elevator)) || (exitWallDoor.used && (val=checkObjectElevatorCollision(o,r,&exitWallDoor.elevator))))ret=true;
+	if(val==2)closeElevator(&exitWallDoor.elevator);
 	
 	// //timed buttons
 	// if(checkObjectTimedButtonsCollision(o,r))ret=true;
