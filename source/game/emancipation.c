@@ -4,6 +4,8 @@
 #include <math.h>
 #include <3ds.h>
 #include "game/emancipation.h"
+#include "physics/AAR.h"
+#include "physics/OBB.h"
 #include "gfx/gs.h"
 
 emancipator_s emancipators[NUMEMANCIPATORS];
@@ -143,56 +145,56 @@ void drawEmancipators(void)
 	}
 }
 
-// void initEmancipationGrid(room_s* r, emancipationGrid_s* eg, vect3Df_s pos, int32 l, bool dir)
-// {
-// 	if(!eg || !r)return;
+void initEmancipationGrid(room_s* r, emancipationGrid_s* eg, vect3Di_s pos, float l, bool dir)
+{
+	if(!eg || !r)return;
 	
-// 	pos=vect(pos.x+r->position.x, pos.y, pos.z+r->position.y);
-// 	eg->position=convertVect(pos);
-// 	eg->length=l;
-// 	eg->direction=dir;
+	pos=vect3Di(pos.x, pos.y, pos.z);
+	eg->position=convertRectangleVector(pos);
+	eg->length=l;
+	eg->direction=dir;
 	
-// 	eg->used=true;
-// }
+	eg->used=true;
+}
 
-// void createEmancipationGrid(room_s* r, vect3Df_s pos, int32 l, bool dir)
-// {
-// 	if(!r)r=getPlayer()->currentRoom;
-// 	int i;
-// 	for(i=0;i<NUMEMANCIPATIONGRIDS;i++)
-// 	{
-// 		if(!emancipationGrids[i].used)
-// 		{
-// 			initEmancipationGrid(r, &emancipationGrids[i],pos,l,dir);
-// 			return;
-// 		}
-// 	}
-// }
+void createEmancipationGrid(room_s* r, vect3Di_s pos, float l, bool dir)
+{
+	if(!r)return;
+	int i;
+	for(i=0;i<NUMEMANCIPATIONGRIDS;i++)
+	{
+		if(!emancipationGrids[i].used)
+		{
+			initEmancipationGrid(r, &emancipationGrids[i],pos,l,dir);
+			return;
+		}
+	}
+}
 
-// void updateEmancipationGrid(emancipationGrid_s* eg)
-// {
-// 	if(!eg)return;
+void updateEmancipationGrid(player_s* pl, emancipationGrid_s* eg)
+{
+	if(!eg)return;
 	
-// 	player_s* pl=getPlayer();
-// 	vect3Df_s pos, sp;
-// 	getEmancipationGridAAR(eg,&pos,&sp);
-// 	if(intersectAABBAAR(pl->object->position, vect(PLAYERRADIUS,PLAYERRADIUS*5,PLAYERRADIUS), pos, sp))
-// 	{
-// 		resetPortals();
-// 	}
-// }
+	vect3Df_s pos, sp;
+	getEmancipationGridAAR(eg,&pos,&sp);
+	if(intersectAABBAAR(pl->object.position, vect3Df(PLAYER_RADIUS,PLAYER_RADIUS*5,PLAYER_RADIUS), pos, sp))
+	{
+		//TODO
+		// resetPortals();
+	}
+}
 
-// void updateEmancipationGrids(void)
-// {
-// 	int i;
-// 	for(i=0;i<NUMEMANCIPATIONGRIDS;i++)
-// 	{
-// 		if(emancipationGrids[i].used)
-// 		{
-// 			updateEmancipationGrid(&emancipationGrids[i]);
-// 		}
-// 	}
-// }
+void updateEmancipationGrids(player_s* pl)
+{
+	int i;
+	for(i=0;i<NUMEMANCIPATIONGRIDS;i++)
+	{
+		if(emancipationGrids[i].used)
+		{
+			updateEmancipationGrid(pl, &emancipationGrids[i]);
+		}
+	}
+}
 
 // u16 counter=0;
 
@@ -242,58 +244,57 @@ void drawEmancipators(void)
 // 	}
 // }
 
-// void getEmancipationGridAAR(emancipationGrid_s* eg, vect3Df_s* pos, vect3Df_s* sp)
-// {
-// 	if(!eg || !pos || !sp)return;
+void getEmancipationGridAAR(emancipationGrid_s* eg, vect3Df_s* pos, vect3Df_s* sp)
+{
+	if(!eg || !pos || !sp)return;
 	
-// 	*sp=vect(eg->direction?(0):(eg->length/2),0,eg->direction?(eg->length/2):(0));
-// 	*pos=addVect(eg->position,*sp);
-// 	sp->y=EMANCIPATIONGRIDHEIGHT/2;
-// 	sp->x=abs(sp->x);sp->z=abs(sp->z);
-// }
+	*sp=vect3Df(eg->direction?(0):(eg->length/2),0,eg->direction?(eg->length/2):(0));
+	*pos=vaddf(eg->position,*sp);
+	sp->y=EMANCIPATIONGRIDHEIGHT/2;
+	sp->x=abs(sp->x);sp->z=abs(sp->z);
+}
 
-// bool emancipationGridBoxCollision(emancipationGrid_s* eg, OBB_s* o)
-// {
-// 	if(!eg || !o)return false;
+bool emancipationGridBoxCollision(emancipationGrid_s* eg, OBB_s* o)
+{
+	if(!eg || !o)return false;
 	
-// 	vect3Df_s s, pos, sp;
-// 	getBoxAABB(o,&s);
-// 	getEmancipationGridAAR(eg,&pos,&sp);
+	vect3Df_s s, pos, sp;
+	getBoxAABB(o,&s);
+	getEmancipationGridAAR(eg,&pos,&sp);
 	
-// 	return intersectAABBAAR(vectDivInt(o->position,4), s, pos, sp);
-// }
+	return intersectAABBAAR(o->position, s, pos, sp);
+}
 
-// bool collideBoxEmancipationGrids(OBB_s* o)
-// {
-// 	if(!o)return false;
-// 	int i;
-// 	for(i=0;i<NUMEMANCIPATIONGRIDS;i++)
-// 	{
-// 		if(emancipationGrids[i].used)
-// 		{
-// 			if(emancipationGridBoxCollision(&emancipationGrids[i], o))return true;
-// 		}
-// 	}
-// 	return false;
-// }
+bool collideBoxEmancipationGrids(OBB_s* o)
+{
+	if(!o)return false;
+	int i;
+	for(i=0;i<NUMEMANCIPATIONGRIDS;i++)
+	{
+		if(emancipationGrids[i].used)
+		{
+			if(emancipationGridBoxCollision(&emancipationGrids[i], o))return true;
+		}
+	}
+	return false;
+}
 
-// bool emancipationGridLineCollision(emancipationGrid_s* eg, vect3Df_s l, vect3Df_s v, int32 d)
+// bool emancipationGridLineCollision(emancipationGrid_s* eg, vect3Df_s l, vect3Df_s v, float d)
 // {
 // 	if(!eg)return false;
 	
 // 	vect3Df_s pos, sp;
 // 	getEmancipationGridAAR(eg,&pos,&sp);
-// 	pos=vectDifference(pos,convertVect(vect(gameRoom.position.x,0,gameRoom.position.y)));
 
-// 	pos=vectDifference(pos,sp);
-// 	sp=vect(sp.x*2,sp.y*2,sp.z*2);
+// 	pos=vsubf(pos,sp);
+// 	sp=vect3Df(sp.x*2,sp.y*2,sp.z*2);
 
 // 	vect3Df_s n;
-// 	if(!sp.x)n=vect(inttof32(1),0,0);
-// 	else if(!sp.y)n=vect(0,inttof32(1),0);
-// 	else n=vect(0,0,inttof32(1));
+// 	if(!sp.x)n=vect3Df(1.0f,0,0);
+// 	else if(!sp.y)n=vect3Df(0,1.0f,0);
+// 	else n=vect3Df(0,0,1.0f);
 
-// 	NOGBA("%d %d %d vs %d %d %d",pos.x,pos.y,pos.z,l.x,l.y,l.z);
+// 	// NOGBA("%d %d %d vs %d %d %d",pos.x,pos.y,pos.z,l.x,l.y,l.z);
 	
 // 	return collideLineConvertedRectangle(n, pos, sp, l, v, d, NULL, NULL);
 // }
