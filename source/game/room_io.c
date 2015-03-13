@@ -7,6 +7,7 @@
 #include "game/portal.h"
 #include "game/cubes.h"
 #include "game/door.h"
+#include "game/walldoor.h"
 #include "game/energyball.h"
 #include "game/platform.h"
 #include "game/bigbutton.h"
@@ -125,7 +126,7 @@ void readEntity(room_s* r, u8 i, FILE* f)
 				vect3Di_s p; readVect3Di(&p,f);
 				u8 d; fread(&d, sizeof(u8), 1, f);
 				s16 target=-1; fread(&target, sizeof(s16), 1, f);
-				// timedButton_struct* e=createTimedButton(NULL, p, (d+2)*8192);
+				// timedButton_struct* e=createTimedButton(r, p, (d+2)*8192);
 				// if(e)entityActivatorArray[i]=&e->activator;
 				// entityTargetArray[i]=target;
 			}
@@ -145,7 +146,7 @@ void readEntity(room_s* r, u8 i, FILE* f)
 			{
 				vect3Di_s p; readVect3Di(&p,f);
 				u8 d; fread(&d, sizeof(u8), 1, f);
-				// createTurret(NULL, p, d);
+				// createTurret(r, p, d);
 			}
 			break;
 		case 5: case 6:
@@ -170,7 +171,7 @@ void readEntity(room_s* r, u8 i, FILE* f)
 			{
 				s32 l; fread(&l,sizeof(s32),1,f);
 				vect3Di_s p; readVect3Di(&p,f);
-				// createEmancipationGrid(NULL, p, (dir%2)?(-l):(l), !(dir<=1)); //TEMP ?
+				// createEmancipationGrid(r, p, (dir%2)?(-l):(l), !(dir<=1)); //TEMP ?
 			}
 			break;
 		case 9:
@@ -190,7 +191,7 @@ void readEntity(room_s* r, u8 i, FILE* f)
 			{
 				vect3Di_s p; readVect3Di(&p,f);
 				u8 orientation; fread(&orientation, sizeof(u8), 1, f);
-				door_s* e=createDoor(NULL, p, orientation%2);
+				door_s* e=createDoor(r, p, orientation%2);
 				entityEntityArray[i]=(void*)e;
 				entityTargetTypeArray[i]=DOOR_TARGET;
 			}
@@ -214,9 +215,9 @@ void readEntity(room_s* r, u8 i, FILE* f)
 			{
 				vect3Di_s p; readVect3Di(&p,f);
 				u8 o; fread(&o,sizeof(u8),1,f);
-				// printf("start : %d %d %d\n", p.x, p.y, p.z);
+				printf("start : %d %d %d\n", p.x, p.y, p.z);
 				testPlayer.object.position = vect3Df(p.x*TILESIZE_FLOAT*2, p.y*HEIGHTUNIT_FLOAT, p.z*TILESIZE_FLOAT*2);
-				// setupWallDoor(NULL, &entryWallDoor, p, o);
+				setupWallDoor(r, &entryWallDoor, p, o);
 				// if(entryWallDoor.used)
 				// {
 				// 	getPlayer()->object->position=addVect(entryWallDoor.elevator.realPosition,vect(0,PLAYERRADIUS*5,0));
@@ -237,8 +238,8 @@ void readEntity(room_s* r, u8 i, FILE* f)
 				// 	getPlayer()->object->position=addVect(getPlayer()->object->position,getPlayer()->object->speed);
 				// 	getPlayer()->object->speed=vect(0,0,0);
 				// }
-				// entityEntityArray[i]=(void*)&entryWallDoor;
-				// entityTargetTypeArray[i]=WALLDOOR_TARGET;
+				entityEntityArray[i]=(void*)&entryWallDoor;
+				entityTargetTypeArray[i]=WALLDOOR_TARGET;
 			}
 			return;
 		case 14:
@@ -246,10 +247,10 @@ void readEntity(room_s* r, u8 i, FILE* f)
 			{
 				vect3Di_s p; readVect3Di(&p,f);
 				u8 o; fread(&o,sizeof(u8),1,f);
-				// setupWallDoor(NULL, &exitWallDoor, p, o);
-				// entityEntityArray[i]=(void*)&exitWallDoor;
-				// entityTargetTypeArray[i]=WALLDOOR_TARGET;
-				// exitWallDoor.override=true;
+				setupWallDoor(r, &exitWallDoor, p, o);
+				entityEntityArray[i]=(void*)&exitWallDoor;
+				entityTargetTypeArray[i]=WALLDOOR_TARGET;
+				exitWallDoor.override=true;
 			}
 			return;
 		default:

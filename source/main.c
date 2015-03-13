@@ -21,6 +21,8 @@
 #include "game/energyball.h"
 #include "game/platform.h"
 #include "game/bigbutton.h"
+#include "game/walldoor.h"
+#include "game/door.h"
 
 #include "physics/physics.h"
 
@@ -78,6 +80,8 @@ void drawScene(camera_s* c, int depth, u8 stencil)
 		drawEnergyBalls();
 		drawPlatforms();
 		drawBigButtons();
+		drawWallDoors();
+		drawDoors();
 		drawOBBs();
 
 		drawPortals((portal_s*[]){&portals[0], &portals[1]}, 2, drawScene, c, depth, stencil);
@@ -237,6 +241,8 @@ int main(int argc, char** argv)
 	initEnergyBalls();
 	initPlatforms();
 	initBigButtons();
+	initWallDoors();
+	initDoors();
 
 	//init room
 	roomInit();
@@ -319,6 +325,8 @@ int main(int argc, char** argv)
 		updateEnergyBalls();
 		updatePlatforms();
 		updateBigButtons();
+		updateWallDoors(&testPlayer);
+		updateDoors();
 
 		gsDrawFrame();
 
