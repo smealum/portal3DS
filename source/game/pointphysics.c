@@ -3,6 +3,7 @@
 #include "game/room.h"
 #include "game/portal.h"
 #include "game/platform.h"
+#include "game/timedbutton.h"
 #include "game/elevator.h"
 #include "game/walldoor.h"
 
@@ -222,8 +223,8 @@ bool checkObjectCollision(physicalPoint_s* o, room_s* r)
 	if((entryWallDoor.used && checkObjectElevatorCollision(o,r,&entryWallDoor.elevator)) || (exitWallDoor.used && (val=checkObjectElevatorCollision(o,r,&exitWallDoor.elevator))))ret=true;
 	if(val==2)closeElevator(&exitWallDoor.elevator);
 	
-	// //timed buttons
-	// if(checkObjectTimedButtonsCollision(o,r))ret=true;
+	//timed buttons
+	if(checkObjectTimedButtonsCollision(o,r))ret=true;
 
 	return ret;
 }
@@ -233,7 +234,7 @@ void collideObjectRoom(physicalPoint_s* pp, room_s* r)
 	if(!pp || !r)return;
 	vect3Df_s oldPosition = pp->position;
 
-	float length=vmagf(pp->speed);
+	// float length=vmagf(pp->speed);
 	
 	bool ret=false;
 	

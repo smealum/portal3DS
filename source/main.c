@@ -21,6 +21,7 @@
 #include "game/energyball.h"
 #include "game/platform.h"
 #include "game/bigbutton.h"
+#include "game/timedbutton.h"
 #include "game/walldoor.h"
 #include "game/door.h"
 
@@ -241,6 +242,7 @@ int main(int argc, char** argv)
 	initEnergyBalls();
 	initPlatforms();
 	initBigButtons();
+	initTimedButtons();
 	initElevators();
 	initWallDoors();
 	initDoors();
