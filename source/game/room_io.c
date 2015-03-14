@@ -141,9 +141,9 @@ void readEntity(room_s* r, u8 i, FILE* f)
 				vect3Di_s p; readVect3Di(&p,f);
 				u8 d; fread(&d, sizeof(u8), 1, f);
 				s16 target=-1; fread(&target, sizeof(s16), 1, f);
-				// timedButton_s* e=createTimedButton(r, p, (d+2)*8192);
-				// if(e)entityActivatorArray[i]=&e->activator;
-				// entityTargetArray[i]=target;
+				timedButton_s* e=createTimedButton(r, p, (d+2)*8192);
+				if(e)entityActivatorArray[i]=&e->activator;
+				entityTargetArray[i]=target;
 			}
 			break;
 		case 3:
@@ -186,7 +186,7 @@ void readEntity(room_s* r, u8 i, FILE* f)
 			{
 				s32 l; fread(&l,sizeof(s32),1,f);
 				vect3Di_s p; readVect3Di(&p,f);
-				// createEmancipationGrid(r, p, (dir%2)?(-l):(l), !(dir<=1)); //TEMP ?
+				createEmancipationGrid(r, p, (dir%2)?(-l):(l), !(dir<=1)); //TEMP ?
 			}
 			break;
 		case 9:

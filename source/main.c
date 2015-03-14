@@ -22,6 +22,7 @@
 #include "game/platform.h"
 #include "game/bigbutton.h"
 #include "game/timedbutton.h"
+#include "game/emancipation.h"
 #include "game/walldoor.h"
 #include "game/door.h"
 
@@ -243,6 +244,7 @@ int main(int argc, char** argv)
 	initPlatforms();
 	initBigButtons();
 	initTimedButtons();
+	initEmancipation();
 	initElevators();
 	initWallDoors();
 	initDoors();
