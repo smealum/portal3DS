@@ -11,6 +11,7 @@
 #include "game/energyball.h"
 #include "game/platform.h"
 #include "game/bigbutton.h"
+#include "game/timedbutton.h"
 #include "game/activator.h"
 #include "game/sludge.h"
 
