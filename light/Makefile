@@ -10,4 +10,4 @@ light.exe: build/light_main.o build/light_room.o build/light_room_io.o build/lig
 	gcc -o $@ $^
 
 build/%.o: source/%.c
-	gcc -c -o $@ $^
+	gcc -c -o $@ -Wall $^
