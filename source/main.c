@@ -23,6 +23,7 @@
 #include "game/bigbutton.h"
 #include "game/timedbutton.h"
 #include "game/emancipation.h"
+#include "game/sludge.h"
 #include "game/walldoor.h"
 #include "game/door.h"
 
@@ -85,6 +86,8 @@ void drawScene(camera_s* c, int depth, u8 stencil)
 		drawWallDoors();
 		drawDoors();
 		drawOBBs();
+		
+		drawSludge(&testRoom);
 
 		drawPortals((portal_s*[]){&portals[0], &portals[1]}, 2, drawScene, c, depth, stencil);
 	gsPopMatrix();
@@ -239,6 +242,7 @@ int main(int argc, char** argv)
 	initPhysics();
 
 	//init game elements
+	initSludge();
 	initCubes();
 	initEnergyBalls();
 	initPlatforms();
@@ -252,6 +256,7 @@ int main(int argc, char** argv)
 	//init room
 	roomInit();
 	readRoom("test1.map", &testRoom, MAP_READ_ENTITIES);
+	generateSludgeGeometry();
 
 	//init portal
 	portalInit();

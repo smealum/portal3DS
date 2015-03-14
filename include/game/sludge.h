@@ -9,6 +9,7 @@
 
 void initSludge(void);
 void exitSludge(void);
+void generateSludgeGeometry(void);
 void addSludgeRectangle(rectangle_s* rec);
 void drawSludge(room_s* r);
 

@@ -16,7 +16,7 @@ void initSludge(void)
 {
 	initRectangleList(&sludgeRectangleList);
 
-	textureLoad(&sludgeTexture, "sludge.png", GPU_TEXTURE_MAG_FILTER(GPU_LINEAR)|GPU_TEXTURE_MIN_FILTER(GPU_LINEAR), 0);
+	textureLoad(&sludgeTexture, "sludge.png", GPU_TEXTURE_MAG_FILTER(GPU_LINEAR)|GPU_TEXTURE_MIN_FILTER(GPU_LINEAR)|GPU_TEXTURE_WRAP_S(GPU_REPEAT)|GPU_TEXTURE_WRAP_T(GPU_REPEAT), 0);
 
 	sludgeVertexBuffer = NULL;
 	sludgeIndexBuffer = NULL;
@@ -43,6 +43,13 @@ void generateSludgeRectangleGeometry(rectangle_s* rec)
 	if(!rec)return;
 
 	vect3Di_s texCoords[4];
+
+	texCoords[0] = vect3Di(rec->position.x, rec->position.z, 0);
+	texCoords[1] = vect3Di(rec->position.x+rec->size.x, rec->position.z, 0);
+	texCoords[2] = vect3Di(rec->position.x+rec->size.x, rec->position.z+rec->size.z, 0);
+	texCoords[3] = vect3Di(rec->position.x, rec->position.z+rec->size.z, 0);
+
+	int i; for(i=0; i<4; i++)texCoords[i] = vmuli(texCoords[i], 16);
 
 	generateRectangleGeometry(rec, texCoords, sludgeVertexBuffer, &sludgeNumVertices, sludgeIndexBuffer, &sludgeNumIndices);
 }
@@ -92,6 +99,7 @@ void drawSludge(room_s* r)
 	gsPushMatrix();
 
 		gsScale(TILESIZE_FLOAT*2, HEIGHTUNIT_FLOAT, TILESIZE_FLOAT*2);
+		gsTranslate(0.0f, -HEIGHTUNIT_FLOAT*0.6f, 0.0f);
 
 		gsUpdateTransformation();
 
