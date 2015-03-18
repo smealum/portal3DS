@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "light_lightmap.h"
+#include "light_rectangle.h"
 
 #define AMBIENTLIGHT (10)
 #define LIGHTMAPRESOLUTION (32)
@@ -37,20 +38,20 @@ u8 computeLighting(vect3Df_s l, float intensity, vect3Df_s p, rectangle_s* rec, 
 	return 0;
 }
 
-// u8 computeLightings(vect3Df_s p, rectangle_s* rec, room_s* r)
-// {
-// 	int v=AMBIENTLIGHT;
-// 	int i;
-// 	for(i=0;i<NUMLIGHTS;i++)
-// 	{
-// 		if(lights[i].used)
-// 		{
-// 			light_s* l=&lights[i];
-// 			v+=computeLighting(vect(l->position.x*TILESIZE*2,l->position.y*HEIGHTUNIT,l->position.z*TILESIZE*2), l->intensity, p, rec, r);
-// 		}
-// 	}
-// 	return (u8)(31-min(max(v,0),31));
-// }
+u8 computeLightings(vect3Df_s p, rectangle_s* rec, room_s* r)
+{
+	int v=AMBIENTLIGHT;
+	// int i;
+	// for(i=0;i<NUMLIGHTS;i++)
+	// {
+	// 	if(lights[i].used)
+	// 	{
+	// 		light_s* l=&lights[i];
+	// 		v+=computeLighting(vect(l->position.x*TILESIZE*2,l->position.y*HEIGHTUNIT,l->position.z*TILESIZE*2), l->intensity, p, rec, r);
+	// 	}
+	// }
+	return (u8)(31-mini(maxi(v,0),31));
+}
 
 void fillBuffer(u8* buffer, vect3Di_s p, vect3Di_s s, u8* v, bool rot, int w)
 {
@@ -128,40 +129,51 @@ void generateLightmap(rectangle_s* rec, room_s* r, lightMapData_s* lmd, u8* b, l
 	}else printf("NOTHING?\n");
 }
 
-// void generateLightmaps(room_s* r, lightMapData_s* ld)
-// {
-// 	if(!r)return;
-// 	listCell_s *lc=r->rectangles.first;
-// 	rectangle2DList_s rl;
-// 	initRectangle2DList(&rl);
-// 	int i=0;
-// 	initLightDataLM(ld, r->rectangles.num);
+void generateLightmaps(room_s* r, lightMapData_s* ld)
+{
+	if(!r)return;
+	listCell_s *lc=r->rectangles.first;
+	rectangle2DList_s rl;
+	initRectangle2DList(&rl);
+	int i=0;
+	initLightDataLM(ld, r->rectangles.num);
 
-// 	while(lc)
-// 	{
-// 		insertRectangle2DList(&rl,(rectangle2D_s){vect2(0,0),vect2(abs(lc->data.size.x?(lc->data.size.x*LIGHTMAPRESOLUTION):(lc->data.size.y*LIGHTMAPRESOLUTION*HEIGHTUNIT/(TILESIZE*2))),
-// 																		abs((lc->data.size.y&&lc->data.size.x)?(lc->data.size.y*LIGHTMAPRESOLUTION*HEIGHTUNIT/(TILESIZE*2)):(lc->data.size.z*LIGHTMAPRESOLUTION))),
-// 																		&ld->coords[i++], false});
-// 		lc=lc->next;
-// 	}
-// 	short w=32, h=32;
+	while(lc)
+	{
+		insertRectangle2DList(&rl,(rectangle2D_s){vect2(0,0),vect2(abs(lc->data.size.x?(lc->data.size.x*LIGHTMAPRESOLUTION):(lc->data.size.y*LIGHTMAPRESOLUTION*HEIGHTUNIT/(TILESIZE*2))),
+																		abs((lc->data.size.y&&lc->data.size.x)?(lc->data.size.y*LIGHTMAPRESOLUTION*HEIGHTUNIT/(TILESIZE*2)):(lc->data.size.z*LIGHTMAPRESOLUTION))),
+																		&ld->coords[i++], false});
+		lc=lc->next;
+	}
+	short w=32, h=32;
 
-// 	bool rr=packRectanglesSize(&rl, &w, &h);
-// 	ld->lmSize=vect(w,h,0);
-// 	NOGBA("done : %d %dx%d",(int)rr,w,h);
+	bool rr=packRectanglesSize(&rl, &w, &h);
+	ld->lmSize=vect3Di(w,h,0);
+	printf("done : %d %dx%d\n",(int)rr,w,h);
 
-// 	if(!rr){freeLightData(ld);return;} //TEMP
-// 	ld->buffer=malloc(w*h);
-// 	if(!ld->buffer){freeLightData(ld);return;}
+	if(!rr)
+	{
+		//TEMP
+		// freeLightData(ld);
+		return;
+	}
 
-// 	lc=r->rectangles.first;
-// 	i=0;
-// 	while(lc)
-// 	{
-// 		generateLightmap(&lc->data, r, &ld-> ld->buffer, &ld->coords[i++]);
-// 		lc=lc->next;
-// 	}
+	ld->buffer=malloc(w*h);
+	
+	if(!ld->buffer)
+	{
+		// freeLightData(ld);
+		return;
+	}
+
+	lc=r->rectangles.first;
+	i=0;
+	while(lc)
+	{
+		generateLightmap(&lc->data, r, ld, ld->buffer, &ld->coords[i++]);
+		lc=lc->next;
+	}
 		
-// 	freeRectangle2DList(&rl);
-// 	NOGBA("freed.");
-// }
+	freeRectangle2DList(&rl);
+	printf("freed.\n");
+}

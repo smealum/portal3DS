@@ -12,6 +12,7 @@
 #include "utils/math.h"
 #include "utils/filesystem.h"
 
+#include "game/sfx.h"
 #include "game/camera.h"
 #include "game/material.h"
 #include "game/room_io.h"
@@ -227,6 +228,9 @@ int main(int argc, char** argv)
 	textInit();
 	testString = textMakeString("\1hello this is a test\nwith newline support");
 
+	//init sfx
+	initSound();
+
 	//init md2
 	md2Init();
 	textureLoad(&gladosTexture, "glados.png", GPU_TEXTURE_MAG_FILTER(GPU_LINEAR)|GPU_TEXTURE_MIN_FILTER(GPU_LINEAR)|GPU_TEXTURE_WRAP_S(GPU_REPEAT)|GPU_TEXTURE_WRAP_T(GPU_REPEAT), 0);
@@ -342,6 +346,8 @@ int main(int argc, char** argv)
 
 	exitCubes();
 	exitPhysics();
+
+	exitSound();
 
 	gsExit();
 	gfxExit();

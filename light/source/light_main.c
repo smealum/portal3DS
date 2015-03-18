@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "light_room.h"
+#include "light_lightmap.h"
 
 int main(int argc, char** argv)
 {
@@ -13,6 +14,8 @@ int main(int argc, char** argv)
 
 	room_s room;
 	readRoom(argv[1], &room, 0);
+	lightMapData_s ld;
+	generateLightmaps(&room, &ld);
 
 	return 0;
 }

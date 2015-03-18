@@ -3,6 +3,7 @@
 #include "gfx/gs.h"
 #include "gfx/texture.h"
 #include "game/player.h"
+#include "game/sfx.h"
 
 #include "passthrough_vsh_shbin.h"
 
@@ -23,10 +24,24 @@ float rectangleData[] = {1.0f, 1.0f, 0.0f,
 
 u32* rectangleVertexData = NULL;
 
+SFX_s *gunSFX1, *gunSFX2;
+SFX_s *portalEnterSFX[2];
+SFX_s *portalExitSFX[2];
+
 void playerInit(void)
 {
 	textureLoad(&gunTexture, "portalgun.png", GPU_TEXTURE_MAG_FILTER(GPU_LINEAR)|GPU_TEXTURE_MIN_FILTER(GPU_LINEAR), 0);
 	md2ReadModel(&gunModel, "portalgun.md2");
+
+	//SFX
+	gunSFX1=createSFX("portalgun_orange.raw", CSND_ENCODING_PCM16);
+	gunSFX2=createSFX("portalgun_blue.raw", CSND_ENCODING_PCM16);
+
+	portalEnterSFX[0]=createSFX("portal_enter1.raw", CSND_ENCODING_PCM16);
+	portalEnterSFX[1]=createSFX("portal_enter2.raw", CSND_ENCODING_PCM16);
+
+	portalExitSFX[0]=createSFX("portal_exit1.raw", CSND_ENCODING_PCM16);
+	portalExitSFX[1]=createSFX("portal_exit2.raw", CSND_ENCODING_PCM16);
 }
 
 void playerExit(void)
@@ -212,6 +227,8 @@ void shootPlayerGun(player_s* p, room_s* r, portal_s* portal)
 {
 	if(!p)return;
 	if(p->gunInstance.currentAnim == PORTALGUN_SHOOT)return;
+
+	playSFX(gunSFX1);
 
 	md2InstanceChangeAnimation(&p->gunInstance, PORTALGUN_IDLE, false);
 	md2InstanceChangeAnimation(&p->gunInstance, PORTALGUN_SHOOT, true);

@@ -5,7 +5,7 @@
 
 typedef struct
 {
-	vect3Df_s lmPos, lmSize;
+	vect3Di_s lmPos, lmSize;
 	bool rot;
 }lightMapCoordinates_s;
 
