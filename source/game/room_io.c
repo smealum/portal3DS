@@ -14,6 +14,7 @@
 #include "game/timedbutton.h"
 #include "game/activator.h"
 #include "game/sludge.h"
+#include "game/light.h"
 
 #include "utils/filesystem.h"
 
@@ -58,6 +59,8 @@ void readRectangle(rectangle_s* rec, FILE* f)
 	fread(&rec->portalable, sizeof(bool), 1, f);
 	
 	u16 mid=0; fread(&mid,sizeof(u16),1,f);
+
+	rec->lightData.lightMap = NULL;
 
 	//TEMP ?
 	if(rec->portalable)rec->material=getMaterial(1);
@@ -285,6 +288,67 @@ void readHeader(mapHeader_s* h, FILE* f)
 	fread(h, MAPHEADER_SIZE, 1, f);
 }
 
+void readVertexLightingData(vertexLightingData_s* vld, FILE* f)
+{
+	if(!vld || !f)return;
+
+	fread(&vld->width, sizeof(u8), 1, f);
+	fread(&vld->height, sizeof(u8), 1, f);
+
+	vld->values=malloc(sizeof(u8)*vld->width*vld->height);
+	fread(vld->values, sizeof(u8), vld->width*vld->height, f);
+}
+
+void readLightingData(room_s* r, lightingData_s* ld, FILE* f)
+{
+	if(!r || !ld || !f)return;
+
+	ld->type=LIGHTMAP_DATA; //TEMP
+
+	switch(ld->type)
+	{
+		case LIGHTMAP_DATA:
+			initLightDataLM(ld, r->rectangles.num);
+
+			readVect3Di(&ld->data.lightMap.lmSize,f);
+
+			ld->data.lightMap.buffer=malloc(sizeof(u8)*ld->data.lightMap.lmSize.x*ld->data.lightMap.lmSize.y);
+			if(!ld->data.lightMap.buffer)return;
+
+			fread(ld->data.lightMap.buffer, sizeof(u8), ld->data.lightMap.lmSize.x*ld->data.lightMap.lmSize.y,f);
+			fread(ld->data.lightMap.coords, sizeof(lightMapCoordinates_s), ld->size, f);
+
+			int i=0;
+			listCell_s* lc=r->rectangles.first;
+			while(lc)
+			{
+				lc->data.lightData.lightMap=&ld->data.lightMap.coords[i++];
+				lc=lc->next;
+			}
+
+			ld->data.lightMap.texture = textureCreateBuffer(ld->data.lightMap.buffer, ld->data.lightMap.lmSize.x, ld->data.lightMap.lmSize.y, GPU_TEXTURE_MAG_FILTER(GPU_LINEAR)|GPU_TEXTURE_MIN_FILTER(GPU_LINEAR), 0);
+			printf("texture : %p\n",ld->data.lightMap.texture);
+
+			break;
+		default:
+			initLightDataVL(ld, r->rectangles.num);
+			{
+				int i;
+				for(i=0;i<ld->size;i++)readVertexLightingData(&ld->data.vertexLighting[i],f);
+			}
+			{
+				int i=r->rectangles.num-1;
+				listCell_s* lc=r->rectangles.first;
+				while(lc)
+				{
+					lc->data.lightData.vertex=&ld->data.vertexLighting[i--]; //stacking reverses the order...
+					lc=lc->next;
+				}
+			}
+			break;
+	}
+}
+
 void readRoom(char* filename, room_s* r, u8 flags)
 {
 	if(!filename || !r)return;
@@ -305,12 +369,12 @@ void readRoom(char* filename, room_s* r, u8 flags)
 	
 	readRectangles(r, f);
 
-	// //lighting stuff
-	// if(flags&MAP_READ_LIGHT)
-	// {
-	// 	fseek(f, h.lightPosition, SEEK_SET);
-	// 	readLightingData(r, &r->lightingData, f);
-	// }
+	//lighting stuff
+	if(flags&MAP_READ_LIGHT)
+	{
+		fseek(f, h.lightPosition, SEEK_SET);
+		readLightingData(r, &r->lightingData, f);
+	}
 
 	//entities
 	if(flags&MAP_READ_ENTITIES)

@@ -1,6 +1,7 @@
 ; make sure you update aemstro_as for this (01/01/15)
  
 ; setup constants
+	.const c81, 0.0009765625, 0.0009765625, 1.0, 1.0
 	.const c82, 82.0, 0.5774, 0.5, 1.0
 	.const c83, 1.0, 1.0, 1.0, 1.0
  
@@ -37,7 +38,7 @@
 
 		; result.texcoord = in.texcoord
 			mul o2,  c92,  v1  (0x5)
-			mul o3,  c92,  v1  (0x5)
+			mul o3,  c81,  v2  (0x5)
 
 		; result.color = EXPERIMENTS !			
 			mov o1,  c83       (0x5)

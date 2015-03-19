@@ -5,6 +5,7 @@
 #include <3ds.h>
 #include "utils/math.h"
 #include "game/material.h"
+#include "game/light.h"
 
 #define TILESIZE (2)
 #define TILESIZE_FLOAT ((float)TILESIZE)
@@ -16,6 +17,10 @@ typedef struct
 	vect3Di_s position, size;
 	vect3Df_s normal;
 	material_s* material;
+	union{
+		vertexLightingData_s* vertex;
+		lightMapCoordinates_s* lightMap;
+	}lightData;
 	bool portalable, hide, touched, collides;
 }rectangle_s;
 
@@ -35,11 +40,13 @@ typedef struct
 {
 	s16 x, y, z;
 	s16 u, v;
+	s16 u2, v2;
 }rectangleVertex_s;
 
 typedef struct
 {
 	// material_s** materials;
+	lightingData_s lightingData;
 	vect3Df_s position;
 	u16 width, height;
 	rectangleList_s rectangles;

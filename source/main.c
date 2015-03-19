@@ -259,7 +259,8 @@ int main(int argc, char** argv)
 
 	//init room
 	roomInit();
-	readRoom("test1.map", &testRoom, MAP_READ_ENTITIES);
+	// readRoom("test1.map", &testRoom, MAP_READ_ENTITIES);
+	readRoom("out.map", &testRoom, MAP_READ_ENTITIES|MAP_READ_LIGHT);
 	generateSludgeGeometry();
 
 	//init portal

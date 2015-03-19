@@ -52,7 +52,44 @@ texture_s* textureCreate(const char* fn, u32 param, int mipmap)
 	return NULL;
 }
 
-void tileImage(u32* src, u32* dst, int width, int height)
+texture_s* textureCreateBuffer(u32* buffer, int width, int height, u32 param, int mipmap)
+{
+	if(!buffer)return NULL;
+
+	int i;
+	for(i=0; i<TEXTURES_NUM; i++)
+	{
+		if(!textures[i].used)
+		{
+			if(!textureLoadBuffer(&textures[i], buffer, width, height, param, mipmap))return &textures[i];
+			else return NULL;
+		}
+	}
+	return NULL;
+}
+
+void tileImage8(u8* src, u8* dst, int width, int height)
+{
+	if(!src || !dst)return;
+
+	int i, j, k, l;
+	l=0;
+	for(j=0; j<height; j+=8)
+	{
+		for(i=0; i<width; i+=8)
+		{
+			for(k=0; k<8*8; k++)
+			{
+				int x=i+tileOrder[k]%8;
+				int y=j+(tileOrder[k]-(x-i))/8;
+				u8 v=src[x+(height-1-y)*width];
+				dst[l++]=v;
+			}
+		}
+	}
+}
+
+void tileImage32(u32* src, u32* dst, int width, int height)
 {
 	if(!src || !dst)return;
 
@@ -100,6 +137,7 @@ int textureLoad(texture_s* t, const char* fn, u32 param, int mipmap)
 
 	t->data=NULL;
 	t->filename=NULL;
+	t->format=GPU_RGBA8;
 
 	u32* buffer;
 	unsigned int error=lodepng_decode32_file((unsigned char**)&buffer, (unsigned int*)&t->width, (unsigned int*)&t->height, fn);
@@ -114,7 +152,7 @@ int textureLoad(texture_s* t, const char* fn, u32 param, int mipmap)
 	t->data=linearMemAlign(size, 0x80); //textures need to be 0x80 byte aligned
 	if(!t->data){free(buffer); return -3;}
 
-	tileImage(buffer, t->data, t->width, t->height);
+	tileImage32(buffer, t->data, t->width, t->height);
 
 	u32 offset = t->width*t->height;
 	int level = 0;
@@ -122,7 +160,7 @@ int textureLoad(texture_s* t, const char* fn, u32 param, int mipmap)
 	for(level = 0; level < mipmap; level++)
 	{
 		downscaleImage((u8*)buffer, w, h);
-		tileImage(buffer, &t->data[offset], w, h);
+		tileImage32(buffer, &t->data[offset], w, h);
 		offset += w*h;
 		w /= 2; h /= 2;
 	}
@@ -141,11 +179,56 @@ int textureLoad(texture_s* t, const char* fn, u32 param, int mipmap)
 	return 0;
 }
 
+int textureLoadBuffer(texture_s* t, u32* buffer, int width, int height, u32 param, int mipmap)
+{
+	if(!buffer || !t || t->used)return -1;
+	if(mipmap < 0)return -1;
+
+	t->data=NULL;
+	t->filename=NULL;
+
+	t->width = width;
+	t->height = height;
+
+	t->format = GPU_A8;
+
+	int l=0; for(l=0; !(t->height&(1<<l)) && !(t->width&(1<<l)); l++);
+
+	if(mipmap>l)mipmap=l;
+
+	u32 size = t->width*t->height;
+	size = ((size - (size >> (2*(mipmap+1)))) * 4) / 3; //geometric progression
+	t->data=linearMemAlign(size, 0x80); //textures need to be 0x80 byte aligned
+	if(!t->data){return -3;}
+
+	tileImage8(buffer, t->data, t->width, t->height);
+
+	// u32 offset = t->width*t->height;
+	// int level = 0;
+	// int w = t->width/2, h = t->height/2;
+	// for(level = 0; level < mipmap; level++)
+	// {
+	// 	downscaleImage((u8*)buffer, w, h);
+	// 	tileImage8(buffer, &t->data[offset], w, h);
+	// 	offset += w*h;
+	// 	w /= 2; h /= 2;
+	// }
+	
+	t->param=param;
+
+	t->mipmap=mipmap;
+	t->used=true;
+
+	printf("successfully made texture\n");
+
+	return 0;
+}
+
 void textureBind(texture_s* t, GPU_TEXUNIT unit)
 {
 	if(!t)return;
 
-	GPU_SetTexture(unit, (u32*)osConvertVirtToPhys((u32)t->data), t->height, t->width, t->param, GPU_RGBA8);
+	GPU_SetTexture(unit, (u32*)osConvertVirtToPhys((u32)t->data), t->height, t->width, t->param, t->format);
 	GPUCMD_AddWrite(GPUREG_0084, t->mipmap<<16);
 }
 

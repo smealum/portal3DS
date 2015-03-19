@@ -222,7 +222,8 @@ rectangle_s* collideLineMapClosest(room_s* r, rectangle_s* rec, vect3Df_s l, vec
 	rectangle_s* hit=NULL;
 	while(lc)
 	{
-		if(&lc->data!=rec && lc->data.collides)
+		// if(&lc->data!=rec && lc->data.collides)
+		if(&lc->data!=rec)
 		{
 			float k;
 			if(collideLineRectangle(&lc->data,l,u,lowestK,&k,&v))

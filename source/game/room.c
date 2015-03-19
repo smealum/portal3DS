@@ -347,7 +347,45 @@ void generateRectangleGeometry(rectangle_s* rec, vect3Di_s* texCoords, rectangle
 	for(i=0; i<4; i++)
 	{
 		vertexIndices[i] = (*numvert)++;
-		vbuf[vertexIndices[i]] = (rectangleVertex_s){vertices[i].x, vertices[i].y, vertices[i].z, (texCoords[i].x), (texCoords[i].y)};
+		vbuf[vertexIndices[i]] = (rectangleVertex_s){vertices[i].x, vertices[i].y, vertices[i].z, (texCoords[i].x), (texCoords[i].y), 0, 0};
+	}
+
+	if(rec->lightData.lightMap)
+	{
+		if(rec->lightData.lightMap->rot)
+		{
+			vect3Di_s p1 = rec->lightData.lightMap->lmPos;
+			vect3Di_s p2 = vaddi(rec->lightData.lightMap->lmPos, vect3Di(rec->lightData.lightMap->lmSize.y, rec->lightData.lightMap->lmSize.x, 0));
+
+			printf("%d %d : %d %d\n",p1.x,p1.y,p2.x,p2.y);
+
+			vbuf[vertexIndices[0]].u2 = p1.x;
+			vbuf[vertexIndices[0]].v2 = p1.y;
+
+			vbuf[vertexIndices[1]].u2 = p1.x;
+			vbuf[vertexIndices[1]].v2 = p2.y - 1;
+
+			vbuf[vertexIndices[2]].u2 = p2.x - 1;
+			vbuf[vertexIndices[2]].v2 = p2.y - 1;
+
+			vbuf[vertexIndices[3]].u2 = p2.x - 1;
+			vbuf[vertexIndices[3]].v2 = p1.y;
+		}else{
+			vect3Di_s p1 = rec->lightData.lightMap->lmPos;
+			vect3Di_s p2 = vaddi(rec->lightData.lightMap->lmPos, rec->lightData.lightMap->lmSize);
+
+			vbuf[vertexIndices[0]].u2 = p1.x;
+			vbuf[vertexIndices[0]].v2 = p1.y;
+
+			vbuf[vertexIndices[1]].u2 = p2.x - 1;
+			vbuf[vertexIndices[1]].v2 = p1.y;
+
+			vbuf[vertexIndices[2]].u2 = p2.x - 1;
+			vbuf[vertexIndices[2]].v2 = p2.y - 1;
+
+			vbuf[vertexIndices[3]].u2 = p1.x;
+			vbuf[vertexIndices[3]].v2 = p2.y - 1;
+		}
 	}
 
 	ibuf[(*numind)++] = vertexIndices[0];
@@ -444,16 +482,27 @@ void drawRoom(room_s* r)
 	gsSetShader(&roomProgram);
 
 	GPU_SetAttributeBuffers(
-		2, // number of attributes
+		3, // number of attributes
 		(u32*)osConvertVirtToPhys(roomBaseAddr), // we use the start of linear heap as base since that's where all our buffers are located
-		GPU_ATTRIBFMT(0, 3, GPU_SHORT)|GPU_ATTRIBFMT(1, 2, GPU_SHORT), // we want v0 and v1
-		0xFF8, // mask : we want v0 and v1
-		0x10, // permutation : we use identity
+		GPU_ATTRIBFMT(0, 3, GPU_SHORT)|GPU_ATTRIBFMT(1, 2, GPU_SHORT)|GPU_ATTRIBFMT(2, 2, GPU_SHORT), // we want v0, v1 and v2
+		0xFF8, // mask : we want v0, v1 and v2
+		0x210, // permutation : we use identity
 		1, // number of buffers : we have one attribute per buffer
 		(u32[]){(u32)r->vertexBuffer-roomBaseAddr}, // buffer offsets (placeholders)
-		(u64[]){0x10}, // attribute permutations for each buffer
-		(u8[]){2} // number of attributes for each buffer
+		(u64[]){0x210}, // attribute permutations for each buffer
+		(u8[]){3} // number of attributes for each buffer
 		);
+
+	GPU_SetTextureEnable(GPU_TEXUNIT0|GPU_TEXUNIT1);
+
+	
+	GPU_SetTexEnv(0, 
+		GPU_TEVSOURCES(GPU_TEXTURE0, GPU_TEXTURE1, GPU_PRIMARY_COLOR),
+		GPU_TEVSOURCES(GPU_TEXTURE0, GPU_PRIMARY_COLOR, GPU_PRIMARY_COLOR),
+		GPU_TEVOPERANDS(0,2,0), 
+		GPU_TEVOPERANDS(0,0,0), 
+		GPU_MODULATE, GPU_MODULATE, 
+		0xFFFFFFFF);
 
 	gsPushMatrix();
 
@@ -465,9 +514,21 @@ void drawRoom(room_s* r)
 		for(i=0; i<r->numIndexBuffers; i++)
 		{
 			textureBind(r->indexBufferTextures[i], GPU_TEXUNIT0);
+			// textureBind(r->indexBufferTextures[i], GPU_TEXUNIT1);
+			textureBind(r->lightingData.data.lightMap.texture, GPU_TEXUNIT1);
 			GPU_SetFloatUniform(GPU_VERTEX_SHADER, roomUniformTextureDimensions, (u32*)(float[]){0.0f, 0.0f, 1.0f / r->indexBufferTextures[i]->height, 1.0f / r->indexBufferTextures[i]->width}, 1);
 			GPU_DrawElements(GPU_UNKPRIM, (u32*)((u32)r->indexBuffers[i]-roomBaseAddr), r->numIndices[i]);
 		}
+
+	GPU_SetTextureEnable(GPU_TEXUNIT0);
+
+	GPU_SetTexEnv(0, 
+		GPU_TEVSOURCES(GPU_TEXTURE0, GPU_PRIMARY_COLOR, GPU_PRIMARY_COLOR),
+		GPU_TEVSOURCES(GPU_TEXTURE0, GPU_PRIMARY_COLOR, GPU_PRIMARY_COLOR),
+		GPU_TEVOPERANDS(0,0,0), 
+		GPU_TEVOPERANDS(0,0,0), 
+		GPU_MODULATE, GPU_MODULATE, 
+		0xFFFFFFFF);
 
 	gsPopMatrix();
 }

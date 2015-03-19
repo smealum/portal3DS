@@ -20,20 +20,19 @@ void initLightDataLM(lightMapData_s* ld, u16 n)
 
 u8 computeLighting(vect3Df_s l, float intensity, vect3Df_s p, rectangle_s* rec, room_s* r)
 {
-	float rdist=vdistf(l,p);
-	float dist=rdist*rdist;
-	dist=rdist*rdist;
+	float dist=vdistf(l,p);
 	if(dist<intensity)
 	{
 		vect3Df_s u=vsubf(p,l);
-		u=vdivf(u,rdist);
-		if(collideLineMapClosest(r, rec, l, u, rdist, NULL, NULL))return 0;
+		u=vdivf(u,dist);
+		// if(collideLineMapClosest(r, rec, l, u, dist, NULL, NULL)){return 0;}
 		float v=vdotf(u,rec->normal);
 		v=maxf(0,v);
 		v*=3;
 		v/=4;
 		v+=0.25f;
-		return (u8)(v*(31-((dist*31)/intensity)));
+		// printf("%f\n",v);
+		return (u8)(v*(255-((dist*255)/intensity)));
 	}
 	return 0;
 }
@@ -41,19 +40,19 @@ u8 computeLighting(vect3Df_s l, float intensity, vect3Df_s p, rectangle_s* rec, 
 u8 computeLightings(vect3Df_s p, rectangle_s* rec, room_s* r)
 {
 	int v=AMBIENTLIGHT;
-	// int i;
-	// for(i=0;i<NUMLIGHTS;i++)
-	// {
-	// 	if(lights[i].used)
-	// 	{
-	// 		light_s* l=&lights[i];
-	// 		v+=computeLighting(vect(l->position.x*TILESIZE*2,l->position.y*HEIGHTUNIT,l->position.z*TILESIZE*2), l->intensity, p, rec, r);
-	// 	}
-	// }
-	return (u8)(31-mini(maxi(v,0),31));
+	int i;
+	for(i=0;i<NUMLIGHTS;i++)
+	{
+		if(lights[i].used)
+		{
+			light_s* l=&lights[i];
+			v+=computeLighting(l->position, l->intensity, p, rec, r);
+		}
+	}
+	return (u8)(mini(maxi(v,0),255));
 }
 
-void fillBuffer(u8* buffer, vect3Di_s p, vect3Di_s s, u8* v, bool rot, int w)
+void fillBuffer(u8* buffer, vect3Di_s p, vect3Di_s s, u8* v, bool rot, int w, int h)
 {
 	if(!buffer || !v)return;
 	int i;
@@ -66,8 +65,8 @@ void fillBuffer(u8* buffer, vect3Di_s p, vect3Di_s s, u8* v, bool rot, int w)
 			int j;
 			for(j=0;j<s.y;j++)
 			{
-				buffer[p.x+i+(p.y+j)*w]=v[i+j*s.x];
-				// buffer[p.x+i+(p.y+j)*w]=vt;
+				buffer[p.x+i+((p.y+j))*w]=v[i+j*s.x];
+				// buffer[p.x+i+((p.y+j))*w]=vt;
 			}
 		}
 	}else{
@@ -77,8 +76,8 @@ void fillBuffer(u8* buffer, vect3Di_s p, vect3Di_s s, u8* v, bool rot, int w)
 			int j;
 			for(j=0;j<s.y;j++)
 			{
-				buffer[p.x+j+(p.y+i)*w]=v[i+j*s.x];
-				// buffer[p.x+j+(p.y+i)*w]=vt;
+				buffer[p.x+j+((p.y+i))*w]=v[i+j*s.x];
+				// buffer[p.x+j+((p.y+i))*w]=vt;
 			}
 		}
 	}
@@ -88,12 +87,12 @@ vect3Df_s getUnitVect(rectangle_s* rec)
 {
 	vect3Df_s u=vect3Df(0,0,0);
 	vect3Di_s size=rec->size;	
-	if(size.x>0)u.x=(TILESIZE*2)/LIGHTMAPRESOLUTION;
-	else if(size.x)u.x=-(TILESIZE*2)/LIGHTMAPRESOLUTION;
-	if(size.y>0)u.y=(TILESIZE*2)/LIGHTMAPRESOLUTION;
-	else if(size.y)u.y=-(TILESIZE*2)/LIGHTMAPRESOLUTION;
-	if(size.z>0)u.z=(TILESIZE*2)/LIGHTMAPRESOLUTION;
-	else if(size.z)u.z=-(TILESIZE*2)/LIGHTMAPRESOLUTION;
+	if(size.x>0)u.x=(TILESIZE_FLOAT*2)/LIGHTMAPRESOLUTION;
+	else if(size.x)u.x=-(TILESIZE_FLOAT*2)/LIGHTMAPRESOLUTION;
+	if(size.y>0)u.y=(TILESIZE_FLOAT*2)/LIGHTMAPRESOLUTION;
+	else if(size.y)u.y=-(TILESIZE_FLOAT*2)/LIGHTMAPRESOLUTION;
+	if(size.z>0)u.z=(TILESIZE_FLOAT*2)/LIGHTMAPRESOLUTION;
+	else if(size.z)u.z=-(TILESIZE_FLOAT*2)/LIGHTMAPRESOLUTION;
 	return u;
 }
 
@@ -104,8 +103,10 @@ void generateLightmap(rectangle_s* rec, room_s* r, lightMapData_s* lmd, u8* b, l
 		u16 x=lmc->lmSize.x, y=lmc->lmSize.y;
 		u8* data=malloc(x*y);
 		if(!data)return;
-		vect3Df_s p=vect3Df(rec->position.x*TILESIZE*2-TILESIZE,rec->position.y*HEIGHTUNIT,rec->position.z*TILESIZE*2-TILESIZE);
-		printf("p : %f, %f, %f\n",p.x,p.y,p.z);
+		vect3Df_s p=vect3Df(rec->position.x*TILESIZE_FLOAT*2-TILESIZE_FLOAT,rec->position.y*HEIGHTUNIT,rec->position.z*TILESIZE_FLOAT*2-TILESIZE_FLOAT);
+		// printf("p : %f, %f, %f\n",p.x,p.y,p.z);
+		printf("p : %d, %d, %d\n",rec->position.x,rec->position.y,rec->position.z);
+		printf("t : %d, %d\n",lmc->lmPos.x,lmc->lmPos.y);
 		int i;
 		vect3Df_s u=getUnitVect(rec);
 		for(i=0;i<x;i++)
@@ -113,18 +114,12 @@ void generateLightmap(rectangle_s* rec, room_s* r, lightMapData_s* lmd, u8* b, l
 			int j;
 			for(j=0;j<y;j++)
 			{
-				#ifdef A5I3
-					if(!rec->size.x)data[i+j*x]=computeLightings(vaddf(p,vect3Df(0,i*u.y+u.y/2,j*u.z+u.z/2)),rec,r)<<3;
-					else if(rec->size.y)data[i+j*x]=computeLightings(vaddf(p,vect3Df(i*u.x+u.x/2,j*u.y+u.y/2,0)),rec,r)<<3;
-					else data[i+j*x]=computeLightings(vaddf(p,vect3Df(i*u.x+u.x/2,0,j*u.z+u.z/2)),rec,r)<<3;
-				#else
-					if(!rec->size.x)data[i+j*x]=computeLightings(vaddf(p,vect3Df(0,i*u.y+u.y/2,j*u.z+u.z/2)),rec,r);//<<3;
-					else if(rec->size.y)data[i+j*x]=computeLightings(vaddf(p,vect3Df(i*u.x+u.x/2,j*u.y+u.y/2,0)),rec,r);//<<3;
-					else data[i+j*x]=computeLightings(vaddf(p,vect3Df(i*u.x+u.x/2,0,j*u.z+u.z/2)),rec,r);//<<3;
-				#endif
+				if(!rec->size.x)data[i+j*x]=computeLightings(vaddf(p,vect3Df(0,i*u.y+u.y/2,j*u.z+u.z/2)),rec,r);
+				else if(rec->size.y)data[i+j*x]=computeLightings(vaddf(p,vect3Df(i*u.x+u.x/2,j*u.y+u.y/2,0)),rec,r);
+				else data[i+j*x]=computeLightings(vaddf(p,vect3Df(i*u.x+u.x/2,0,j*u.z+u.z/2)),rec,r);
 			}
 		}
-		fillBuffer(b, vect3Di(lmc->lmPos.x,lmc->lmPos.y,0), vect3Di(lmc->lmSize.x,lmc->lmSize.y,0), data, lmc->rot, lmd->lmSize.x);
+		fillBuffer(b, vect3Di(lmc->lmPos.x,lmc->lmPos.y,0), vect3Di(lmc->lmSize.x,lmc->lmSize.y,0), data, lmc->rot, lmd->lmSize.x, lmd->lmSize.y);
 		free(data);
 	}else printf("NOTHING?\n");
 }
@@ -140,8 +135,8 @@ void generateLightmaps(room_s* r, lightMapData_s* ld)
 
 	while(lc)
 	{
-		insertRectangle2DList(&rl,(rectangle2D_s){vect2(0,0),vect2(abs(lc->data.size.x?(lc->data.size.x*LIGHTMAPRESOLUTION):(lc->data.size.y*LIGHTMAPRESOLUTION*HEIGHTUNIT/(TILESIZE*2))),
-																		abs((lc->data.size.y&&lc->data.size.x)?(lc->data.size.y*LIGHTMAPRESOLUTION*HEIGHTUNIT/(TILESIZE*2)):(lc->data.size.z*LIGHTMAPRESOLUTION))),
+		insertRectangle2DList(&rl,(rectangle2D_s){vect2(0,0),vect2(abs(lc->data.size.x?(lc->data.size.x*LIGHTMAPRESOLUTION):(lc->data.size.y*LIGHTMAPRESOLUTION*HEIGHTUNIT/(TILESIZE_FLOAT*2))),
+																		abs((lc->data.size.y&&lc->data.size.x)?(lc->data.size.y*LIGHTMAPRESOLUTION*HEIGHTUNIT/(TILESIZE_FLOAT*2)):(lc->data.size.z*LIGHTMAPRESOLUTION))),
 																		&ld->coords[i++], false});
 		lc=lc->next;
 	}
@@ -159,7 +154,7 @@ void generateLightmaps(room_s* r, lightMapData_s* ld)
 	}
 
 	ld->buffer=malloc(w*h);
-	
+
 	if(!ld->buffer)
 	{
 		// freeLightData(ld);

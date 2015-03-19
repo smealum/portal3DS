@@ -85,15 +85,15 @@ void drawSludge(room_s* r)
 	gsSetShader(&roomProgram);
 
 	GPU_SetAttributeBuffers(
-		2, // number of attributes
+		3, // number of attributes
 		(u32*)osConvertVirtToPhys(roomBaseAddr), // we use the start of linear heap as base since that's where all our buffers are located
-		GPU_ATTRIBFMT(0, 3, GPU_SHORT)|GPU_ATTRIBFMT(1, 2, GPU_SHORT), // we want v0 and v1
-		0xFF8, // mask : we want v0 and v1
-		0x10, // permutation : we use identity
+		GPU_ATTRIBFMT(0, 3, GPU_SHORT)|GPU_ATTRIBFMT(1, 2, GPU_SHORT)|GPU_ATTRIBFMT(2, 2, GPU_SHORT), // we want v0, v1 and v2
+		0xFF8, // mask : we want v0, v1 and v2
+		0x210, // permutation : we use identity
 		1, // number of buffers : we have one attribute per buffer
 		(u32[]){(u32)sludgeVertexBuffer-roomBaseAddr}, // buffer offsets (placeholders)
-		(u64[]){0x10}, // attribute permutations for each buffer
-		(u8[]){2} // number of attributes for each buffer
+		(u64[]){0x210}, // attribute permutations for each buffer
+		(u8[]){3} // number of attributes for each buffer
 		);
 
 	gsPushMatrix();

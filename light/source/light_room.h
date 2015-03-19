@@ -9,6 +9,17 @@
 #define HEIGHTUNIT (1)
 #define HEIGHTUNIT_FLOAT ((float)HEIGHTUNIT)
 
+#define NUMLIGHTS (32)
+
+typedef struct
+{
+	vect3Df_s position;
+	float intensity;
+	bool used;
+}light_s;
+
+extern light_s lights[NUMLIGHTS];
+
 typedef struct
 {
 	vect3Di_s position, size;
@@ -69,5 +80,6 @@ void transferRoomRectangles(room_s* r);
 vect3Df_s convertRectangleVector(vect3Di_s v);
 
 rectangle_s* collideLineMapClosest(room_s* r, rectangle_s* rec, vect3Df_s l, vect3Df_s u, float d, vect3Df_s* i, float* lk);
+bool collideLineRectangle(rectangle_s* rec, vect3Df_s o, vect3Df_s v, float d, float* kk, vect3Df_s* ip);
 
 #endif
