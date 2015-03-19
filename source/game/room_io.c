@@ -264,7 +264,7 @@ void readEntity(room_s* r, u8 i, FILE* f)
 				setupWallDoor(r, &exitWallDoor, p, o);
 				entityEntityArray[i]=(void*)&exitWallDoor;
 				entityTargetTypeArray[i]=WALLDOOR_TARGET;
-				exitWallDoor.override=true;
+				// exitWallDoor.override=true;
 			}
 			return;
 		default:

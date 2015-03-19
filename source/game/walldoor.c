@@ -53,7 +53,8 @@ void initWallDoor(wallDoor_s* wd)
 
 	wd->used=false;
 	wd->rectangle=NULL;
-	wd->override=false;
+
+	initActivatableObject(&wd->ao);
 	
 	md2InstanceInit(&wd->modelInstance, &wallDoorModel, &wallDoorTexture);
 }
@@ -68,7 +69,6 @@ void initWallDoors(void)
 	textureLoad(&wallDoorTexture, "door.png", GPU_TEXTURE_MAG_FILTER(GPU_LINEAR)|GPU_TEXTURE_MIN_FILTER(GPU_LINEAR), 0);
 
 	readRoom("elevatorroom.map", &elevatorRoom, MAP_READ_LIGHT);
-	// roomResetOrigin(&elevatorRoom);
 }
 
 void exitWallDoors(void)
@@ -124,7 +124,7 @@ void updateWallDoor(player_s* pl, wallDoor_s* wd)
 
 	bool pin=pointInWallDoorRoom(wd, pl->object.position);
 
-	if(pin || wd->override)
+	if(pin || wd->ao.active)
 	{
 		if(wd->modelInstance.currentAnim==0)
 		{
@@ -162,44 +162,6 @@ void updateWallDoors(player_s* pl)
 void drawWallDoor(wallDoor_s* wd)
 {
 	if(!wd || !wd->used)return;
-
-	// glPushMatrix();
-		// u32 params=POLY_ALPHA(31)|POLY_CULL_FRONT|POLY_ID(30)|POLY_TOON_HIGHLIGHT|POLY_FOG;
-		// setupObjectLighting(NULL, wd->position, &params);
-
-		// glTranslate3f32(wd->position.x,wd->position.y,wd->position.z);
-		
-		// glPushMatrix();
-		// 	if(wd->orientation<=1)glRotateYi(8192);
-			
-		// 	renderModelFrameInterp(wd->modelInstance.currentFrame,wd->modelInstance.nextFrame,wd->modelInstance.interpCounter,wd->modelInstance.model,params,false,wd->modelInstance.palette,RGB15(31,31,31));
-		
-		// 	glPolyFmt(POLY_ALPHA(31)|POLY_CULL_BACK|POLY_ID(31)|POLY_FOG);
-		// 	GFX_COLOR=RGB15(31,31,31);
-		// 	vect3Df_s v[4];
-		// 	bindMaterial(wd->frameMaterial, wd->rectangle, NULL, v, false);
-		// 	GFX_BEGIN=GL_QUAD_STRIP;
-
-		// 		int i;
-		// 		for(i=0;i<DOORFRAMELENGTH;i++)
-		// 		{
-		// 			int32 tx=v[0].x+((doorFrameData[i].x-doorFrameData[0].x)*(v[2].x-v[0].x))/(TILESIZE*4);
-		// 			int32 ty=v[0].y+((doorFrameData[i].y-doorFrameData[0].y)*(v[2].y-v[0].y))/(HEIGHTUNIT*8);
-		// 			GFX_TEX_COORD=TEXTURE_PACK((tx), (ty));
-		// 			glVertex3v16(doorFrameData[i].x,doorFrameData[i].y,doorFrameData[i].z);			
-		// 		}
-		
-		// 	glPolyFmt(POLY_ALPHA(31)|POLY_CULL_FRONT|POLY_ID(31)|POLY_FOG);
-		// 	GFX_BEGIN=GL_QUAD_STRIP;
-
-		// 		for(i=0;i<DOORFRAMELENGTH;i++)
-		// 		{
-		// 			int32 tx=v[0].x+((doorFrameData[i].x-doorFrameData[0].x)*(v[2].x-v[0].x))/(TILESIZE*4);
-		// 			int32 ty=v[0].y+((doorFrameData[i].y-doorFrameData[0].y)*(v[2].y-v[0].y))/(HEIGHTUNIT*8);
-		// 			GFX_TEX_COORD=TEXTURE_PACK((tx), (ty));
-		// 			glVertex3v16(doorFrameData[i].x,doorFrameData[i].y,doorFrameData[i].z-WALLDOORINTERVAL);			
-		// 		}
-		// glPopMatrix(1);
 
 	gsPushMatrix();
 		gsSwitchRenderMode(md2GsMode);

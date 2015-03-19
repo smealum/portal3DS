@@ -7,9 +7,11 @@
 #include "game/portal.h"
 #include "game/player.h"
 #include "game/elevator.h"
+#include "game/activator.h"
 
 typedef struct
 {
+	activatableObject_s ao;
 	vect3Df_s position;
 	vect3Di_s gridPosition;
 	u8 orientation;
@@ -18,7 +20,6 @@ typedef struct
 	material_s* frameMaterial;
 	rectangle_s* rectangle;
 	elevator_s elevator;
-	bool override;
 	bool used;
 }wallDoor_s;
 
