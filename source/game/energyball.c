@@ -2,6 +2,7 @@
 #include <string.h>
 #include <3ds.h>
 #include "game/energyball.h"
+#include "game/portal.h"
 #include "gfx/gs.h"
 
 #define ENERGYBALLSIZE (1.0f)
@@ -275,12 +276,12 @@ void drawEnergyBalls(void)
 	}
 }
 
-// void warpEnergyBall(portal_struct* p, energyBall_s* eb)
-// {
-// 	if(!p->targetPortal)return;
-// 	eb->position=vaddf(warpVector(p,vectDifference(eb->position,p->position)),p->targetPortal->position);
-// 	eb->direction=warpVector(p,eb->direction);
-// }
+void warpEnergyBall(portal_s* p, energyBall_s* eb)
+{
+	if(!p->target)return;
+	eb->position=vaddf(warpPortalVector(p,vsubf(eb->position,p->position)),p->target->position);
+	eb->direction=warpPortalVector(p,eb->direction);
+}
 
 void killEnergyBall(energyBall_s* eb)
 {
@@ -326,27 +327,26 @@ void updateEnergyBall(room_s* r, energyBall_s* eb)
 			return;
 		}
 
-		// vect3Df_s v=vect(0,0,0);
-		// int32 x, y, z;
-		// portal_struct* portal=NULL;
-		// if(isPointInPortal(&portal1,ip,&v,&x,&y,&z))portal=&portal1;
-		// if(abs(z)>=32)portal=NULL;
-		// if(!portal)
-		// {
-		// 	if(isPointInPortal(&portal2,ip,&v,&x,&y,&z))portal=&portal2;
-		// 	if(abs(z)>=32)portal=NULL;
-		// }
-		// if((portal && !portal->used) || (portal && portal->targetPortal && !portal->targetPortal->used))portal=NULL;
-		// if(!portal)
-		// {
+		vect3Df_s v=vect3Df(0,0,0);
+		float x, y, z;
+		portal_s* portal=NULL;
+		int i;
+		for(i=0; i<NUM_PORTALS && !portal; i++)
+		{
+			if(isPointInPortal(&portals[i],ip,&v,&x,&y,&z))portal=&portals[i];
+			if(portal && fabs(z)>=0.1f)portal=NULL;
+		}
+		if(portal && !portal->target)portal=NULL;
+		if(!portal)
+		{
 			eb->position=ip;
 			eb->direction=vsubf(eb->direction,vmulf(normal,2*vdotf(eb->direction,normal)));
 			eb->position=vaddf(eb->position,vmulf(eb->direction,ENERGYBALLSIZE));
-		// }else{
-		// 	eb->position=vaddf(eb->position,vmulf(eb->direction,eb->speed));
-		// 	warpEnergyBall(portal,eb);
-		// 	eb->position=vaddf(eb->position,vmulf(eb->direction,eb->speed));
-		// }
+		}else{
+			eb->position=vaddf(eb->position,vmulf(eb->direction,eb->speed));
+			warpEnergyBall(portal,eb);
+			eb->position=vaddf(eb->position,vmulf(eb->direction,eb->speed));
+		}
 
 	}else{
 		eb->position=vaddf(eb->position,vmulf(eb->direction,eb->speed));
