@@ -84,6 +84,7 @@ void drawScene(camera_s* c, int depth, u8 stencil)
 		drawEnergyBalls();
 		drawPlatforms();
 		drawBigButtons();
+		drawTimedButtons();
 		drawWallDoors();
 		drawDoors();
 		drawOBBs();
@@ -337,6 +338,7 @@ int main(int argc, char** argv)
 		updateEnergyBalls(&testRoom);
 		updatePlatforms(&testPlayer);
 		updateBigButtons();
+		updateTimedButtons();
 		updateWallDoors(&testPlayer);
 		updateDoors();
 

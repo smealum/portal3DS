@@ -4,7 +4,7 @@
 #include "light_rectangle.h"
 
 #define AMBIENTLIGHT (10)
-#define LIGHTMAPRESOLUTION (32)
+#define LIGHTMAPRESOLUTION (20)
 
 //LIGHTMAP
 

@@ -611,7 +611,6 @@ void drawRoom(room_s* r)
 		);
 
 	GPU_SetTextureEnable(GPU_TEXUNIT0|GPU_TEXUNIT1);
-
 	
 	GPU_SetTexEnv(0, 
 		GPU_TEVSOURCES(GPU_TEXTURE0, GPU_TEXTURE1, GPU_PRIMARY_COLOR),
@@ -631,7 +630,6 @@ void drawRoom(room_s* r)
 		for(i=0; i<r->numIndexBuffers; i++)
 		{
 			textureBind(r->indexBufferTextures[i], GPU_TEXUNIT0);
-			// textureBind(r->indexBufferTextures[i], GPU_TEXUNIT1);
 			textureBind(r->lightingData.data.lightMap.texture, GPU_TEXUNIT1);
 			GPU_SetFloatUniform(GPU_VERTEX_SHADER, roomUniformTextureDimensions, (u32*)(float[]){0.0f, 0.0f, 1.0f / r->indexBufferTextures[i]->height, 1.0f / r->indexBufferTextures[i]->width}, 1);
 			GPU_DrawElements(GPU_UNKPRIM, (u32*)((u32)r->indexBuffers[i]-roomBaseAddr), r->numIndices[i]);

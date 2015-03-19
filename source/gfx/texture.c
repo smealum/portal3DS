@@ -215,9 +215,9 @@ int textureLoadBuffer(texture_s* t, u32* buffer, int width, int height, u32 para
 
 	u32 size = t->width*t->height;
 	size = ((size - (size >> (2*(mipmap+1)))) * 4) / 3; //geometric progression
-	t->data=linearMemAlign(size, 0x80); //textures need to be 0x80 byte aligned
+	// t->data=linearMemAlign(size, 0x80); //textures need to be 0x80 byte aligned
+	t->data=linearMemAlign(size, 0x1000); //textures need to be 0x80 byte aligned (apparently not enough, likely depends on texture width, TODO : figure out alignment requirement)
 	if(!t->data){return -3;}
-
 	tileImage8(buffer, t->data, t->width, t->height);
 
 	u32 offset = t->width*t->height;

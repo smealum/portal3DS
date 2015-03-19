@@ -103,9 +103,9 @@ void drawSludge(room_s* r)
 
 		gsUpdateTransformation();
 
-		textureBind(&sludgeTexture, GPU_TEXUNIT0);
-		GPU_SetFloatUniform(GPU_VERTEX_SHADER, roomUniformTextureDimensions, (u32*)(float[]){0.0f, 0.0f, 1.0f / sludgeTexture.height, 1.0f / sludgeTexture.width}, 1);
-		GPU_DrawElements(GPU_UNKPRIM, (u32*)((u32)sludgeIndexBuffer-roomBaseAddr), sludgeNumIndices);
+		// textureBind(&sludgeTexture, GPU_TEXUNIT0);
+		// GPU_SetFloatUniform(GPU_VERTEX_SHADER, roomUniformTextureDimensions, (u32*)(float[]){0.0f, 0.0f, 1.0f / sludgeTexture.height, 1.0f / sludgeTexture.width}, 1);
+		// GPU_DrawElements(GPU_UNKPRIM, (u32*)((u32)sludgeIndexBuffer-roomBaseAddr), sludgeNumIndices);
 
 	gsPopMatrix();
 }

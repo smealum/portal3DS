@@ -145,7 +145,7 @@ void readEntity(room_s* r, u8 i, FILE* f)
 				vect3Di_s p; readVect3Di(&p,f);
 				u8 d; fread(&d, sizeof(u8), 1, f);
 				s16 target=-1; fread(&target, sizeof(s16), 1, f);
-				timedButton_s* e=createTimedButton(r, p, (d+2)*8192);
+				timedButton_s* e=createTimedButton(r, p, (d+2)*M_PI);
 				if(e)entityActivatorArray[i]=&e->activator;
 				entityTargetArray[i]=target;
 			}
