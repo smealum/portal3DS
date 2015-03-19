@@ -53,6 +53,6 @@ void updateEnergyDevices(void);
 
 energyBall_s* createEnergyBall(energyDevice_s* launcher, vect3Df_s pos, vect3Df_s dir, u16 life);
 void drawEnergyBalls(void);
-void updateEnergyBalls(void);
+void updateEnergyBalls(room_s* r);
 
 #endif

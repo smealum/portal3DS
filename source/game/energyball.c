@@ -4,7 +4,7 @@
 #include "game/energyball.h"
 #include "gfx/gs.h"
 
-#define ENERGYBALLSIZE (128)
+#define ENERGYBALLSIZE (1.0f)
 
 energyDevice_s energyDevice[NUMENERGYDEVICES];
 energyBall_s energyBall[NUMENERGYBALLS];
@@ -68,7 +68,7 @@ void initEnergyDevice(room_s* r, energyDevice_s* ed, vect3Di_s pos, deviceOrient
 				rec.size=vect3Di(2,0,2);
 				rec.normal=vect3Df(0,1.0f,0);
 				recp=addRoomRectangle(r, rec);
-				if(recp)recp->hide=true;
+				if(recp){recp->hide=true;recp->collides=true;}
 				if(or==pY)ed->surface=recp;
 			}
 			if(or!=pY)
@@ -77,7 +77,7 @@ void initEnergyDevice(room_s* r, energyDevice_s* ed, vect3Di_s pos, deviceOrient
 				rec.size=vect3Di(-2,0,-2);
 				rec.normal=vect3Df(0,1.0f,0);
 				recp=addRoomRectangle(r, rec);
-				if(recp)recp->hide=true;
+				if(recp){recp->hide=true;recp->collides=true;}
 				if(or==mY)ed->surface=recp;
 			}
 			if(or!=pZ)
@@ -86,7 +86,7 @@ void initEnergyDevice(room_s* r, energyDevice_s* ed, vect3Di_s pos, deviceOrient
 				rec.size=vect3Di(2,8,0);
 				rec.normal=vect3Df(0,0,-1.0f);
 				recp=addRoomRectangle(r, rec);
-				if(recp)recp->hide=true;
+				if(recp){recp->hide=true;recp->collides=true;}
 				if(or==mZ)ed->surface=recp;
 			}
 			if(or!=mZ)
@@ -95,7 +95,7 @@ void initEnergyDevice(room_s* r, energyDevice_s* ed, vect3Di_s pos, deviceOrient
 				rec.size=vect3Di(2,-8,0);
 				rec.normal=vect3Df(0,0,1.0f);
 				recp=addRoomRectangle(r, rec);
-				if(recp)recp->hide=true;
+				if(recp){recp->hide=true;recp->collides=true;}
 				if(or==pZ)ed->surface=recp;
 			}
 			if(or!=pX)
@@ -104,7 +104,7 @@ void initEnergyDevice(room_s* r, energyDevice_s* ed, vect3Di_s pos, deviceOrient
 				rec.size=vect3Di(0,8,2);
 				rec.normal=vect3Df(-1.0f,0,0);
 				recp=addRoomRectangle(r, rec);
-				if(recp)recp->hide=true;
+				if(recp){recp->hide=true;recp->collides=true;}
 				if(or==mX)ed->surface=recp;
 			}
 			if(or!=mX)
@@ -113,7 +113,7 @@ void initEnergyDevice(room_s* r, energyDevice_s* ed, vect3Di_s pos, deviceOrient
 				rec.size=vect3Di(0,-8,2);
 				rec.normal=vect3Df(1.0f,0,0);
 				recp=addRoomRectangle(r, rec);
-				if(recp)recp->hide=true;
+				if(recp){recp->hide=true;recp->collides=true;}
 				if(or==pX)ed->surface=recp;
 			}
 	}
@@ -193,7 +193,7 @@ void updateEnergyDevice(energyDevice_s* ed)
 		if(ed->active)
 		{
 			md2InstanceChangeAnimation(&ed->modelInstance,1,true);
-			createEnergyBall(ed, vaddf(ed->position, vdivf(energyDeviceDirection[ed->orientation],8)), energyDeviceDirection[ed->orientation], 300);
+			createEnergyBall(ed, vaddf(ed->position, vdivf(energyDeviceDirection[ed->orientation],8)), energyDeviceDirection[ed->orientation], 800);
 			ed->active=false;
 		}
 	}else{
@@ -302,56 +302,55 @@ energyDevice_s* isEnergyCatcherSurface(rectangle_s* rec)
 	return NULL;
 }
 
-void updateEnergyBall(energyBall_s* eb)
+void updateEnergyBall(room_s* r, energyBall_s* eb)
 {
 	if(!eb)return;
 	
-	// vect3Df_s l=vsubf(eb->position,convertSize(vect(p->currentRoom->position.x,0,p->currentRoom->position.y)));
+	vect3Df_s l=eb->position;
 	
-	// vect3Df_s ip=l, normal;
-	// rectangle_s* col=collideGridCell(getCurrentCell(p->currentRoom,eb->position), eb->launcher?eb->launcher->surface:NULL, l, eb->direction, eb->speed, &ip, &normal);
-	// if(!col)col=collideGridCell(getCurrentCell(p->currentRoom,vaddf(eb->position,vmulf(eb->direction,eb->speed))), eb->launcher?eb->launcher->surface:NULL, l, eb->direction, eb->speed, &ip, &normal);
-	// if(col)
-	// {
-	// 	// NOGBA("COL COL COL %d",col->collides);
-	// 	ip=vaddf(convertSize(vect(p->currentRoom->position.x,0,p->currentRoom->position.y)),ip);
-	// 	energyDevice_s* ed=isEnergyCatcherSurface(col);
-	// 	if(ed && !ed->active)
-	// 	{
-	// 		//caught
-	// 		md2InstanceChangeAnimation(&ed->modelInstance,2,false);
-	// 		md2InstanceChangeAnimation(&ed->modelInstance,1,true);
-	// 		killEnergyBall(eb);
-	// 		if(eb->launcher)eb->launcher->active=false;
-	// 		ed->active=true;
-	// 		return;
-	// 	}
+	vect3Df_s ip=l, normal;
+	rectangle_s* col=collideGridCell(getCurrentCell(r,eb->position), eb->launcher?eb->launcher->surface:NULL, l, eb->direction, eb->speed, &ip, &normal);
+	if(!col)col=collideGridCell(getCurrentCell(r,vaddf(eb->position,vmulf(eb->direction,eb->speed))), eb->launcher?eb->launcher->surface:NULL, l, eb->direction, eb->speed, &ip, &normal);
+	if(col)
+	{
+		// printf("COL COL COL %d\n",col->collides);
+		energyDevice_s* ed=isEnergyCatcherSurface(col);
+		if(ed && !ed->active)
+		{
+			//caught
+			md2InstanceChangeAnimation(&ed->modelInstance,2,false);
+			md2InstanceChangeAnimation(&ed->modelInstance,1,true);
+			killEnergyBall(eb);
+			if(eb->launcher)eb->launcher->active=false;
+			ed->active=true;
+			return;
+		}
 
-	// 	// vect3Df_s v=vect(0,0,0);
-	// 	// int32 x, y, z;
-	// 	// portal_struct* portal=NULL;
-	// 	// if(isPointInPortal(&portal1,ip,&v,&x,&y,&z))portal=&portal1;
-	// 	// if(abs(z)>=32)portal=NULL;
-	// 	// if(!portal)
-	// 	// {
-	// 	// 	if(isPointInPortal(&portal2,ip,&v,&x,&y,&z))portal=&portal2;
-	// 	// 	if(abs(z)>=32)portal=NULL;
-	// 	// }
-	// 	// if((portal && !portal->used) || (portal && portal->targetPortal && !portal->targetPortal->used))portal=NULL;
-	// 	// if(!portal)
-	// 	// {
-	// 	// 	eb->position=ip;
-	// 	// 	eb->direction=vsubf(eb->direction,vmulf(normal,2*dotProduct(eb->direction,normal)));
-	// 	// 	eb->position=vaddf(eb->position,vmulf(eb->direction,ENERGYBALLSIZE));
-	// 	// }else{
-	// 	// 	eb->position=vaddf(eb->position,vmulf(eb->direction,eb->speed));
-	// 	// 	warpEnergyBall(portal,eb);
-	// 	// 	eb->position=vaddf(eb->position,vmulf(eb->direction,eb->speed));
-	// 	// }
+		// vect3Df_s v=vect(0,0,0);
+		// int32 x, y, z;
+		// portal_struct* portal=NULL;
+		// if(isPointInPortal(&portal1,ip,&v,&x,&y,&z))portal=&portal1;
+		// if(abs(z)>=32)portal=NULL;
+		// if(!portal)
+		// {
+		// 	if(isPointInPortal(&portal2,ip,&v,&x,&y,&z))portal=&portal2;
+		// 	if(abs(z)>=32)portal=NULL;
+		// }
+		// if((portal && !portal->used) || (portal && portal->targetPortal && !portal->targetPortal->used))portal=NULL;
+		// if(!portal)
+		// {
+			eb->position=ip;
+			eb->direction=vsubf(eb->direction,vmulf(normal,2*vdotf(eb->direction,normal)));
+			eb->position=vaddf(eb->position,vmulf(eb->direction,ENERGYBALLSIZE));
+		// }else{
+		// 	eb->position=vaddf(eb->position,vmulf(eb->direction,eb->speed));
+		// 	warpEnergyBall(portal,eb);
+		// 	eb->position=vaddf(eb->position,vmulf(eb->direction,eb->speed));
+		// }
 
-	// }else{
+	}else{
 		eb->position=vaddf(eb->position,vmulf(eb->direction,eb->speed));
-	// }
+	}
 	
 	md2InstanceUpdate(&eb->modelInstance);
 	
@@ -359,11 +358,11 @@ void updateEnergyBall(energyBall_s* eb)
 	else eb->life--;
 }
 
-void updateEnergyBalls(void)
+void updateEnergyBalls(room_s* r)
 {
 	int i;
 	for(i=0;i<NUMENERGYBALLS;i++)
 	{
-		if(energyBall[i].used)updateEnergyBall(&energyBall[i]);
+		if(energyBall[i].used)updateEnergyBall(r, &energyBall[i]);
 	}
 }

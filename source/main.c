@@ -334,7 +334,7 @@ int main(int argc, char** argv)
 
 		updateCubeDispensers();
 		updateEnergyDevices();
-		updateEnergyBalls();
+		updateEnergyBalls(&testRoom);
 		updatePlatforms(&testPlayer);
 		updateBigButtons();
 		updateWallDoors(&testPlayer);

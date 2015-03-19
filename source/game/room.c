@@ -392,6 +392,26 @@ bool collideLineRectangle(rectangle_s* rec, vect3Df_s o, vect3Df_s v, float d, f
 	return false;
 }
 
+rectangle_s* collideGridCell(gridCell_s* gc, rectangle_s* rec, vect3Df_s l, vect3Df_s u, float d, vect3Df_s* i, vect3Df_s* n)
+{
+	if(!gc)return NULL;
+	vect3Df_s v;
+	int j;
+	for(j=0;j<gc->numRectangles;j++)
+	{
+		if(gc->rectangles[j]!=rec && gc->rectangles[j]->collides)
+		{
+			if(collideLineRectangle(gc->rectangles[j],l,u,d,NULL,&v))
+			{
+				if(i)*i=v;
+				if(n)*n=gc->rectangles[j]->normal;
+				return gc->rectangles[j];
+			}
+		}
+	}
+	return NULL;
+}
+
 rectangle_s* collideLineMapClosest(room_s* r, rectangle_s* rec, vect3Df_s l, vect3Df_s u, float d, vect3Df_s* i, float* lk)
 {
 	if(!r)return NULL;

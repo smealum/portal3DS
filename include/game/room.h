@@ -95,6 +95,7 @@ void transferRoomRectangles(room_s* r);
 vect3Df_s convertRectangleVector(vect3Di_s v);
 
 gridCell_s* getCurrentCell(room_s* r, vect3Df_s o);
+rectangle_s* collideGridCell(gridCell_s* gc, rectangle_s* rec, vect3Df_s l, vect3Df_s u, float d, vect3Df_s* i, vect3Df_s* n);
 rectangle_s* collideLineMapClosest(room_s* r, rectangle_s* rec, vect3Df_s l, vect3Df_s u, float d, vect3Df_s* i, float* lk);
 
 #endif
