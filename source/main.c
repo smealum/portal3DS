@@ -13,6 +13,7 @@
 #include "utils/filesystem.h"
 
 #include "game/sfx.h"
+#include "game/controls.h"
 #include "game/camera.h"
 #include "game/material.h"
 #include "game/room_io.h"
@@ -242,6 +243,7 @@ int main(int argc, char** argv)
 	//init player
 	playerInit();
 	initPlayer(&testPlayer);
+	initControls();
 
 	//init physics
 	initPhysics();
@@ -291,31 +293,10 @@ int main(int argc, char** argv)
 		//START to exit to hbmenu
 		if(keysDown()&KEY_START)break;
 
-		circlePosition cstick;
-		irrstCstickRead(&cstick);
-		rotatePlayer(&testPlayer, vect3Df((abs(cstick.dy)<5)?0:(-cstick.dy*0.001f), (abs(cstick.dx)<5)?0:(cstick.dx*0.001f), 0.0f));
-
-		if(testPlayer.flying)
-		{
-			if(keysHeld()&KEY_CPAD_UP)movePlayer(&testPlayer, vect3Df(0.0f, 0.0f, -0.4f));
-			if(keysHeld()&KEY_CPAD_DOWN)movePlayer(&testPlayer, vect3Df(0.0f, 0.0f, 0.4f));
-			if(keysHeld()&KEY_CPAD_LEFT)movePlayer(&testPlayer, vect3Df(-0.4f, 0.0f, 0.0f));
-			if(keysHeld()&KEY_CPAD_RIGHT)movePlayer(&testPlayer, vect3Df(0.4f, 0.0f, 0.0f));
-		}else if(testPlayer.object.contact)
-		{
-			if(keysHeld()&KEY_CPAD_UP)movePlayer(&testPlayer, vect3Df(0.0f, 0.0f, -0.2f));
-			if(keysHeld()&KEY_CPAD_DOWN)movePlayer(&testPlayer, vect3Df(0.0f, 0.0f, 0.2f));
-			if(keysHeld()&KEY_CPAD_LEFT)movePlayer(&testPlayer, vect3Df(-0.2f, 0.0f, 0.0f));
-			if(keysHeld()&KEY_CPAD_RIGHT)movePlayer(&testPlayer, vect3Df(0.2f, 0.0f, 0.0f));
-		}
-
 		// if(keysHeld()&KEY_X)debugVal[0]+=0.05f*10;
 		// if(keysHeld()&KEY_B)debugVal[0]-=0.05f*10;
 		// if(keysHeld()&KEY_Y)debugVal[1]+=0.05f*10;
 		// if(keysHeld()&KEY_A)debugVal[1]-=0.05f*10;
-
-		if(keysHeld()&KEY_X)movePlayer(&testPlayer, vect3Df(0.0f, 0.4f, 0.0f));
-		if(keysHeld()&KEY_B)movePlayer(&testPlayer, vect3Df(0.0f, -0.4f, 0.0f));
 
 		if(keysHeld()&KEY_DUP)debugVal[2]+=0.05f*10;
 		if(keysHeld()&KEY_DDOWN)debugVal[2]-=0.05f*10;
@@ -329,6 +310,8 @@ int main(int argc, char** argv)
 
 		if(keysDown()&KEY_R)shootPlayerGun(&testPlayer, &testRoom, &portals[0]);
 		if(keysDown()&KEY_L)shootPlayerGun(&testPlayer, &testRoom, &portals[1]);
+
+		updateControls(&testPlayer);
 
 		md2InstanceUpdate(&gladosInstance);
 		updatePlayer(&testPlayer, &testRoom);

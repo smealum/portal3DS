@@ -70,6 +70,8 @@ void initPlayer(player_s* p)
 	memcpy(rectangleVertexData, rectangleData, sizeof(rectangleData));
 
 	p->flying = false;
+	p->walkCnt1 = 0;
+	p->walkCnt2 = 0;
 }
 
 void warpPlayer(portal_s* p, player_s* pl)
@@ -157,10 +159,18 @@ void updatePlayer(player_s* p, room_s* r)
 	
 	// fixMatrix(c->orientation); //compensate floating point errors
 
-	p->camera.position = p->object.position;
-	
+	p->camera.position = vaddf(p->object.position, vect3Df(0.0f, cos(p->walkCnt1)*0.1f, 0.0f));
+
 	if(p->flying) p->object.speed = vect3Df(0,0,0); //TEMP
 	p->tempAngle = vmulf(p->tempAngle, 0.65f);
+}
+
+void updatePlayerWalk(player_s* p, float wc1, float wc2)
+{
+	if(!p)return;
+
+	p->walkCnt1+=wc1;
+	p->walkCnt2+=wc2;
 }
 
 extern float debugVal[];

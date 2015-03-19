@@ -23,6 +23,7 @@ typedef struct
 	physicalPoint_s object;
 	camera_s camera;
 	vect3Df_s tempAngle;
+	float walkCnt1, walkCnt2;
 	bool inPortal, oldInPortal;
 	bool flying;
 }player_s;
@@ -32,6 +33,7 @@ void playerExit(void);
 
 void initPlayer(player_s* p);
 void updatePlayer(player_s* p, room_s* r);
+void updatePlayerWalk(player_s* p, float wc1, float wc2);
 
 void drawPlayerGun(player_s* p);
 
