@@ -326,7 +326,7 @@ void readLightingData(room_s* r, lightingData_s* ld, FILE* f)
 				lc=lc->next;
 			}
 
-			ld->data.lightMap.texture = textureCreateBuffer(ld->data.lightMap.buffer, ld->data.lightMap.lmSize.x, ld->data.lightMap.lmSize.y, GPU_TEXTURE_MAG_FILTER(GPU_LINEAR)|GPU_TEXTURE_MIN_FILTER(GPU_LINEAR), 0);
+			ld->data.lightMap.texture = textureCreateBuffer(ld->data.lightMap.buffer, ld->data.lightMap.lmSize.x, ld->data.lightMap.lmSize.y, GPU_TEXTURE_MAG_FILTER(GPU_LINEAR)|GPU_TEXTURE_MIN_FILTER(GPU_LINEAR), 10);
 			printf("texture : %p\n",ld->data.lightMap.texture);
 
 			break;

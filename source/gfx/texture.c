@@ -130,6 +130,23 @@ void downscaleImage(u8* data, int width, int height)
 	}
 }
 
+// downscales by a factor of 2 on width and 2 on height
+void downscaleImage8(u8* data, int width, int height)
+{
+	if(!data || !width || !height)return;
+
+	int i, j;
+	for(j=0; j<height; j++)
+	{
+		for(i=0; i<width; i++)
+		{
+			const u32 offset = (i+j*width);
+			const u32 offset2 = (i*2+j*2*width*2);
+			data[offset] = (data[offset2] + data[offset2+4] + data[offset2+width*2] + data[offset2+(width*2+1)]) / 4;
+		}
+	}
+}
+
 int textureLoad(texture_s* t, const char* fn, u32 param, int mipmap)
 {
 	if(!t || !fn || t->used)return -1;
@@ -203,16 +220,16 @@ int textureLoadBuffer(texture_s* t, u32* buffer, int width, int height, u32 para
 
 	tileImage8(buffer, t->data, t->width, t->height);
 
-	// u32 offset = t->width*t->height;
-	// int level = 0;
-	// int w = t->width/2, h = t->height/2;
-	// for(level = 0; level < mipmap; level++)
-	// {
-	// 	downscaleImage((u8*)buffer, w, h);
-	// 	tileImage8(buffer, &t->data[offset], w, h);
-	// 	offset += w*h;
-	// 	w /= 2; h /= 2;
-	// }
+	u32 offset = t->width*t->height;
+	int level = 0;
+	int w = t->width/2, h = t->height/2;
+	for(level = 0; level < mipmap; level++)
+	{
+		downscaleImage8((u8*)buffer, w, h);
+		tileImage8(buffer, &t->data[offset], w, h);
+		offset += w*h;
+		w /= 2; h /= 2;
+	}
 	
 	t->param=param;
 
