@@ -25,7 +25,7 @@ u8 computeLighting(vect3Df_s l, float intensity, vect3Df_s p, rectangle_s* rec, 
 	{
 		vect3Df_s u=vsubf(p,l);
 		u=vdivf(u,dist);
-		// if(collideLineMapClosest(r, rec, l, u, dist, NULL, NULL)){return 0;}
+		if(collideLineMapClosest(r, rec, l, u, dist, NULL, NULL)){return 0;}
 		float v=vdotf(u,rec->normal);
 		v=maxf(0,v);
 		v*=3;
@@ -103,7 +103,7 @@ void generateLightmap(rectangle_s* rec, room_s* r, lightMapData_s* lmd, u8* b, l
 		u16 x=lmc->lmSize.x, y=lmc->lmSize.y;
 		u8* data=malloc(x*y);
 		if(!data)return;
-		vect3Df_s p=vect3Df(rec->position.x*TILESIZE_FLOAT*2-TILESIZE_FLOAT,rec->position.y*HEIGHTUNIT,rec->position.z*TILESIZE_FLOAT*2-TILESIZE_FLOAT);
+		vect3Df_s p=convertRectangleVector(rec->position);
 		// printf("p : %f, %f, %f\n",p.x,p.y,p.z);
 		printf("p : %d, %d, %d\n",rec->position.x,rec->position.y,rec->position.z);
 		printf("t : %d, %d\n",lmc->lmPos.x,lmc->lmPos.y);

@@ -187,7 +187,7 @@ bool collideLineRectangle(rectangle_s* rec, vect3Df_s o, vect3Df_s v, float d, f
 		{
 			*kk=k+sign;
 		}
-		if(k<0 || k>d){return false;}
+		if(k<0 || k>=d){return false;}
 		vect3Df_s i=vaddf(o,vmulf(v,k));
 		if(ip)*ip=i;
 		i=vsubf(i,p);
@@ -230,6 +230,7 @@ rectangle_s* collideLineMapClosest(room_s* r, rectangle_s* rec, vect3Df_s l, vec
 			{
 				if(k<lowestK)
 				{
+					// printf("%f -> %f\n",lowestK,k);
 					if(i)*i=v;
 					if(lk)*lk=k;
 					lowestK=k;
