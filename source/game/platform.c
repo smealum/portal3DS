@@ -46,7 +46,7 @@ void initPlatform(platform_s* pf, room_s* r, vect3Di_s orig, vect3Di_s dest, u8 
 	pf->destination=convertRectangleVector(dest);
 
 	pf->position=pf->origin;
-	pf->velocity=vdivf(vnormf(vsubf(pf->destination,pf->origin)),256);
+	pf->velocity=vdivf(vnormf(vsubf(pf->destination,pf->origin)),16);
 	
 	pf->direction=true;
 	pf->touched=false;
@@ -98,16 +98,16 @@ void drawPlatforms(void)
 void updatePlatform(platform_s* pf, player_s* p)
 {
 	if(!pf)return;
-	
-	if(pf->touched && p->object.position.y>pf->position.y+p->object.radius*2)
-	{
-		p->object.position=vaddf(p->object.position,pf->velocity);
-	}else if(pf->oldTouched){
-		p->object.speed=vaddf(p->object.speed,pf->velocity);
-	}
 
 	if(pf->ao.active)
 	{
+		if(pf->touched && p->object.position.y>pf->position.y+p->object.radius)
+		{
+			p->object.position=vaddf(p->object.position,pf->velocity);
+		}else if(pf->oldTouched){
+			p->object.speed=vaddf(p->object.speed,pf->velocity);
+		}
+
 		if(pf->direction)
 		{
 			if(vdotf(vsubf(pf->position,pf->destination),pf->velocity)>0)
@@ -128,11 +128,11 @@ void updatePlatform(platform_s* pf, player_s* p)
 				pf->direction=true;
 			}
 		}
+
 		pf->position=vaddf(pf->position,pf->velocity);
 	}
 	
 	pf->ao.oldActive=pf->ao.active;
-	pf->velocity=vect3Df(0,0,0);
 	pf->oldTouched=pf->touched;
 	pf->touched=false;
 }
