@@ -115,7 +115,7 @@ vect3Df_s getClosestPointRectangle(vect3Df_s rectOrigin, vect3Df_s rectSize, vec
 }
 
 extern vect3Df_s normGravityVector; //TEMP
-const float transY=4.0f; //TEMP
+const float transY=8.0f; //TEMP
 
 bool collideRectangle(physicalPoint_s* o, vect3Df_s p, vect3Df_s s)
 {

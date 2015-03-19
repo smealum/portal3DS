@@ -245,8 +245,9 @@ void shootPlayerGun(player_s* p, room_s* r, portal_s* portal)
 
 	vect3Df_s position;
 	rectangle_s* rec = collideLineMapClosest(r, NULL, p->camera.position, vect3Df(-p->camera.orientation[2][0], -p->camera.orientation[2][1], -p->camera.orientation[2][2]), 1000.0f, &position, NULL);
-	if(rec)
+	if(rec && rec->portalable)
 	{
+		portal_s oldPortal = *portal;
 		vect3Df_s normal = rec->normal;
 		vect3Df_s plane0 = vect3Df(p->camera.orientation[0][0], p->camera.orientation[0][1], p->camera.orientation[0][2]);
 		plane0 = vnormf(vsubf(plane0, vmulf(normal, vdotf(normal, plane0))));
@@ -254,8 +255,16 @@ void shootPlayerGun(player_s* p, room_s* r, portal_s* portal)
 		position = vaddf(position, vmulf(normal, -0.05f));
 
 		portal->position = position;
+
 		updatePortalOrientation(portal, plane0, normal);
-		ejectPortalOBBs(portal);
-		ejectPortalOBBs(portal->target);
+		isPortalOnWall(r, portal, true);
+
+		if(isPortalOnWall(r, portal, false))
+		{
+			ejectPortalOBBs(portal);
+			ejectPortalOBBs(portal->target);
+		}else{
+			*portal = oldPortal;
+		}
 	}
 }

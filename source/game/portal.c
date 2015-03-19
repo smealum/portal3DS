@@ -10,6 +10,8 @@
 #define PORTAL_OUTLINE (0.2f)
 #define PORTAL_DETAIL (32)
 
+#define PORTALMARGIN (0.2f)
+
 DVLB_s* portalDvlb;
 shaderProgram_s portalProgram;
 const u32 portalBaseAddr=0x14000000;
@@ -340,4 +342,91 @@ void drawPortals(portal_s* portals[], int n, renderSceneCallback_t callback, cam
 			callback(&camera, depth-1, stencilValue(i, stencil));
 		gsPopMatrix();
 	}
+}
+
+const u8 segmentList[4][2]={{0,1},{1,2},{2,3},{3,0}};
+const u8 segmentNormal[4]={0,1,0,1};
+
+bool doSegmentsIntersect(vect3Df_s s1, vect3Df_s s2, vect3Df_s sn, vect3Df_s p1, vect3Df_s p2, vect3Df_s pn, bool *vv1, bool *vv2)
+{
+	bool v1=vdotf(vsubf(p1,s1),pn)>0;
+	bool v2=vdotf(vsubf(p1,s2),pn)>0;
+	bool v3=vdotf(vsubf(s1,p1),sn)>0;
+	bool v4=vdotf(vsubf(s1,p2),sn)>0;
+	*vv1=v1;*vv2=v2;
+	return (v1!=v2)&&(v3!=v4);
+}
+
+bool portalRectangleIntersection(room_s* r, portal_s* p, rectangle_s* rec, vect3Df_s origpos, bool fix)
+{
+	if(!p || !rec)return false;
+	if((rec->normal.x&&p->normal.x)||(rec->normal.z&&p->normal.z)||(rec->normal.y&&p->normal.y))return false;
+	vect3Df_s pr=convertRectangleVector(rec->position);
+	vect3Df_s s=convertRectangleVector(rec->size);
+
+	//only need to do this once for all rectangles (so optimize it out)
+	const vect3Df_s v[]={(vmulf(p->plane[0],PORTAL_WIDTH)), (vmulf(p->plane[1],PORTAL_HEIGHT))};
+	const vect3Df_s points[]={vaddf(vaddf(p->position,v[0]),v[1]),vsubf(vaddf(p->position,v[0]),v[1]),vsubf(vsubf(p->position,v[0]),v[1]),vaddf(vsubf(p->position,v[0]),v[1])};
+	
+	//projection = more elegant, less efficient ? (rectangles are axis aligned biatch)
+	if(p->normal.x)
+	{
+		if(!((pr.x-PORTALMARGIN<=p->position.x&&pr.x+s.x+PORTALMARGIN>=p->position.x)||(pr.x+PORTALMARGIN>=p->position.x&&pr.x+s.x-PORTALMARGIN<=p->position.x)))return false;
+	}else if(p->normal.y)
+	{
+		if(!((pr.y-PORTALMARGIN<=p->position.y&&pr.y+s.y+PORTALMARGIN>=p->position.y)||(pr.y+PORTALMARGIN>=p->position.y&&pr.y+s.y-PORTALMARGIN<=p->position.y)))return false;
+	}else{
+		if(!((pr.z-PORTALMARGIN<=p->position.z&&pr.z+s.z+PORTALMARGIN>=p->position.z)||(pr.z+PORTALMARGIN>=p->position.z&&pr.z+s.z-PORTALMARGIN<=p->position.z)))return false;
+	}
+	
+	vect3Df_s p1=pr, p2=vaddf(pr,s);
+	vect3Df_s pn=rec->normal;
+	
+	int i;
+	for(i=0;i<4;i++)
+	{
+		const vect3Df_s s1=points[segmentList[i][0]], s2=points[segmentList[i][1]]; //segment
+		bool v1, v2;
+		if(doSegmentsIntersect(s1,s2,v[segmentNormal[i]],p1,p2,pn,&v1,&v2))
+		{
+			if(fix)
+			{
+				bool v3=vdotf(vsubf(p1,origpos),pn)>0;
+				if(v3==v1)
+				{
+					float ln=vdotf(pn,vsubf(p1,s2));
+					ln+=(ln>0)?(PORTALMARGIN):(-PORTALMARGIN);
+					p->position=vaddf(p->position,vmulf(pn,ln));
+				}else{
+					float ln=vdotf(pn,vsubf(p1,s1));
+					ln+=(ln>0)?(PORTALMARGIN):(-PORTALMARGIN);
+					p->position=vaddf(p->position,vmulf(pn,ln));
+				}
+			//if put back, add updating of points
+			// }else{
+				// return true;
+			}
+			return true;
+		}
+	}
+	p1=vsubf(p1,p->position);
+	p1=vect3Df(vdotf(p1,p->plane[0]),vdotf(p1,p->plane[1]),0);
+	if(p1.x<PORTAL_WIDTH||p1.x>PORTAL_WIDTH||p1.y<PORTAL_HEIGHT||p1.y>PORTAL_HEIGHT)return false;
+	p2=vsubf(p2,p->position);
+	p2=vect3Df(vdotf(p2,p->plane[0]),vdotf(p2,p->plane[1]),0);
+	if(p2.x<PORTAL_WIDTH||p2.x>PORTAL_WIDTH||p2.y<PORTAL_HEIGHT||p2.y>PORTAL_HEIGHT)return false;
+	
+	return true;
+}
+
+bool isPortalOnWall(room_s* r, portal_s* p, bool fix)
+{
+	listCell_s *lc=r->rectangles.first;
+	vect3Df_s origpos=p->position;
+	while(lc)
+	{
+		if(portalRectangleIntersection(r,p,&lc->data,origpos,fix)&&!fix)return false;
+		lc=lc->next;
+	}
+	return true;
 }

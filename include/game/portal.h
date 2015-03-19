@@ -2,13 +2,14 @@
 #define PORTAL_H
 
 #include "utils/math.h"
+#include "game/room.h"
 #include "game/camera.h"
 #include "physics/AAR.h"
 
 #define NUM_PORTALS (2)
 
-#define PORTAL_HEIGHT (4.0f)
-#define PORTAL_WIDTH (2.0f)
+#define PORTAL_HEIGHT (3.8f)
+#define PORTAL_WIDTH (1.8f)
 
 typedef struct portal_s
 {
@@ -42,5 +43,7 @@ void updatePortalOrientation(portal_s* p, vect3Df_s plane0, vect3Df_s normal);
 void generateGuideAAR(portal_s* p);
 
 void ejectPortalOBBs(portal_s* p);
+
+bool isPortalOnWall(room_s* r, portal_s* p, bool fix);
 
 #endif

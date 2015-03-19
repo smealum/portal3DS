@@ -8,7 +8,7 @@
 #include "game/room.h"
 #include "gfx/md2.h"
 
-#define PLAYER_RADIUS 2.0f
+#define PLAYER_RADIUS 1.2f
 
 typedef enum
 {
