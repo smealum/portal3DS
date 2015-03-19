@@ -48,12 +48,12 @@ void initDoor(door_s* d, room_s* r, vect3Di_s position, bool orientation)
 	}
 
 	d->rectangle[0]=addRoomRectangle(r, rec);
-	if(d->rectangle[0])d->rectangle[0]->hide=true;
+	if(d->rectangle[0]){d->rectangle[0]->hide=true;d->rectangle[0]->collides=false;}
 
 	rec.position.y+=rec.size.y;
 	rec.size.y=-rec.size.y;
 	d->rectangle[1]=addRoomRectangle(r, rec);
-	if(d->rectangle[1])d->rectangle[1]->hide=true;
+	if(d->rectangle[1]){d->rectangle[1]->hide=true;d->rectangle[1]->collides=false;}
 
 	md2InstanceInit(&d->modelInstance, &doorModel, &doorTexture);
 	d->position=convertRectangleVector(vect3Di(position.x, position.y, position.z));
@@ -89,8 +89,8 @@ void updateDoor(door_s* d)
 			md2InstanceChangeAnimation(&d->modelInstance, 1, true);
 		}else if(d->modelInstance.oldAnim==1 && d->modelInstance.currentAnim==2)
 		{
-			// if(d->rectangle[0]){d->rectangle[0]->collides=false;toggleAAR(d->rectangle[0]->AARid);}
-			// if(d->rectangle[1]){d->rectangle[1]->collides=false;toggleAAR(d->rectangle[1]->AARid);}
+			if(d->rectangle[0]){d->rectangle[0]->collides=false;/*toggleAAR(d->rectangle[0]->AARid);*/}
+			if(d->rectangle[1]){d->rectangle[1]->collides=false;/*toggleAAR(d->rectangle[1]->AARid);*/}
 		}
 	}else
 	{
@@ -98,8 +98,8 @@ void updateDoor(door_s* d)
 		{
 			md2InstanceChangeAnimation(&d->modelInstance, 0, false);
 			md2InstanceChangeAnimation(&d->modelInstance, 3, true);
-			// if(d->rectangle[0]){d->rectangle[0]->collides=true;toggleAAR(d->rectangle[0]->AARid);}
-			// if(d->rectangle[1]){d->rectangle[1]->collides=true;toggleAAR(d->rectangle[1]->AARid);}
+			if(d->rectangle[0]){d->rectangle[0]->collides=true;/*toggleAAR(d->rectangle[0]->AARid);*/}
+			if(d->rectangle[1]){d->rectangle[1]->collides=true;/*toggleAAR(d->rectangle[1]->AARid);*/}
 		}
 	}
 

@@ -159,7 +159,7 @@ void updatePlayer(player_s* p, room_s* r)
 	
 	// fixMatrix(c->orientation); //compensate floating point errors
 
-	p->camera.position = vaddf(p->object.position, vect3Df(0.0f, cos(p->walkCnt1)*0.1f, 0.0f));
+	p->camera.position = vaddf(p->object.position, vect3Df(0.0f, cos(p->walkCnt1)*0.14f, 0.0f));
 
 	if(p->flying) p->object.speed = vect3Df(0,0,0); //TEMP
 	p->tempAngle = vmulf(p->tempAngle, 0.65f);

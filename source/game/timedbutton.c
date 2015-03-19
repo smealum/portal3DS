@@ -38,21 +38,21 @@ void exitTimedButtons(void)
 	textureFree(&timedButtonActiveTexture);
 }
 
-void initTimedButton(timedButton_s* bb, room_s* r, vect3Di_s pos, float angle)
+void initTimedButton(timedButton_s* tb, room_s* r, vect3Di_s pos, float angle)
 {
-	if(!bb || !r)return;
+	if(!tb || !r)return;
 	
-	bb->room=r;
+	tb->room=r;
 	
-	md2InstanceInit(&bb->modelInstance, &timedButtonModel, &timedButtonTexture);
+	md2InstanceInit(&tb->modelInstance, &timedButtonModel, &timedButtonTexture);
 	
-	bb->position=convertRectangleVector(pos);
+	tb->position=convertRectangleVector(pos);
 
-	initActivator(&bb->activator);
-	bb->active=false;
-	bb->angle=angle;
+	initActivator(&tb->activator);
+	tb->active=false;
+	tb->angle=angle;
 	
-	bb->used=true;
+	tb->used=true;
 }
 
 timedButton_s* createTimedButton(room_s* r, vect3Di_s position, float angle)
@@ -70,18 +70,20 @@ timedButton_s* createTimedButton(room_s* r, vect3Di_s position, float angle)
 	return NULL;
 }
 
-void drawTimedButton(timedButton_s* bb)
+void drawTimedButton(timedButton_s* tb)
 {
-	if(!bb || !bb->used)return;
+	if(!tb || !tb->used)return;
 
 	gsPushMatrix();
 		gsSwitchRenderMode(md2GsMode);
 
-		gsTranslate(bb->position.x, bb->position.y, bb->position.z);
+		gsTranslate(tb->position.x, tb->position.y, tb->position.z);
 		
-		gsRotateY(bb->angle);
+		gsRotateY(tb->angle);
 
-		md2InstanceDraw(&bb->modelInstance);
+		tb->modelInstance.texture = tb->active?&timedButtonActiveTexture:&timedButtonTexture;
+
+		md2InstanceDraw(&tb->modelInstance);
 	gsPopMatrix();
 }
 
@@ -97,21 +99,21 @@ void drawTimedButtons(void)
 	}
 }
 
-void updateTimedButton(timedButton_s* bb)
+void updateTimedButton(timedButton_s* tb)
 {
-	if(!bb || !bb->used)return;
+	if(!tb || !tb->used)return;
 	
-	if(bb->active)
+	if(tb->active)
 	{
-		md2InstanceChangeAnimation(&bb->modelInstance,1,false);
-		useActivator(&bb->activator);
-		bb->active--;
+		md2InstanceChangeAnimation(&tb->modelInstance,1,false);
+		useActivator(&tb->activator);
+		tb->active--;
 	}else{
-		md2InstanceChangeAnimation(&bb->modelInstance,0,false);
-		unuseActivator(&bb->activator);
+		md2InstanceChangeAnimation(&tb->modelInstance,0,false);
+		unuseActivator(&tb->activator);
 	}
 	
-	md2InstanceUpdate(&bb->modelInstance);
+	md2InstanceUpdate(&tb->modelInstance);
 }
 
 void activateTimedButton(timedButton_s* tb)
@@ -150,8 +152,10 @@ timedButton_s* collideRayTimedButtons(vect3Df_s o, vect3Df_s v, float l)
 			timedButton_s* tb=&timedButton[i];
 			vect3Df_s p=timedButton[i].position;
 			p.y+=TILESIZE*2;
+			float dist=vdistf(o,p);
+			if(dist>l)continue;
 			float d=distanceLinePoint(o,v,p);
-			if(d<=(TILESIZE*3)/8)return tb;
+			if(d<=(TILESIZE_FLOAT*3)/8)return tb;
 		}
 	}
 	return NULL;

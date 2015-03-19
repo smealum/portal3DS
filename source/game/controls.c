@@ -1,6 +1,7 @@
 #include <3ds.h>
 #include <math.h>
 #include "game/controls.h"
+#include "game/timedbutton.h"
 
 void initControls()
 {
@@ -31,5 +32,15 @@ void updateControls(player_s* p)
 		else updatePlayerWalk(p, cpad.dy*factor*2, cpad.dx*factor);
 
 		movePlayer(p, vect3Df(cpad.dx*factor, 0.0f, -cpad.dy*factor));
+	}
+
+	if(keysDown()&KEY_ZL)
+	{
+		vect3Df_s u = moveCameraVector(&p->camera, vect3Df(0.0f, 0.0f, 1.0f), false);
+		timedButton_s* tb=collideRayTimedButtons(p->object.position, u, TILESIZE_FLOAT*2);
+		if(tb)
+		{
+			activateTimedButton(tb);
+		}
 	}
 }

@@ -302,7 +302,7 @@ int main(int argc, char** argv)
 		if(keysHeld()&KEY_DDOWN)debugVal[2]-=0.05f*10;
 		if(keysHeld()&KEY_DLEFT)debugVal[3]+=0.05f;
 		if(keysHeld()&KEY_DRIGHT)debugVal[3]-=0.05f;
-		if(keysHeld()&KEY_ZL)debugVal[4]+=0.05f;
+		// if(keysHeld()&KEY_ZL)debugVal[4]+=0.05f;
 		// if(keysHeld()&KEY_ZR)debugVal[4]-=0.05f;
 		if(keysDown()&KEY_ZR)testPlayer.flying^=1;
 
