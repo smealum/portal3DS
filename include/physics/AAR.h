@@ -12,6 +12,7 @@
 typedef struct
 {
 	vect3Df_s position, size, normal;
+	bool touched;
 	bool used;
 }AAR_s;
 // 4*3 + 4*3 + 4*3 + 1 = 37

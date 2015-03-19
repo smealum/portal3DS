@@ -175,6 +175,7 @@ rectangle_s* addRoomRectangle(room_s* r, rectangle_s rec)
 {
 	if((!rec.size.x && (!rec.size.z || !rec.size.y)) || (!rec.size.y && !rec.size.z))return NULL;
 	rec.hide=false;
+	rec.aar=NULL;
 	return addRectangle(rec, &r->rectangles);
 }
 
@@ -308,7 +309,7 @@ void transferRoomRectangles(room_s* r)
 	while(lc)
 	{
 		// lc->data.AARid=
-		physicsCreateAar(NULL, convertRectangleVector(lc->data.position), convertRectangleVector(lc->data.size), vmulf(lc->data.normal, -1.0f));
+		physicsCreateAar(&lc->data.aar, convertRectangleVector(lc->data.position), convertRectangleVector(lc->data.size), vmulf(lc->data.normal, -1.0f));
 		lc=lc->next;
 		i++;
 	}

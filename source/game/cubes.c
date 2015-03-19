@@ -53,37 +53,36 @@ void initCubeDispenser(room_s* r, cubeDispenser_s* cd, vect3Di_s pos, bool compa
 		rectangle_s* recp;
 		rec.material=NULL;
 		
-		// TEMP DISABLED
-		// rec.position=vaddi(pos,vect3Di(-1,-8,1));
-		// rec.size=vect3Di(2,0,-2);
-		// rec.normal=vect3Df(0,-(1),0);
-		// recp=addRoomRectangle(r, rec);
-		// if(recp)recp->hide=true;
-		// cd->openingRectangle=recp;
+		rec.position=vaddi(pos,vect3Di(-1,-8,1));
+		rec.size=vect3Di(2,0,-2);
+		rec.normal=vect3Df(0,(1),0);
+		recp=addRoomRectangle(r, rec);
+		if(recp){recp->hide=true;recp->collides=true;}
+		cd->openingRectangle=recp;
 
 		rec.position=vaddi(pos,vect3Di(-1,-8,-1));
 		rec.size=vect3Di(2,8,0);
 		rec.normal=vect3Df(0,0,-(1));
 		recp=addRoomRectangle(r, rec);
-		if(recp)recp->hide=true;
+		if(recp){recp->hide=true;recp->collides=true;}
 
 		rec.position=vaddi(pos,vect3Di(-1,0,1));
 		rec.size=vect3Di(2,-8,0);
 		rec.normal=vect3Df(0,0,(1));
 		recp=addRoomRectangle(r, rec);
-		if(recp)recp->hide=true;
+		if(recp){recp->hide=true;recp->collides=true;}
 
 		rec.position=vaddi(pos,vect3Di(-1,-8,-1));
 		rec.size=vect3Di(0,8,2);
 		rec.normal=vect3Df(-(1),0,0);
 		recp=addRoomRectangle(r, rec);
-		if(recp)recp->hide=true;
+		if(recp){recp->hide=true;recp->collides=true;}
 
 		rec.position=vaddi(pos,vect3Di(1,0,-1));
 		rec.size=vect3Di(0,-8,2);
 		rec.normal=vect3Df((1),0,0);
 		recp=addRoomRectangle(r, rec);
-		if(recp)recp->hide=true;
+		if(recp){recp->hide=true;recp->collides=true;}
 	}
 	
 	// pos=vect3Di(pos.x+r->position.x, pos.y, pos.z+r->position.y);

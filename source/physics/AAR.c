@@ -258,6 +258,7 @@ void OBBAARContacts(AAR_s* a, OBB_s* o, bool port)
 					o->contactPoints[o->numContactPoints].normal=a->normal;
 					o->contactPoints[o->numContactPoints].penetration=0;
 					o->contactPoints[o->numContactPoints].target=NULL;
+					a->touched=true;
 					o->numContactPoints++;
 				}
 			}
@@ -277,6 +278,7 @@ void OBBAARContacts(AAR_s* a, OBB_s* o, bool port)
 					o->contactPoints[o->numContactPoints].normal=a->normal;
 					o->contactPoints[o->numContactPoints].penetration=0;
 					o->contactPoints[o->numContactPoints].target=NULL;
+					a->touched=true;
 					o->numContactPoints++;
 				}
 			}
@@ -324,6 +326,7 @@ bool AAROBBContacts(AAR_s* a, OBB_s* o, vect3Df_s* v, bool port)
 						o->contactPoints[o->numContactPoints].normal=a->normal;
 						o->contactPoints[o->numContactPoints].penetration=0;
 						o->contactPoints[o->numContactPoints].target=NULL;
+						a->touched=true;
 						o->numContactPoints++;
 					}
 				}
@@ -360,6 +363,7 @@ bool AAROBBContacts(AAR_s* a, OBB_s* o, vect3Df_s* v, bool port)
 						o->contactPoints[o->numContactPoints].normal=a->normal;
 						o->contactPoints[o->numContactPoints].penetration=0;
 						o->contactPoints[o->numContactPoints].target=NULL;
+						a->touched=true;
 						o->numContactPoints++;
 					}
 				}
@@ -393,6 +397,7 @@ bool AAROBBContacts(AAR_s* a, OBB_s* o, vect3Df_s* v, bool port)
 						o->contactPoints[o->numContactPoints].normal=a->normal;
 						o->contactPoints[o->numContactPoints].penetration=0;
 						o->contactPoints[o->numContactPoints].target=NULL;
+						a->touched=true;
 						o->numContactPoints++;
 					}
 				}

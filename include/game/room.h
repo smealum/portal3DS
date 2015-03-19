@@ -6,6 +6,7 @@
 #include "utils/math.h"
 #include "game/material.h"
 #include "game/light.h"
+#include "physics/AAR.h"
 
 #define TILESIZE (2)
 #define TILESIZE_FLOAT ((float)TILESIZE)
@@ -19,6 +20,7 @@ typedef struct
 	vect3Di_s position, size;
 	vect3Df_s normal;
 	material_s* material;
+	AAR_s* aar;
 	union{
 		vertexLightingData_s* vertex;
 		lightMapCoordinates_s* lightMap;

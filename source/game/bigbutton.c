@@ -47,7 +47,7 @@ void initBigButton(bigButton_s* bb, room_s* r, vect3Di_s pos)
 		
 		rec.position=vaddi(pos,vect3Di(-1,1,-1));
 		rec.size=vect3Di(2,0,2);
-		rec.normal=vect3Df(0,1.0f,0);
+		rec.normal=vect3Df(0,-1.0f,0);
 		recp=addRoomRectangle(r, rec);
 		if(recp){recp->hide=true;recp->collides=true;bb->surface=recp;}
 
@@ -127,17 +127,37 @@ void drawBigButtons(void)
 	}
 }
 
+bool intersectOBBButton(bigButton_s* bb, OBB_s* o)
+{
+	if(!bb || !o || !bb->surface)return false;
+	
+	vect3Df_s s;
+	getBoxAABB(o, &s);
+
+	return intersectAABBAAR(o->position, s, vaddf(bb->position, vect3Df(-TILESIZE_FLOAT, 1.0f, -TILESIZE_FLOAT)), vect3Df(TILESIZE_FLOAT*2,0,TILESIZE_FLOAT*2));
+}
+
 void updateBigButton(bigButton_s* bb)
 {
 	if(!bb || !bb->used)return;
 	
 	bb->active=false;
 	if(bb->surface && bb->surface->touched)bb->active=true;
-	// if(bb->surface->AARid>0)
-	// {
-	// 	if(!bb->active)bb->active=aaRectangles[bb->surface->AARid].touched;
-	// 	aaRectangles[bb->surface->AARid].touched=false;
-	// }
+
+	int i;
+	for(i=0; i<NUMOBJECTS; i++)
+	{
+		OBB_s* o = &objects[i];
+		if(o->used)
+		{
+			if(intersectOBBButton(bb, o))
+			{
+				bb->active = true;
+				break;
+			}
+		}
+	}
+
 	if(bb->active)
 	{
 		md2InstanceChangeAnimation(&bb->modelInstance,1,false);
