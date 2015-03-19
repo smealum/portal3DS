@@ -199,16 +199,32 @@ u8 checkObjectElevatorCollision(physicalPoint_s* o, room_s* r, elevator_s* ev)
 bool checkObjectCollision(physicalPoint_s* o, room_s* r)
 {	
 	bool ret=false;
-	
-	listCell_s* l = r->rectangles.first;
-	while(l)
+
+	gridCell_s* gc = getCurrentCell(r, o->position);
+
+	// listCell_s* l = r->rectangles.first;
+	// while(l)
+	// {
+	// 	if(l->data.collides)
+	// 	{
+	// 		l->data.touched = collideRectangle(o, convertRectangleVector(l->data.position), convertRectangleVector(l->data.size));
+	// 		ret = l->data.touched || ret;
+	// 	}
+	// 	l = l->next;
+	// }
+
+	int i;
+	for(i=0;i<gc->numRectangles;i++)
 	{
-		if(l->data.collides) ret = collideRectangle(o, convertRectangleVector(l->data.position), convertRectangleVector(l->data.size)) || ret;
-		l = l->next;
+		rectangle_s* rec=gc->rectangles[i];
+		if(rec->collides)
+		{
+			rec->touched = collideRectangle(o, convertRectangleVector(rec->position), convertRectangleVector(rec->size));
+			ret = rec->touched || ret;
+		}
 	}
 
 	//platforms
-	int i;
 	for(i=0;i<NUMPLATFORMS;i++)
 	{
 		if(platform[i].used && collideRectangle(o,vaddf(platform[i].position,vect3Df(-PLATFORMSIZE,0,-PLATFORMSIZE)),vect3Df(PLATFORMSIZE*2,0,PLATFORMSIZE*2))) //add culling

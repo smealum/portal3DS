@@ -95,18 +95,41 @@ void drawPlatforms(void)
 	}
 }
 
-void updatePlatform(platform_s* pf)
+void updatePlatform(platform_s* pf, player_s* p)
 {
 	if(!pf)return;
 	
-	// if(pf->touched && p->object->position.y>pf->position.y+p->object->radius*2)
-	// {
-	// 	p->object->position=addVect(p->object->position,pf->velocity);
-	// }else if(pf->oldTouched){
-	// 	p->object->speed=addVect(p->object->speed,pf->velocity);
-	// }
-	
-	// if(pf->ao.oldActive!=pf->ao.active)togglePlatform(pf->id, pf->ao.active);
+	if(pf->touched && p->object.position.y>pf->position.y+p->object.radius*2)
+	{
+		p->object.position=vaddf(p->object.position,pf->velocity);
+	}else if(pf->oldTouched){
+		p->object.speed=vaddf(p->object.speed,pf->velocity);
+	}
+
+	if(pf->ao.active)
+	{
+		if(pf->direction)
+		{
+			if(vdotf(vsubf(pf->position,pf->destination),pf->velocity)>0)
+			{
+				if(pf->backandforth)
+				{
+					pf->velocity=vmulf(pf->velocity,-1);
+					pf->direction=false;
+				}else{
+					pf->velocity=vect3Df(0,0,0);
+					pf->ao.active=false;
+				}
+			}
+		}else{
+			if(vdotf(vsubf(pf->position,pf->origin),pf->velocity)>0)
+			{
+				pf->velocity=vmulf(pf->velocity,-1);
+				pf->direction=true;
+			}
+		}
+		pf->position=vaddf(pf->position,pf->velocity);
+	}
 	
 	pf->ao.oldActive=pf->ao.active;
 	pf->velocity=vect3Df(0,0,0);
@@ -114,11 +137,11 @@ void updatePlatform(platform_s* pf)
 	pf->touched=false;
 }
 
-void updatePlatforms(void)
+void updatePlatforms(player_s* p)
 {
 	int i;
 	for(i=0;i<NUMPLATFORMS;i++)
 	{
-		if(platform[i].used)updatePlatform(&platform[i]);
+		if(platform[i].used)updatePlatform(&platform[i], p);
 	}
 }

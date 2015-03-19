@@ -183,6 +183,38 @@ void removeRoomRectangles(room_s* r)
 	while(r->rectangles.num)popRectangle(&r->rectangles);
 }
 
+void initRoomGrid(room_s* r)
+{
+	if(!r || !r->width || !r->height)return;
+	
+	listCell_s *lc=r->rectangles.first;
+	while(lc)
+	{
+		if(lc->data.position.x < r->rectangleGridOrigin.x)r->rectangleGridOrigin.x=lc->data.position.x;
+		else if(lc->data.position.x > r->rectangleGridSize.x)r->rectangleGridSize.x=lc->data.position.x;
+		if(lc->data.position.z < r->rectangleGridOrigin.z)r->rectangleGridOrigin.z=lc->data.position.z;
+		else if(lc->data.position.z > r->rectangleGridSize.z)r->rectangleGridSize.z=lc->data.position.z;
+		lc=lc->next;
+	}
+
+	r->rectangleGridSize.x-=r->rectangleGridOrigin.x;
+	r->rectangleGridSize.z-=r->rectangleGridOrigin.z;
+
+	r->rectangleGridSize.x=r->rectangleGridSize.x/CELLSIZE+1;
+	r->rectangleGridSize.z=r->rectangleGridSize.z/CELLSIZE+1;
+
+	printf("%d %d\n", r->rectangleGridSize.x, r->rectangleGridSize.z);
+	
+	r->rectangleGrid=malloc(sizeof(gridCell_s)*r->rectangleGridSize.x*r->rectangleGridSize.z);
+	
+	int i;
+	for(i=0;i<r->rectangleGridSize.x*r->rectangleGridSize.z;i++)
+	{
+		r->rectangleGrid[i].rectangles=NULL;
+		r->rectangleGrid[i].numRectangles=0;
+	}
+}
+
 void initRoom(room_s* r, u16 w, u16 h, vect3Df_s p)
 {
 	if(!r)return;
@@ -201,6 +233,71 @@ void initRoom(room_s* r, u16 w, u16 h, vect3Df_s p)
 	// 	r->materials=malloc(r->height*r->width*sizeof(material_s*));
 	// 	int i;for(i=0;i<r->height*r->width;i++){r->materials[i]=NULL;}
 	// }else r->materials=NULL;
+
+	r->rectangleGrid=NULL;
+}
+
+gridCell_s* getCurrentCell(room_s* r, vect3Df_s o)
+{
+	if(!r)return NULL;
+	
+	o=vsubf(o,convertRectangleVector(vect3Di(r->rectangleGridOrigin.x,0,r->rectangleGridOrigin.y)));
+	o=vdivf(o,CELLSIZE*TILESIZE*2);
+
+	int x = (int)o.x;
+	int z = (int)o.z;
+	
+	if(x>=0 && x<r->rectangleGridSize.x && z>=0 && z<r->rectangleGridSize.z)return &r->rectangleGrid[x+z*r->rectangleGridSize.x];
+	return NULL;
+}
+
+void generateGridCell(room_s* r, gridCell_s* gc, u16 x, u16 y)
+{
+	if(!r || !gc)return;
+	
+	if(gc->rectangles)free(gc->rectangles);
+	gc->numRectangles=0;
+	
+	x+=r->rectangleGridOrigin.x;y+=r->rectangleGridOrigin.z; //offset
+	x*=CELLSIZE*2;y*=CELLSIZE*2; //so getting the center isn't a problem
+	x+=CELLSIZE;y+=CELLSIZE; //center
+	
+	listCell_s *lc=r->rectangles.first;
+	while(lc)
+	{
+		if((abs(x-(lc->data.position.x*2+lc->data.size.x))<=(CELLSIZE+abs(lc->data.size.x))) && (abs(y-(lc->data.position.z*2+lc->data.size.z))<=(CELLSIZE+abs(lc->data.size.z))))
+		{
+			gc->numRectangles++;
+		}
+		lc=lc->next;
+	}
+	gc->rectangles=malloc(sizeof(rectangle_s*)*gc->numRectangles);
+	gc->numRectangles=0;
+	lc=r->rectangles.first;
+	while(lc)
+	{
+		if((abs(x-(lc->data.position.x*2+lc->data.size.x))<=(CELLSIZE+abs(lc->data.size.x))) && (abs(y-(lc->data.position.z*2+lc->data.size.z))<=(CELLSIZE+abs(lc->data.size.z))))
+		{
+			gc->rectangles[gc->numRectangles++]=&lc->data;
+		}
+		lc=lc->next;
+	}
+}
+
+void generateRoomGrid(room_s* r)
+{
+	if(!r)return;
+
+	initRoomGrid(r);
+	
+	int i, j;
+	for(i=0;i<r->rectangleGridSize.x;i++)
+	{
+		for(j=0;j<r->rectangleGridSize.z;j++)
+		{
+			generateGridCell(r,&r->rectangleGrid[i+j*r->rectangleGridSize.x],i,j);
+		}
+	}
 }
 
 void transferRoomRectangles(room_s* r)

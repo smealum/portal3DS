@@ -397,6 +397,7 @@ void readRoom(char* filename, room_s* r, u8 flags)
 	// 	readMapInfo(filename);
 	// }
 
+	generateRoomGrid(r);
 	generateRoomGeometry(r);
 	
 	fclose(f);

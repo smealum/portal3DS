@@ -49,31 +49,31 @@ void initBigButton(bigButton_s* bb, room_s* r, vect3Di_s pos)
 		rec.size=vect3Di(2,0,2);
 		rec.normal=vect3Df(0,1.0f,0);
 		recp=addRoomRectangle(r, rec);
-		if(recp){recp->hide=true;bb->surface=recp;}
+		if(recp){recp->hide=true;recp->collides=true;bb->surface=recp;}
 
 		rec.position=vaddi(pos,vect3Di(-1,0,-1));
 		rec.size=vect3Di(2,1,0);
 		rec.normal=vect3Df(0,0,-1.0f);
 		recp=addRoomRectangle(r, rec);
-		if(recp)recp->hide=true;
+		if(recp){recp->hide=true;recp->collides=true;}
 
 		rec.position=vaddi(pos,vect3Di(-1,1,1));
 		rec.size=vect3Di(2,-1,0);
 		rec.normal=vect3Df(0,0,1.0f);
 		recp=addRoomRectangle(r, rec);
-		if(recp)recp->hide=true;
+		if(recp){recp->hide=true;recp->collides=true;}
 
 		rec.position=vaddi(pos,vect3Di(-1,0,-1));
 		rec.size=vect3Di(0,1,2);
 		rec.normal=vect3Df(-1.0f,0,0);
 		recp=addRoomRectangle(r, rec);
-		if(recp)recp->hide=true;
+		if(recp){recp->hide=true;recp->collides=true;}
 
 		rec.position=vaddi(pos,vect3Di(1,1,-1));
 		rec.size=vect3Di(0,-1,2)
 		;rec.normal=vect3Df(1.0f,0,0);
 		recp=addRoomRectangle(r, rec);
-		if(recp)recp->hide=true;
+		if(recp){recp->hide=true;recp->collides=true;}
 
 	}
 	
@@ -110,6 +110,7 @@ void drawBigButton(bigButton_s* bb)
 
 		gsTranslate(bb->position.x, bb->position.y, bb->position.z);
 
+		bb->modelInstance.texture = bb->active?&bigButtonActiveTexture:&bigButtonTexture;
 		md2InstanceDraw(&bb->modelInstance);
 	gsPopMatrix();
 }
@@ -131,7 +132,7 @@ void updateBigButton(bigButton_s* bb)
 	if(!bb || !bb->used)return;
 	
 	bb->active=false;
-	if(bb->surface->touched)bb->active=true;
+	if(bb->surface && bb->surface->touched)bb->active=true;
 	// if(bb->surface->AARid>0)
 	// {
 	// 	if(!bb->active)bb->active=aaRectangles[bb->surface->AARid].touched;

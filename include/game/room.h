@@ -12,6 +12,8 @@
 #define HEIGHTUNIT (1)
 #define HEIGHTUNIT_FLOAT ((float)HEIGHTUNIT)
 
+#define CELLSIZE (4)
+
 typedef struct
 {
 	vect3Di_s position, size;
@@ -38,6 +40,12 @@ typedef struct
 
 typedef struct
 {
+	rectangle_s** rectangles;
+	int numRectangles;
+}gridCell_s;
+
+typedef struct
+{
 	s16 x, y, z;
 	s16 u, v;
 	s16 u2, v2;
@@ -49,6 +57,9 @@ typedef struct
 	lightingData_s lightingData;
 	vect3Df_s position;
 	u16 width, height;
+	gridCell_s* rectangleGrid;
+	vect3Di_s rectangleGridSize;
+	vect3Di_s rectangleGridOrigin;
 	rectangleList_s rectangles;
 	int numVertices;
 	rectangleVertex_s* vertexBuffer;
@@ -73,6 +84,7 @@ void readRectangle(rectangle_s* rec, FILE* f);
 void readRectangles(room_s* r, FILE* f);
 
 void initRoom(room_s* r, u16 w, u16 h, vect3Df_s p);
+void generateRoomGrid(room_s* r);
 void generateRectangleGeometry(rectangle_s* rec, vect3Di_s* texCoords, rectangleVertex_s* vbuf, int* numvert, u16* ibuf, int* numind);
 void generateRoomGeometry(room_s* r);
 rectangle_s* addRoomRectangle(room_s* r, rectangle_s rec);
@@ -82,6 +94,7 @@ void transferRoomRectangles(room_s* r);
 
 vect3Df_s convertRectangleVector(vect3Di_s v);
 
+gridCell_s* getCurrentCell(room_s* r, vect3Df_s o);
 rectangle_s* collideLineMapClosest(room_s* r, rectangle_s* rec, vect3Df_s l, vect3Df_s u, float d, vect3Df_s* i, float* lk);
 
 #endif
