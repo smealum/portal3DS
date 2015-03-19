@@ -762,6 +762,31 @@ bool intersectOBBPortal(portal_s* p, OBB_s* o)
 	return intersectAABBAAR(o->position, s, p->position, sp);
 }
 
+float distanceLinePoint(vect3Df_s o, vect3Df_s u, vect3Df_s p);
+
+OBB_s* collideRayBoxes(vect3Df_s o, vect3Df_s u, float l)
+{
+	int i;
+	for(i=0;i<NUMOBJECTS;i++)
+	{
+		OBB_s* b=&objects[i];
+		if(b->used && vdistf(o,b->position)<=l)
+		{
+			float d=distanceLinePoint(o, u, b->position);
+			printf("distance %f\n",d);
+			if(d<1.5f)return b;
+		}
+	}
+	return NULL;
+}
+
+void setObbVelocity(OBB_s* o, vect3Df_s v)
+{
+	o->velocity=v;
+	o->sleep=false;
+	o->counter=0;
+}
+
 void ejectPortalOBBs(portal_s* p)
 {
 	if(!p)return;

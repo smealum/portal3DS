@@ -91,6 +91,9 @@ void updateOBBPortals(OBB_s* o, u8 id, bool init);
 void getVertices(vect3Df_s s, vect3Df_s p, vect3Df_s u1, vect3Df_s u2, vect3Df_s u3, vect3Df_s* v);
 void collideOBBs(OBB_s* o1, OBB_s* o2);
 void getBoxAABB(OBB_s* o, vect3Df_s* s);
+void setObbVelocity(OBB_s* o, vect3Df_s v);
+
+OBB_s* collideRayBoxes(vect3Df_s o, vect3Df_s u, float l);
 
 bool clipSegmentOBB(float* ss, vect3Df_s *uu, vect3Df_s* p1, vect3Df_s* p2, vect3Df_s vv, vect3Df_s* uu1, vect3Df_s* uu2, vect3Df_s vv1, vect3Df_s* n1, vect3Df_s* n2, bool* b1, bool* b2, float* k1, float* k2);
 

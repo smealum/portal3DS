@@ -3,9 +3,11 @@
 #include "game/controls.h"
 #include "game/timedbutton.h"
 
+OBB_s* gravityGunObject;
+
 void initControls()
 {
-
+	gravityGunObject = NULL;
 }
 
 void exitControls()
@@ -36,11 +38,34 @@ void updateControls(player_s* p)
 
 	if(keysDown()&KEY_ZL)
 	{
-		vect3Df_s u = moveCameraVector(&p->camera, vect3Df(0.0f, 0.0f, 1.0f), false);
-		timedButton_s* tb=collideRayTimedButtons(p->object.position, u, TILESIZE_FLOAT*2);
+		// "USE" key
+		vect3Df_s u = moveCameraVector(&p->camera, vect3Df(0.0f, 0.0f, -1.0f), true);
+		timedButton_s* tb = collideRayTimedButtons(p->object.position, u, TILESIZE_FLOAT*2);
 		if(tb)
 		{
 			activateTimedButton(tb);
+		}else{
+			OBB_s* o = collideRayBoxes(p->object.position, u, TILESIZE_FLOAT*4);
+			if(o)
+			{
+				gravityGunObject = o;
+			}
+		}
+	}
+
+	if(gravityGunObject)
+	{
+		if(!(keysHeld()&KEY_ZL))
+		{
+			gravityGunObject = NULL;
+			md2InstanceChangeAnimation(&p->gunInstance, 0, false);
+			md2InstanceChangeAnimation(&p->gunInstance, 1, true);
+		}else{
+			const vect3Df_s u = moveCameraVector(&p->camera, vect3Df(0.0f, 0.0f, -5.0f), true);
+			const vect3Df_s t = vaddf(u, p->object.position);
+			const vect3Df_s v = vmulf(vsubf(t, gravityGunObject->position), 1.75f);
+			setObbVelocity(gravityGunObject, v);
+			md2InstanceChangeAnimation(&p->gunInstance, 2, false);
 		}
 	}
 }
