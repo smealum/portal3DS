@@ -16,6 +16,7 @@ typedef struct
 	activatableObject_s ao;
 	vect3Df_s position, velocity;
 	vect3Df_s origin, destination;
+	AAR_s* aar;
 	bool direction; //true=orig->dest
 	bool touched, oldTouched;
 	bool backandforth;

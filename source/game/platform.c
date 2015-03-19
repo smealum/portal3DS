@@ -6,7 +6,7 @@
 
 #define LOGOSIZE (192)
 #define LOGOHEIGHT (64)
-#define PLATFORMHEIGHT (32)
+#define PLATFORMHEIGHT (0.3f)
 
 platform_s platform[NUMPLATFORMS];
 md2_model_t platformModel;
@@ -54,6 +54,8 @@ void initPlatform(platform_s* pf, room_s* r, vect3Di_s orig, vect3Di_s dest, u8 
 	
 	initActivatableObject(&pf->ao);
 	pf->ao.active=true;
+
+	pf->aar=createAAR(vaddf(pf->position, vect3Df(-PLATFORMSIZE, PLATFORMHEIGHT, -PLATFORMSIZE)), vect3Df(2*PLATFORMSIZE, 0.0f, 2*PLATFORMSIZE), vect3Df(0.0f, 1.0f, 0.0f));
 	
 	// addPlatform(id,vmulf(pf->origin,4),vmulf(pf->destination,4),BAF); //TEMP
 	
