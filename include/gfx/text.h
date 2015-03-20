@@ -6,6 +6,6 @@ void textExit();
 void textStartDrawing();
 char* textMakeString(const char* s);
 void textFreeString(char* s);
-void textDrawString(int x, int y, const char* s);
+void textDrawString(float x, float y, const char* s);
 
 #endif

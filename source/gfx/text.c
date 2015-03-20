@@ -11,6 +11,8 @@ shaderProgram_s textProgram;
 texture_s textTexture;
 const u32 textBaseAddr=0x14000000;
 
+int textUniformOffset;
+
 void textInit()
 {
 	textDvlb = DVLB_ParseFile((u32*)text_vsh_shbin, text_vsh_shbin_size);
@@ -22,6 +24,10 @@ void textInit()
 	shaderProgramSetGsh(&textProgram, &textDvlb->DVLE[1], 4);
 
 	textureLoad(&textTexture, "font.png", GPU_TEXTURE_MAG_FILTER(GPU_NEAREST)|GPU_TEXTURE_MIN_FILTER(GPU_NEAREST), 0);
+
+	textUniformOffset = shaderInstanceGetUniformLocation(textProgram.vertexShader, "offset");
+
+	printf("text %d\n", textUniformOffset);
 }
 
 void textExit()
@@ -68,12 +74,14 @@ void textFreeString(char* s)
 	linearFree(s);
 }
 
-void textDrawString(int x, int y, const char* s)
+void textDrawString(float x, float y, const char* s)
 {
 	if(!s)return;
 	if((u32)s < textBaseAddr)return;
 
 	GPUCMD_AddWrite(GPUREG_ATTRIBBUFFER0_CONFIG0, (u32)s-textBaseAddr);
+
+	GPU_SetFloatUniform(GPU_GEOMETRY_SHADER, textUniformOffset, (u32*)(float[]){1.0f, 0.0f, x, y}, 1);
 
 	GPU_DrawArray(GPU_UNKPRIM, strlen(s));
 }

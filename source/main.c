@@ -376,9 +376,10 @@ int main(int argc, char** argv)
 	}
 
 	// currentLevel = 0;
-	currentLevel = 4;
+	// currentLevel = 4;
 
 	bool again = true;
+	// bool again = false;
 	while(again)
 	{
 		gameInit();

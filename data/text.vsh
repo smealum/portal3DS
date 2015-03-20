@@ -25,6 +25,8 @@
 	.uniform c4, c7, modelview       ; c4-c7 = modelview matrix
 	.uniform c8, c8, lightDirection  ; c8    = light direction vector
 	.uniform c9, c9, lightAmbient    ; c9    = light ambient color
+	
+	.uniform c80, c80, offset        ; c80    = text position offset
 
 ; setup vsh and gsh
 	.vsh main, endmain
@@ -78,12 +80,12 @@
 			cmp c25, EQ, EQ, v0 (0xd)
 			ifc end_if_3, else_3, cmp.x
 				; 10 is newline '\n'
-				mov r15, c26 (0xe)
+				mov r15, c80 (0xe)
 				add r15, c22, r15 (0x8)
 				nop
 			else_3:
 				; we process everything else as carriage return
-				mov r15, c26 (0x5)
+				mov r15, c80 (0x5)
 			end_if_3:
 			nop
 		else_2:
