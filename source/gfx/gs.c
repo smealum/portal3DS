@@ -90,6 +90,8 @@ void gsInit(shaderProgram_s* shader, gsCallback drawTop, gsCallback drawBottom)
 
 void gsExit(void)
 {
+	if(gsGpuCmd)linearFree(gsGpuCmd);
+	if(gsGpuCmdRight)linearFree(gsGpuCmdRight);
 	svcCloseHandle(linearAllocMutex);
 }
 

@@ -77,7 +77,8 @@ void portalInit()
 
 void portalExit()
 {
-
+	if(portalVertexData)linearFree(portalVertexData);
+	if(portalOutlineVertexData)linearFree(portalOutlineVertexData);
 }
 
 void initPortal(portal_s* p)
@@ -257,7 +258,7 @@ void drawPortals(portal_s* portals[], int n, renderSceneCallback_t callback, cam
 
 		//TEMP
 		int colorUniformLoc = shaderInstanceGetUniformLocation(portalProgram.vertexShader, "color");
-			
+
 		GPU_SetTexEnv(0, 
 			GPU_TEVSOURCES(GPU_PRIMARY_COLOR, GPU_PRIMARY_COLOR, GPU_PRIMARY_COLOR),
 			GPU_TEVSOURCES(GPU_PRIMARY_COLOR, GPU_PRIMARY_COLOR, GPU_PRIMARY_COLOR),

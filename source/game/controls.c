@@ -53,6 +53,15 @@ void updateControls(player_s* p)
 		}
 	}
 
+	if(keysDown()&KEY_ZR)
+	{
+		// JUMP key
+		if(p->object.contact)
+		{
+			p->object.speed.y += 0.6f;			
+		}
+	}
+
 	if(gravityGunObject)
 	{
 		if(!(keysHeld()&KEY_ZL))

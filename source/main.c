@@ -316,7 +316,7 @@ bool gameFrame()
 	if(keysHeld()&KEY_DRIGHT)debugVal[3]-=0.05f;
 	// if(keysHeld()&KEY_ZL)debugVal[4]+=0.05f;
 	// if(keysHeld()&KEY_ZR)debugVal[4]-=0.05f;
-	if(keysDown()&KEY_ZR)testPlayer.flying^=1;
+	if(keysDown()&KEY_ZR && keysDown()&KEY_ZL)testPlayer.flying^=1;
 
 	// printf("%4.2f %4.2f %4.2f %4.2f %4.2f\n",debugVal[0],debugVal[1],debugVal[2],debugVal[3],debugVal[4]);
 
