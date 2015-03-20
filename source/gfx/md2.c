@@ -270,7 +270,7 @@ void md2FreeModel(md2_model_t *mdl)
 
 	if(mdl->indices)
 	{
-		free(mdl->indices);
+		linearFree(mdl->indices);
 		mdl->indices = NULL;
 	}
 

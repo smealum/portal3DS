@@ -23,7 +23,7 @@ void freeLightData(lightingData_s* ld)
 			if(ld->data.lightMap.buffer)free(ld->data.lightMap.buffer);
 			ld->data.lightMap.buffer=NULL;
 			ld->data.lightMap.coords=NULL;
-			if(ld->data.lightMap.texture)ld->data.lightMap.texture->used=false;
+			if(ld->data.lightMap.texture)textureFree(ld->data.lightMap.texture);
 			ld->size=0;
 			break;
 		case VERTEXLIGHT_DATA:

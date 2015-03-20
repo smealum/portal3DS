@@ -13,6 +13,7 @@ unsigned long htonl(unsigned long v)
 	u8* v2=(u8*)&v;
 	return (v2[0]<<24)|(v2[1]<<16)|(v2[2]<<8)|(v2[3]);
 }
+int totaltextures;
 
 void textureInit()
 {
@@ -21,6 +22,7 @@ void textureInit()
 	{
 		textures[i].used=false;
 	}
+	totaltextures=0;
 }
 
 void textureExit()
@@ -152,6 +154,8 @@ int textureLoad(texture_s* t, const char* fn, u32 param, int mipmap)
 	if(!t || !fn || t->used)return -1;
 	if(mipmap < 0)return -1;
 
+			totaltextures++;
+
 	t->data=NULL;
 	t->filename=NULL;
 	t->format=GPU_RGBA8;
@@ -200,6 +204,8 @@ int textureLoadBuffer(texture_s* t, u32* buffer, int width, int height, u32 para
 {
 	if(!buffer || !t || t->used)return -1;
 	if(mipmap < 0)return -1;
+
+			totaltextures++;
 
 	t->data=NULL;
 	t->filename=NULL;
@@ -253,6 +259,9 @@ void textureFree(texture_s* t)
 {
 	if(!t || !t->data)return;
 
+	totaltextures--;
+
 	linearFree(t->data);
 	t->data = NULL;
+	t->used = false;
 }

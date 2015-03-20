@@ -28,6 +28,7 @@ void initBigButtons(void)
 void exitBigButtons(void)
 {
 	md2FreeModel(&bigButtonModel);
+	
 	textureFree(&bigButtonTexture);
 	textureFree(&bigButtonActiveTexture);
 }

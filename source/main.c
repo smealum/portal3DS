@@ -39,9 +39,6 @@ extern md2_model_t cubeModel, cubeDispenserModel;
 extern texture_s storageCubeTexture, companionCubeTexture, cubeDispenserTexture;
 
 char* testString;
-md2_instance_t gladosInstance;
-md2_model_t gladosModel;
-texture_s gladosTexture;
 room_s testRoom;
 player_s testPlayer;
 
@@ -75,9 +72,6 @@ void drawScene(camera_s* c, int depth, u8 stencil)
 		gsLoadIdentity();
 		useCamera(c);
 
-		// gsSwitchRenderMode(md2GsMode);
-		// md2InstanceDraw(&gladosInstance);
-
 		drawRoom(&testRoom);
 
 		drawCubeDispensers();
@@ -91,7 +85,7 @@ void drawScene(camera_s* c, int depth, u8 stencil)
 		drawOBBs();
 		
 		drawSludge(&testRoom);
-		
+
 		drawEmancipators();
 
 		drawPortals((portal_s*[]){&portals[0], &portals[1]}, 2, drawScene, c, depth, stencil);
@@ -207,21 +201,10 @@ void renderFrame(u32* outBuffer, u32* outDepthBuffer)
 	GPU_FinishDrawing();
 }
 
-int main(int argc, char** argv)
+void gameInit()
 {
-	//setup services
-	gfxInit();
-
-	consoleInit(GFX_BOTTOM, NULL);
-
-	//let GFX know we're ok with doing stereoscopic 3D rendering
-	gfxSet3D(true);
-
 	//initialize GS
 	gsInit(NULL, renderFrame, drawBottom);
-
-	//init fs
-	filesystemInit(argc, argv);
 
 	//init materials
 	initMaterials();
@@ -237,10 +220,6 @@ int main(int argc, char** argv)
 
 	//init md2
 	md2Init();
-	textureLoad(&gladosTexture, "glados.png", GPU_TEXTURE_MAG_FILTER(GPU_LINEAR)|GPU_TEXTURE_MIN_FILTER(GPU_LINEAR)|GPU_TEXTURE_WRAP_S(GPU_REPEAT)|GPU_TEXTURE_WRAP_T(GPU_REPEAT), 0);
-	md2ReadModel(&gladosModel, "glados.md2");
-	md2InstanceInit(&gladosInstance, &gladosModel, &gladosTexture);
-	md2InstanceChangeAnimation(&gladosInstance, 1, false);
 
 	//init player
 	playerInit();
@@ -287,59 +266,139 @@ int main(int argc, char** argv)
 	rotatePlayer(&testPlayer, vect3Df(0.0f, M_PI, 0.0f));
 
 	printf("ready\n");
+}
 
-	while(aptMainLoop())
-	{
-		//controls
-		hidScanInput();
-		//START to exit to hbmenu
-		if(keysDown()&KEY_START)break;
+void gameExit()
+{
+	portalExit();
+	roomExit();
 
-		// if(keysHeld()&KEY_X)debugVal[0]+=0.05f*10;
-		// if(keysHeld()&KEY_B)debugVal[0]-=0.05f*10;
-		// if(keysHeld()&KEY_Y)debugVal[1]+=0.05f*10;
-		// if(keysHeld()&KEY_A)debugVal[1]-=0.05f*10;
+	freeRoom(&testRoom);
 
-		if(keysHeld()&KEY_DUP)debugVal[2]+=0.05f*10;
-		if(keysHeld()&KEY_DDOWN)debugVal[2]-=0.05f*10;
-		if(keysHeld()&KEY_DLEFT)debugVal[3]+=0.05f;
-		if(keysHeld()&KEY_DRIGHT)debugVal[3]-=0.05f;
-		// if(keysHeld()&KEY_ZL)debugVal[4]+=0.05f;
-		// if(keysHeld()&KEY_ZR)debugVal[4]-=0.05f;
-		if(keysDown()&KEY_ZR)testPlayer.flying^=1;
-
-		// printf("%4.2f %4.2f %4.2f %4.2f %4.2f\n",debugVal[0],debugVal[1],debugVal[2],debugVal[3],debugVal[4]);
-
-		if(keysDown()&KEY_R)shootPlayerGun(&testPlayer, &testRoom, &portals[0]);
-		if(keysDown()&KEY_L)shootPlayerGun(&testPlayer, &testRoom, &portals[1]);
-
-		updateControls(&testPlayer);
-
-		md2InstanceUpdate(&gladosInstance);
-		updatePlayer(&testPlayer, &testRoom);
-		updateSludge();
-
-		updateCubeDispensers();
-		updateEnergyDevices();
-		updateEnergyBalls(&testRoom);
-		updatePlatforms(&testPlayer);
-		updateBigButtons();
-		updateTimedButtons();
-		updateWallDoors(&testPlayer);
-		updateDoors();
-		updateEmancipators();
-
-		gsDrawFrame();
-
-		gspWaitForEvent(GSPEVENT_VBlank0, true);
-	}
-
+	exitDoors();
+	exitWallDoors();
+	exitElevators();
+	exitEmancipation();
+	exitTimedButtons();
+	exitBigButtons();
+	exitPlatforms();
+	exitEnergyBalls();
 	exitCubes();
+	exitSludge();
+
+	textureExit();
+
 	exitPhysics();
+
+	playerExit();
+	md2Exit();
+	textExit();
 
 	exitSound();
 
 	gsExit();
+}
+
+bool gameFrame()
+{
+	//controls
+	hidScanInput();
+	//START to exit to hbmenu
+	if(keysDown()&KEY_START)return true;
+
+	// if(keysHeld()&KEY_X)debugVal[0]+=0.05f*10;
+	// if(keysHeld()&KEY_B)debugVal[0]-=0.05f*10;
+	// if(keysHeld()&KEY_Y)debugVal[1]+=0.05f*10;
+	// if(keysHeld()&KEY_A)debugVal[1]-=0.05f*10;
+
+	if(keysHeld()&KEY_DUP)debugVal[2]+=0.05f*10;
+	if(keysHeld()&KEY_DDOWN)debugVal[2]-=0.05f*10;
+	if(keysHeld()&KEY_DLEFT)debugVal[3]+=0.05f;
+	if(keysHeld()&KEY_DRIGHT)debugVal[3]-=0.05f;
+	// if(keysHeld()&KEY_ZL)debugVal[4]+=0.05f;
+	// if(keysHeld()&KEY_ZR)debugVal[4]-=0.05f;
+	if(keysDown()&KEY_ZR)testPlayer.flying^=1;
+
+	// printf("%4.2f %4.2f %4.2f %4.2f %4.2f\n",debugVal[0],debugVal[1],debugVal[2],debugVal[3],debugVal[4]);
+
+	if(keysDown()&KEY_R)shootPlayerGun(&testPlayer, &testRoom, &portals[0]);
+	if(keysDown()&KEY_L)shootPlayerGun(&testPlayer, &testRoom, &portals[1]);
+
+	updateControls(&testPlayer);
+
+	updatePlayer(&testPlayer, &testRoom);
+	updateSludge();
+
+	updateCubeDispensers();
+	updateEnergyDevices();
+	updateEnergyBalls(&testRoom);
+	updatePlatforms(&testPlayer);
+	updateBigButtons();
+	updateTimedButtons();
+	updateWallDoors(&testPlayer);
+	updateDoors();
+	updateEmancipators();
+
+	gsDrawFrame();
+
+	gspWaitForEvent(GSPEVENT_VBlank0, true);
+
+	return false;
+}
+
+size_t getMemUsed();
+size_t getMemFree();
+extern int totaltextures;
+
+int main(int argc, char** argv)
+{
+	//setup services
+	gfxInit();
+
+	consoleInit(GFX_BOTTOM, NULL);
+	//let GFX know we're ok with doing stereoscopic 3D rendering
+	gfxSet3D(true);
+
+	//init fs
+	filesystemInit(argc, argv);
+
+	bool again = true;
+	while(again)
+	{
+		gameInit();
+
+		bool done = false;
+		while(aptMainLoop() && !done)
+		{
+			done = gameFrame();
+		}
+
+		gameExit();
+
+		hidScanInput();
+		hidScanInput();
+		hidScanInput();
+		hidScanInput();
+		printf("heap : %08X\n",getMemFree());
+		printf("linear heap : %08X\n",linearSpaceFree());
+		printf("textures : %d\n",totaltextures);
+		done = false;
+		again = false;
+		while(!done)
+		{
+			hidScanInput();
+			if(keysDown()&KEY_START)
+			{
+				done = true;
+				again = true;
+			}
+			if(keysDown()&KEY_SELECT)
+			{
+				done = true;
+			}
+		}
+	}
+
 	gfxExit();
 	return 0;
 }

@@ -75,7 +75,7 @@ void exitWallDoors(void)
 {
 	md2FreeModel(&wallDoorModel);
 	textureFree(&wallDoorTexture);
-	// freeRoom(&elevatorRoom);
+	freeRoom(&elevatorRoom);
 }
 
 void setupWallDoor(room_s* r, wallDoor_s* wd, vect3Di_s position, u8 orientation)

@@ -46,7 +46,8 @@ void playerInit(void)
 
 void playerExit(void)
 {
-
+	md2FreeModel(&gunModel);
+	textureFree(&gunTexture);
 }
 
 void initPlayer(player_s* p)

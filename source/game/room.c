@@ -239,6 +239,34 @@ void initRoom(room_s* r, u16 w, u16 h, vect3Df_s p)
 	r->rectangleGrid=NULL;
 }
 
+void freeRoom(room_s* r)
+{
+	if(!r)return;
+
+	removeRoomRectangles(r);
+
+	if(r->vertexBuffer)linearFree(r->vertexBuffer);
+	if(r->numIndices)linearFree(r->numIndices);
+	if(r->indexBufferTextures)linearFree(r->indexBufferTextures);
+	if(r->indexBuffers)
+	{
+		int i; for(i=0; i<r->numIndexBuffers; i++)linearFree(r->indexBuffers[i]);
+		free(r->indexBuffers);
+	}
+
+	if(r->rectangleGrid)
+	{
+		int i;
+		for(i=0;i<r->rectangleGridSize.x*r->rectangleGridSize.z;i++)
+		{
+			if(r->rectangleGrid[i].rectangles)free(r->rectangleGrid[i].rectangles);
+		}
+		free(r->rectangleGrid);
+	}
+
+	freeLightData(&r->lightingData);
+}
+
 gridCell_s* getCurrentCell(room_s* r, vect3Df_s o)
 {
 	if(!r)return NULL;

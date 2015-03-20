@@ -45,6 +45,7 @@ void exitEnergyBalls(void)
 	md2FreeModel(&energyBallModel);
 
 	textureFree(&energyLauncherTexture);
+	textureFree(&energyLauncherActiveTexture);
 	textureFree(&energyBallTexture);
 }
 

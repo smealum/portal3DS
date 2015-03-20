@@ -86,6 +86,7 @@ void readRectangle(rectangle_s* rec, FILE* f);
 void readRectangles(room_s* r, FILE* f);
 
 void initRoom(room_s* r, u16 w, u16 h, vect3Df_s p);
+void freeRoom(room_s* r);
 void generateRoomGrid(room_s* r);
 void generateRectangleGeometry(rectangle_s* rec, vect3Di_s* texCoords, rectangleVertex_s* vbuf, int* numvert, u16* ibuf, int* numind);
 void generateRoomGeometry(room_s* r);

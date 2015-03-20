@@ -17,7 +17,7 @@ void initSludge(void)
 {
 	initRectangleList(&sludgeRectangleList);
 
-	int ret = textureLoad(&sludgeTexture, "sludge.png", GPU_TEXTURE_MAG_FILTER(GPU_LINEAR)|GPU_TEXTURE_MIN_FILTER(GPU_LINEAR)|GPU_TEXTURE_WRAP_S(GPU_REPEAT)|GPU_TEXTURE_WRAP_T(GPU_REPEAT), 0);
+	textureLoad(&sludgeTexture, "sludge.png", GPU_TEXTURE_MAG_FILTER(GPU_LINEAR)|GPU_TEXTURE_MIN_FILTER(GPU_LINEAR)|GPU_TEXTURE_WRAP_S(GPU_REPEAT)|GPU_TEXTURE_WRAP_T(GPU_REPEAT), 0);
 
 	sludgeVertexBuffer = NULL;
 	sludgeIndexBuffer = NULL;
@@ -30,6 +30,7 @@ void exitSludge(void)
 	while(sludgeRectangleList.num)popRectangle(&sludgeRectangleList);
 	if(sludgeVertexBuffer)linearFree(sludgeVertexBuffer);
 	if(sludgeIndexBuffer)linearFree(sludgeIndexBuffer);
+	textureFree(&sludgeTexture);
 }
 
 void addSludgeRectangle(rectangle_s* rec)
