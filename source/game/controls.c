@@ -30,7 +30,7 @@ void updateControls(player_s* p)
 		float factor = 0.0015f;
 
 		if(p->flying)factor*=2;
-		else if(!p->object.contact)factor=0;
+		else if(!p->object.contact)factor*=0.06f;
 		else updatePlayerWalk(p, cpad.dy*factor*2, cpad.dx*factor);
 
 		movePlayer(p, vect3Df(cpad.dx*factor, 0.0f, -cpad.dy*factor));

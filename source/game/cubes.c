@@ -140,7 +140,7 @@ void resetCubeDispenserCube(cubeDispenser_s* cd)
 {
 	if(!cd)return;
 
-	if(cd->currentCube)physicsResetObb(cd->currentCube, cd->position, vect3Df(1.0f, 1.0f, 1.0f), (cd->companion)?(&companionCubeModelInstance):(&storageCubeModelInstance), 1.0f, 0.0f);
+	if(cd->currentCube)physicsResetObb(cd->currentCube, vaddf(cd->position, vect3Df(0.0f, -2.0f, 0.0f)), vect3Df(1.0f, 1.0f, 1.0f), (cd->companion)?(&companionCubeModelInstance):(&storageCubeModelInstance), 1.0f, 0.0f);
 	md2InstanceChangeAnimation(&cd->modelInstance,1,true);
 }
 
@@ -170,7 +170,7 @@ void updateCubeDispenser(cubeDispenser_s* cd)
 	{
 		if(!cd->currentCube)
 		{
-			physicsCreateObb(&cd->currentCube, cd->position, vect3Df(1.0f, 1.0f, 1.0f), (cd->companion)?(&companionCubeModelInstance):(&storageCubeModelInstance), 1.0f, 0.0f);
+			physicsCreateObb(&cd->currentCube, vaddf(cd->position, vect3Df(0.0f, -2.0f, 0.0f)), vect3Df(1.0f, 1.0f, 1.0f), (cd->companion)?(&companionCubeModelInstance):(&storageCubeModelInstance), 1.0f, 0.0f);
 		}else{
 			createEmancipator(cd->currentCube->modelInstance,cd->currentCube->position,cd->currentCube->transformationMatrix);
 			if(cd->currentCube==gravityGunObject)gravityGunObject=NULL;

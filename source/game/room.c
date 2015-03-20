@@ -175,6 +175,7 @@ rectangle_s* addRoomRectangle(room_s* r, rectangle_s rec)
 {
 	if((!rec.size.x && (!rec.size.z || !rec.size.y)) || (!rec.size.y && !rec.size.z))return NULL;
 	rec.hide=false;
+	rec.touched=false;
 	rec.aar=NULL;
 	return addRectangle(rec, &r->rectangles);
 }

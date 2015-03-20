@@ -67,7 +67,7 @@ void initEnergyDevice(room_s* r, energyDevice_s* ed, vect3Di_s pos, deviceOrient
 			{
 				rec.position=vaddi(pos,vect3Di(-1,4,-1));
 				rec.size=vect3Di(2,0,2);
-				rec.normal=vect3Df(0,1.0f,0);
+				rec.normal=vect3Df(0,-1.0f,0);
 				recp=addRoomRectangle(r, rec);
 				if(recp){recp->hide=true;recp->collides=true;}
 				if(or==pY)ed->surface=recp;
@@ -85,7 +85,7 @@ void initEnergyDevice(room_s* r, energyDevice_s* ed, vect3Di_s pos, deviceOrient
 			{
 				rec.position=vaddi(pos,vect3Di(-1,-4,-1));
 				rec.size=vect3Di(2,8,0);
-				rec.normal=vect3Df(0,0,-1.0f);
+				rec.normal=vect3Df(0,0,1.0f);
 				recp=addRoomRectangle(r, rec);
 				if(recp){recp->hide=true;recp->collides=true;}
 				if(or==mZ)ed->surface=recp;
@@ -94,7 +94,7 @@ void initEnergyDevice(room_s* r, energyDevice_s* ed, vect3Di_s pos, deviceOrient
 			{
 				rec.position=vaddi(pos,vect3Di(-1,4,1));
 				rec.size=vect3Di(2,-8,0);
-				rec.normal=vect3Df(0,0,1.0f);
+				rec.normal=vect3Df(0,0,-1.0f);
 				recp=addRoomRectangle(r, rec);
 				if(recp){recp->hide=true;recp->collides=true;}
 				if(or==pZ)ed->surface=recp;
@@ -103,7 +103,7 @@ void initEnergyDevice(room_s* r, energyDevice_s* ed, vect3Di_s pos, deviceOrient
 			{
 				rec.position=vaddi(pos,vect3Di(-1,-4,-1));
 				rec.size=vect3Di(0,8,2);
-				rec.normal=vect3Df(-1.0f,0,0);
+				rec.normal=vect3Df(1.0f,0,0);
 				recp=addRoomRectangle(r, rec);
 				if(recp){recp->hide=true;recp->collides=true;}
 				if(or==mX)ed->surface=recp;
@@ -112,7 +112,7 @@ void initEnergyDevice(room_s* r, energyDevice_s* ed, vect3Di_s pos, deviceOrient
 			{
 				rec.position=vaddi(pos,vect3Di(1,4,-1));
 				rec.size=vect3Di(0,-8,2);
-				rec.normal=vect3Df(1.0f,0,0);
+				rec.normal=vect3Df(-1.0f,0,0);
 				recp=addRoomRectangle(r, rec);
 				if(recp){recp->hide=true;recp->collides=true;}
 				if(or==pX)ed->surface=recp;

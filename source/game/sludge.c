@@ -17,7 +17,7 @@ void initSludge(void)
 {
 	initRectangleList(&sludgeRectangleList);
 
-	textureLoad(&sludgeTexture, "sludge.png", GPU_TEXTURE_MAG_FILTER(GPU_LINEAR)|GPU_TEXTURE_MIN_FILTER(GPU_LINEAR)|GPU_TEXTURE_WRAP_S(GPU_REPEAT)|GPU_TEXTURE_WRAP_T(GPU_REPEAT), 0);
+	int ret = textureLoad(&sludgeTexture, "sludge.png", GPU_TEXTURE_MAG_FILTER(GPU_LINEAR)|GPU_TEXTURE_MIN_FILTER(GPU_LINEAR)|GPU_TEXTURE_WRAP_S(GPU_REPEAT)|GPU_TEXTURE_WRAP_T(GPU_REPEAT), 0);
 
 	sludgeVertexBuffer = NULL;
 	sludgeIndexBuffer = NULL;
@@ -57,6 +57,8 @@ void generateSludgeRectangleGeometry(rectangle_s* rec)
 
 void generateSludgeGeometry(void)
 {
+	if(!sludgeRectangleList.num)return;
+
 	listCell_s* lc=sludgeRectangleList.first;
 
 	sludgeVertexBuffer = linearAlloc(sizeof(rectangleVertex_s) * sludgeRectangleList.num * 4);
@@ -92,7 +94,7 @@ extern const u32 roomBaseAddr;
 
 void drawSludge(room_s* r)
 {
-	if(!r)return;
+	if(!r || !sludgeIndexBuffer || !sludgeVertexBuffer || !sludgeRectangleList.num)return;
 
 	//TODO : sludge texture animation
 
