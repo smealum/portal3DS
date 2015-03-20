@@ -353,6 +353,21 @@ size_t getMemUsed();
 size_t getMemFree();
 extern int totaltextures;
 
+//TEMP
+void fadeOutTop()
+{
+	int k;
+	for(k=0;k<30;k++)
+	{
+		u16 width, height;
+		u8* topfb = gfxGetFramebuffer(GFX_TOP, GFX_LEFT, &width, &height);
+		int i;
+		for(i=0;i<width*height*3;i++)topfb[i]=(topfb[i]*12)/16;
+		gfxFlushBuffers();
+		gfxSwapBuffers();
+	}
+}
+
 int main(int argc, char** argv)
 {
 	//setup services
@@ -378,8 +393,7 @@ int main(int argc, char** argv)
 		menuExit();
 	}
 
-	// currentLevel = 0;
-	// currentLevel = 4;
+	fadeOutTop();
 
 	bool again = true;
 	// bool again = false;
@@ -407,17 +421,18 @@ int main(int argc, char** argv)
 		while(!done)
 		{
 			hidScanInput();
-			if(keysDown()&KEY_START)
+			if(keysDown()&KEY_A)
 			{
 				done = true;
 				again = true;
 			}
-			if(keysDown()&KEY_SELECT)
+			if(keysDown()&KEY_B)
 			{
 				done = true;
 			}
 		}
 		currentLevel %= 8;
+		fadeOutTop();
 	}
 
 	gfxExit();
