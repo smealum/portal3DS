@@ -78,6 +78,8 @@ void initPlayer(player_s* p)
 	md2InstanceInit(&p->gunInstance, &gunModel, &gunTexture);
 	md2InstanceInit(&p->ratmanInstance, &ratmanModel, &ratmanTexture);
 
+	p->ratmanInstance.speed=0.1f;
+
 	p->oldInPortal = p->inPortal = false;
 
 	passthroughDvlb = DVLB_ParseFile((u32*)passthrough_vsh_shbin, passthrough_vsh_shbin_size);
@@ -194,6 +196,8 @@ void updatePlayer(player_s* p, room_s* r)
 
 	p->camera.position = vaddf(p->object.position, vect3Df(0.0f, cos(p->walkCnt1)*0.14f, 0.0f));
 
+	if(vmagf(p->object.speed) < 0.03f || !p->object.contact)md2InstanceChangeAnimation(&p->ratmanInstance, 0, false);
+
 	if(p->flying) p->object.speed = vect3Df(0,0,0); //TEMP
 	p->tempAngle = vmulf(p->tempAngle, 0.65f);
 }
@@ -288,6 +292,13 @@ void drawPlayer(player_s* p)
 void movePlayer(player_s* p, vect3Df_s v)
 {
 	if(!p)return;
+
+	if(p->object.contact)
+	{
+		if(fabs(v.z)>0.0f && fabs(v.z)>fabs(v.x))md2InstanceChangeAnimation(&p->ratmanInstance, 3, false);
+		else if((v.x)<0.0f)md2InstanceChangeAnimation(&p->ratmanInstance, 4, false);
+		else if((v.x)>0.0f)md2InstanceChangeAnimation(&p->ratmanInstance, 5, false);
+	}
 
 	p->object.speed = vaddf(p->object.speed, moveCameraVector(&p->camera, v, p->flying));
 }
