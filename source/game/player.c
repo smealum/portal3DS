@@ -7,8 +7,8 @@
 
 #include "passthrough_vsh_shbin.h"
 
-md2_model_t gunModel;
-texture_s gunTexture;
+md2_model_t gunModel, ratmanModel;
+texture_s gunTexture, ratmanTexture;
 texture_s crosshairTexture;
 
 DVLB_s* passthroughDvlb;
@@ -42,9 +42,12 @@ SFX_s *portalExitSFX[2];
 
 void playerInit(void)
 {
+	md2ReadModel(&gunModel, "portalgun.md2");
 	textureLoad(&gunTexture, "portalgun.png", GPU_TEXTURE_MAG_FILTER(GPU_LINEAR)|GPU_TEXTURE_MIN_FILTER(GPU_LINEAR), 0);
 	textureLoad(&crosshairTexture, "crosshair.png", GPU_TEXTURE_MAG_FILTER(GPU_LINEAR)|GPU_TEXTURE_MIN_FILTER(GPU_LINEAR), 0);
-	md2ReadModel(&gunModel, "portalgun.md2");
+	
+	md2ReadModel(&ratmanModel, "ratman.md2");
+	textureLoad(&ratmanTexture, "ratman.png", GPU_TEXTURE_MAG_FILTER(GPU_LINEAR)|GPU_TEXTURE_MIN_FILTER(GPU_LINEAR), 0);
 
 	//SFX
 	gunSFX1=createSFX("portalgun_orange.raw", CSND_ENCODING_PCM16);
@@ -61,6 +64,9 @@ void playerExit(void)
 {
 	md2FreeModel(&gunModel);
 	textureFree(&gunTexture);
+	textureFree(&crosshairTexture);
+	md2FreeModel(&ratmanModel);
+	textureFree(&ratmanTexture);
 }
 
 void initPlayer(player_s* p)
@@ -70,6 +76,7 @@ void initPlayer(player_s* p)
 	initPhysicalPoint(&p->object, vect3Df(0,0,0), PLAYER_RADIUS);
 	initCamera(&p->camera);
 	md2InstanceInit(&p->gunInstance, &gunModel, &gunTexture);
+	md2InstanceInit(&p->ratmanInstance, &ratmanModel, &ratmanTexture);
 
 	p->oldInPortal = p->inPortal = false;
 
@@ -150,13 +157,14 @@ void updatePlayer(player_s* p, room_s* r)
 	if(!p)return;
 
 	md2InstanceUpdate(&p->gunInstance);
+	md2InstanceUpdate(&p->ratmanInstance);
 	if(!p->flying) p->object.speed = vaddf(p->object.speed, vmulf(normGravityVector, 0.04f));
 	vect3Df_s prevPosition = p->object.position;
 	collideObjectRoom(&p->object, r);
 
 	if(p->inPortal && !p->oldInPortal)playSFX(portalEnterSFX[rand()%2]);
 	else if(!p->inPortal && p->oldInPortal)playSFX(portalExitSFX[rand()%2]);
-	
+
 	int i;
 	for(i=0; i < NUM_PORTALS; i++)
 	{
@@ -247,6 +255,33 @@ void drawPlayerGun(player_s* p)
 		gsScale(3.0f/8, 3.0f/8, 3.0f/8);
 
 		md2InstanceDraw(&p->gunInstance);
+	gsPopMatrix();
+}
+
+void drawPlayer(player_s* p)
+{
+	if(!p)return;
+	
+	gsPushMatrix();
+		camera_s* c=&p->camera;
+		gsTranslate(p->object.position.x,p->object.position.y-4.0f,p->object.position.z);
+		
+		float m[9];
+
+		vect3Df_s v1 = moveCameraVector(c, vect3Df(1.0f, 0.0f, 0.0f), false);
+		vect3Df_s v2 = moveCameraVector(c, vect3Df(0.0f, 0.0f, 1.0f), false);
+
+		m[0]=v1.x;m[3]=v1.y;m[6]=v1.z;
+		m[1]=0.0f;m[4]=1.0f;m[7]=0.0f;
+		m[2]=v2.x;m[5]=v2.y;m[8]=v2.z;
+
+		gsMultMatrix3(m);
+
+		gsScale(1.2f,1.2f,1.2f);
+
+		gsRotateY(M_PI);
+
+		md2InstanceDraw(&p->ratmanInstance);
 	gsPopMatrix();
 }
 

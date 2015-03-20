@@ -82,6 +82,8 @@ void drawScene(camera_s* c, portal_s* p, int depth, u8 stencil)
 		drawWallDoors();
 		drawDoors();
 		drawOBBs();
+
+		if(p && depth)drawPlayer(&testPlayer);
 		
 		drawSludge(&testRoom);
 
