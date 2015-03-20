@@ -381,7 +381,7 @@ void drawPortals(portal_s* portals[], int n, renderSceneCallback_t callback, cam
 			memcpy(camera.modelview, camera.orientation, sizeof(mtx44));
 			translateMatrix((float*)camera.modelview, -camera.position.x, -camera.position.y, -camera.position.z);
 
-			callback(&camera, depth-1, stencilValue(i, stencil));
+			callback(&camera, p, depth-1, stencilValue(i, stencil));
 		gsPopMatrix();
 	}
 }

@@ -73,10 +73,15 @@ SFX_s* createSFX(char* filename, CSND_ENCODING format)
 	return NULL;
 }
 
+int channel;
+
 void playSFX(SFX_s* s)
 {
 	if(!s || !s->used || !s->data || !soundEnabled)return;
 
+	channel++;
+	channel%=8;
+
 	// soundPlaySample(s->data, s->format, s->size, 22050, 127, 64, false, 0);
-	CSND_playsound(0x8, CSND_LOOP_DISABLE, s->format, 22050, (u32*)s->data, NULL, s->size, 2, 0);
+	CSND_playsound(channel, CSND_LOOP_DISABLE, s->format, 22050, (u32*)s->data, NULL, s->size, 2, 0);
 }

@@ -72,8 +72,10 @@ void generateSludgeGeometry(void)
 	}
 }
 
-void updateSludge(void)
+void updateSludge(player_s* p)
 {
+	if(!p)return;
+
 	int i;
 	for(i=0; i<NUMOBJECTS; i++)
 	{
@@ -84,6 +86,12 @@ void updateSludge(void)
 			resetDispenserCube(o);
 			printf("sludged up yo\n");
 		}
+	}
+
+	if(collideAABBSludge(p->object.position, vect3Df(PLAYER_RADIUS,PLAYER_RADIUS,PLAYER_RADIUS)))
+	{
+		p->life -= 100;
+		printf("player's dead yo\n");
 	}
 }
 

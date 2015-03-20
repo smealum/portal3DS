@@ -26,7 +26,7 @@ typedef struct portal_s
 
 extern portal_s portals[NUM_PORTALS];
 
-typedef void (*renderSceneCallback_t)(camera_s* c, int depth, u8 stencil);
+typedef void (*renderSceneCallback_t)(camera_s* c, portal_s* p, int depth, u8 stencil);
 
 void portalInit();
 void portalExit();

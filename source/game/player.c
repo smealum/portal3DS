@@ -87,6 +87,7 @@ void initPlayer(player_s* p)
 	memcpy(crosshairVertexData, crosshairData, sizeof(crosshairData));
 
 	p->flying = false;
+	p->life = 80;
 	p->walkCnt1 = 0;
 	p->walkCnt2 = 0;
 }
@@ -153,6 +154,9 @@ void updatePlayer(player_s* p, room_s* r)
 	vect3Df_s prevPosition = p->object.position;
 	collideObjectRoom(&p->object, r);
 
+	if(p->inPortal && !p->oldInPortal)playSFX(portalEnterSFX[rand()%2]);
+	else if(!p->inPortal && p->oldInPortal)playSFX(portalExitSFX[rand()%2]);
+	
 	int i;
 	for(i=0; i < NUM_PORTALS; i++)
 	{
@@ -265,8 +269,6 @@ void shootPlayerGun(player_s* p, room_s* r, portal_s* portal)
 {
 	if(!p)return;
 	if(p->gunInstance.currentAnim == PORTALGUN_SHOOT)return;
-
-	playSFX(gunSFX1);
 
 	md2InstanceChangeAnimation(&p->gunInstance, PORTALGUN_IDLE, false);
 	md2InstanceChangeAnimation(&p->gunInstance, PORTALGUN_SHOOT, true);

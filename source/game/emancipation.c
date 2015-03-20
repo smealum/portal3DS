@@ -21,6 +21,8 @@ md2_instance_t gridInstance;
 DVLB_s* emancipationDvlb;
 shaderProgram_s emancipationProgram;
 
+SFX_s* emancipationSFX;
+
 float emancipationRectangleData[] = {1.0f, 1.0f, 0.0f,
 									1.0f, -1.0f, 0.0f,
 									0.0f, -1.0f, 0.0f,
@@ -66,6 +68,8 @@ void initEmancipation(void)
 	shaderProgramSetVsh(&emancipationProgram, &emancipationDvlb->DVLE[0]);
 
 	emancipationUniformTextureDimensions = shaderInstanceGetUniformLocation(emancipationProgram.vertexShader, "textureDimensions");
+
+	emancipationSFX=createSFX("emancipation.raw", CSND_ENCODING_PCM16);
 }
 
 void exitEmancipation(void)
@@ -105,6 +109,8 @@ void initEmancipator(emancipator_s* e, md2_instance_t* mi, vect3Df_s pos, float*
 	e->velocity=vdivf(vnormf(e->velocity),16);
 	e->axis=vect3Df(randFloat(-1.0f, 1.0f),randFloat(-1.0f, 1.0f),randFloat(-1.0f, 1.0f));
 	e->axis=vnormf(e->axis);
+
+	playSFX(emancipationSFX);
 	
 	e->used=true;
 }

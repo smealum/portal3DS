@@ -6,6 +6,7 @@
 #include "game/camera.h"
 #include "game/portal.h"
 #include "game/room.h"
+#include "game/sfx.h"
 #include "gfx/md2.h"
 
 #define PLAYER_RADIUS 1.2f
@@ -22,11 +23,16 @@ typedef struct
 	md2_instance_t gunInstance;
 	physicalPoint_s object;
 	camera_s camera;
+	int life;
 	vect3Df_s tempAngle;
 	float walkCnt1, walkCnt2;
 	bool inPortal, oldInPortal;
 	bool flying;
 }player_s;
+
+extern SFX_s *gunSFX1, *gunSFX2;
+extern SFX_s *portalEnterSFX[2];
+extern SFX_s *portalExitSFX[2];
 
 void playerInit(void);
 void playerExit(void);

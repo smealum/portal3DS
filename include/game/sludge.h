@@ -3,6 +3,7 @@
 
 #include "utils/math.h"
 #include "game/room.h"
+#include "game/player.h"
 #include "physics/physics.h"
 
 #define SLUDGEMARGIN (TILESIZE)
@@ -12,7 +13,7 @@ void exitSludge(void);
 void generateSludgeGeometry(void);
 void addSludgeRectangle(rectangle_s* rec);
 void drawSludge(room_s* r);
-void updateSludge(void);
+void updateSludge(player_s* p);
 
 bool collideBoxSludge(OBB_s* o);
 bool collideAABBSludge(vect3Df_s p, vect3Df_s s);

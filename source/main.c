@@ -62,7 +62,7 @@ void GPU_SetDummyTexEnv(u8 num)
 		0xFFFFFFFF);
 }
 
-void drawScene(camera_s* c, int depth, u8 stencil)
+void drawScene(camera_s* c, portal_s* p, int depth, u8 stencil)
 {
 	if(!c)return;
 
@@ -88,7 +88,9 @@ void drawScene(camera_s* c, int depth, u8 stencil)
 		drawEmancipators();
 		drawEmancipationGrids();
 
-		drawPortals((portal_s*[]){&portals[0], &portals[1]}, 2, drawScene, c, depth, stencil);
+		if(p == &portals[0])drawPortals((portal_s*[]){&portals[0]}, 1, drawScene, c, depth, stencil);
+		else if(p == &portals[1])drawPortals((portal_s*[]){&portals[1]}, 1, drawScene, c, depth, stencil);
+		else drawPortals((portal_s*[]){&portals[0], &portals[1]}, 2, drawScene, c, depth, stencil);
 	gsPopMatrix();
 }
 
@@ -190,7 +192,7 @@ void renderFrame(u32* outBuffer, u32* outDepthBuffer)
 
 	// //draw object
 		gsMatrixMode(GS_MODELVIEW);
-		drawScene(&testPlayer.camera, 2, 0);
+		drawScene(&testPlayer.camera, NULL, 2, 0);
 		GPU_SetStencilTest(false, GPU_ALWAYS, 0x00, 0xFF, 0x00);
 		GPU_SetScissorTest_(GPU_SCISSOR_NORMAL, 0, 0, 240, 400);
 		drawPlayerGun(&testPlayer);
@@ -302,6 +304,7 @@ bool gameFrame()
 	hidScanInput();
 	//START to exit to hbmenu
 	if(keysDown()&KEY_START)return true;
+	if(testPlayer.life < 0)return true;
 
 	// if(keysHeld()&KEY_X)debugVal[0]+=0.05f*10;
 	// if(keysHeld()&KEY_B)debugVal[0]-=0.05f*10;
@@ -318,13 +321,13 @@ bool gameFrame()
 
 	// printf("%4.2f %4.2f %4.2f %4.2f %4.2f\n",debugVal[0],debugVal[1],debugVal[2],debugVal[3],debugVal[4]);
 
-	if(keysDown()&KEY_R)shootPlayerGun(&testPlayer, &testRoom, &portals[0]);
-	if(keysDown()&KEY_L)shootPlayerGun(&testPlayer, &testRoom, &portals[1]);
+	if(keysDown()&KEY_R){shootPlayerGun(&testPlayer, &testRoom, &portals[0]);playSFX(gunSFX1);}
+	if(keysDown()&KEY_L){shootPlayerGun(&testPlayer, &testRoom, &portals[1]);playSFX(gunSFX2);}
 
 	updateControls(&testPlayer);
 
 	updatePlayer(&testPlayer, &testRoom);
-	updateSludge();
+	updateSludge(&testPlayer);
 
 	updateCubeDispensers();
 	updateEnergyDevices();
@@ -412,7 +415,6 @@ int main(int argc, char** argv)
 				done = true;
 			}
 		}
-		currentLevel++;
 		currentLevel %= 8;
 	}
 

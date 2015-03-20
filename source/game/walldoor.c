@@ -4,6 +4,7 @@
 #include "game/walldoor.h"
 #include "game/room_io.h"
 #include "game/elevator.h"
+#include "game/door.h"
 #include "gfx/gs.h"
 
 #define DOORFRAMELENGTH (8)
@@ -128,6 +129,7 @@ void updateWallDoor(player_s* pl, wallDoor_s* wd)
 	{
 		if(wd->modelInstance.currentAnim==0)
 		{
+			playSFX(doorOpenSFX);
 			md2InstanceChangeAnimation(&wd->modelInstance, 2, false);
 			md2InstanceChangeAnimation(&wd->modelInstance, 1, true);
 		}
@@ -135,6 +137,7 @@ void updateWallDoor(player_s* pl, wallDoor_s* wd)
 	}else{
 		if(wd->modelInstance.currentAnim==2)
 		{
+			playSFX(doorCloseSFX);
 			md2InstanceChangeAnimation(&wd->modelInstance, 0, false);
 			md2InstanceChangeAnimation(&wd->modelInstance, 3, true);
 		}
@@ -149,6 +152,8 @@ void updateWallDoor(player_s* pl, wallDoor_s* wd)
 	md2InstanceUpdate(&wd->modelInstance);
 }
 
+extern int currentLevel;
+
 void updateWallDoors(player_s* pl)
 {
 	if(!pl)return;
@@ -156,7 +161,12 @@ void updateWallDoors(player_s* pl)
 	updateWallDoor(pl, &entryWallDoor);
 	updateWallDoor(pl, &exitWallDoor);
 
-	// if(exitWallDoor.elevator.state==ELEVATOR_LEAVING)endGame();
+	if(exitWallDoor.elevator.state==ELEVATOR_LEAVING)
+	{
+		currentLevel++;
+		pl->life-=100;
+		printf("finished level ! yay !\n");
+	}
 }
 
 void drawWallDoor(wallDoor_s* wd)

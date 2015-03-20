@@ -5,6 +5,7 @@
 #include "utils/math.h"
 #include "game/room.h"
 #include "game/activator.h"
+#include "game/sfx.h"
 
 #define NUMDOORS (16)
 
@@ -19,6 +20,8 @@ typedef struct
 	u8 id;
 }door_s;
 
+extern SFX_s* doorOpenSFX;
+extern SFX_s* doorCloseSFX;
 
 void initDoors(void);
 void exitDoors(void);

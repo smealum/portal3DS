@@ -7,6 +7,8 @@
 door_s door[NUMDOORS];
 md2_model_t doorModel;
 texture_s doorTexture;
+SFX_s* doorOpenSFX;
+SFX_s* doorCloseSFX;
 
 void initDoors(void)
 {
@@ -19,6 +21,9 @@ void initDoors(void)
 
 	md2ReadModel(&doorModel, "door.md2");
 	textureLoad(&doorTexture, "door.png", GPU_TEXTURE_MAG_FILTER(GPU_LINEAR)|GPU_TEXTURE_MIN_FILTER(GPU_LINEAR), 0);
+
+	doorOpenSFX=createSFX("door_open.raw", CSND_ENCODING_PCM16);
+	doorCloseSFX=createSFX("door_close.raw", CSND_ENCODING_PCM16);
 }
 
 void exitDoors(void)
@@ -87,6 +92,7 @@ void updateDoor(door_s* d)
 		{
 			md2InstanceChangeAnimation(&d->modelInstance, 2, false);
 			md2InstanceChangeAnimation(&d->modelInstance, 1, true);
+			playSFX(doorOpenSFX);
 		}else if(d->modelInstance.oldAnim==1 && d->modelInstance.currentAnim==2)
 		{
 			if(d->rectangle[0]){d->rectangle[0]->collides=false;/*toggleAAR(d->rectangle[0]->AARid);*/}
@@ -98,6 +104,7 @@ void updateDoor(door_s* d)
 		{
 			md2InstanceChangeAnimation(&d->modelInstance, 0, false);
 			md2InstanceChangeAnimation(&d->modelInstance, 3, true);
+			playSFX(doorCloseSFX);
 			if(d->rectangle[0]){d->rectangle[0]->collides=true;/*toggleAAR(d->rectangle[0]->AARid);*/}
 			if(d->rectangle[1]){d->rectangle[1]->collides=true;/*toggleAAR(d->rectangle[1]->AARid);*/}
 		}

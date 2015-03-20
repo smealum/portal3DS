@@ -39,6 +39,7 @@ void initElevator(elevator_s* ev, room_s* r, vect3Di_s position, u8 direction, b
 	ev->state=ELEVATOR_OPEN;
 	ev->doorSurface=NULL;
 	md2InstanceInit(&ev->modelInstance, &elevatorModel, &elevatorTexture);
+	ev->modelInstance.speed=0.1f;
 
 	printf("EV %d\n",up);
 	printf("EV %d\n",ev->direction);
