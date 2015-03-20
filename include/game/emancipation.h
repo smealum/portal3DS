@@ -10,8 +10,8 @@
 #define NUMEMANCIPATORS (16)
 
 #define EMANCIPATIONGRIDHEIGHT (HEIGHTUNIT*8)
-#define BLACKENINGTIME (16)
-#define FADINGTIME (24)
+#define BLACKENINGTIME (16*2)
+#define FADINGTIME (30)
 
 typedef struct
 {

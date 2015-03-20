@@ -104,7 +104,7 @@ typedef struct
 {
 	u16 currentFrame, nextFrame;
 	u8 currentAnim, oldAnim;
-	float interpolation, speed;
+	float interpolation, speed, alpha, brightness;
 	bool oneshot;
 	texture_s* texture;
 	md2_model_t* model;
@@ -118,7 +118,7 @@ void md2StartDrawing();
 
 int md2ReadModel(md2_model_t *mdl, const char *filename);
 void md2FreeModel(md2_model_t *mdl);
-void md2RenderFrame(md2_model_t *mdl, int n1, int n2, float interp, texture_s* t);
+void md2RenderFrame(md2_model_t *mdl, int n1, int n2, float interp, float alpha, float brightness, texture_s* t);
 
 void md2InstanceInit(md2_instance_t* mi, md2_model_t* mdl, texture_s* t);
 void md2InstanceChangeAnimation(md2_instance_t* mi, u16 newAnim, bool oneshot);

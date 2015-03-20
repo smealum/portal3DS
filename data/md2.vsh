@@ -97,10 +97,10 @@
 	.out o5, result.normalquat, 0xF
 
 ; setup uniform map (required to use SHDR_GetUniformRegister)
-	.uniform c83, c83, frameParam      ; x = interp factor, y = 1 / skin width, z = 1 / skin height, w unused
+	.uniform c83, c83, frameParam      ; x = interp factor, y = 1 / skin width, z = 1 / skin height, w alpha
 	.uniform c84, c87, projection      ; c84-c87 = projection matrix
 	.uniform c88, c91, modelview       ; c88-c91 = modelview matrix
-	.uniform c92, c92, scale0
+	.uniform c92, c92, scale0          ; w = brightness
 	.uniform c93, c93, translation0
 	.uniform c94, c94, scale1
 	.uniform c95, c95, translation1
@@ -172,8 +172,9 @@
 			;mov o1,   r0       (0x5)
 			
 			mov r4,  c82       (0x7)
-			dp3 o1,   r2,  r4  (0x6)
-			mov o1,  c82       (0x3)
+			dp3 r4,   r2,  r4  (0x6)
+			mul o1,  c92,  r4  (0xf)
+			mov o1,  c83       (0x3)
 			
 		end
 		nop
@@ -214,3 +215,4 @@
 	.opdesc xyzw, -xxxx, wwww ; 0xc
 	.opdesc xy__, yzzz, xyzw ; 0xd
 	.opdesc xyzw, zzzw, xyzw ; 0xe
+	.opdesc xyz_, wwww, xyzw ; 0xf

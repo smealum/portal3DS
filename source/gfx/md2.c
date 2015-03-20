@@ -304,20 +304,20 @@ void md2StartDrawing()
 		);
 }
 
-void md2RenderFrame(md2_model_t *mdl, int n1, int n2, float interp, texture_s* t)
+void md2RenderFrame(md2_model_t *mdl, int n1, int n2, float interp, float alpha, float brightness, texture_s* t)
 {
 	if(!mdl)return;
 
 	n1 %= mdl->header.num_frames;
 	n2 %= mdl->header.num_frames;
 
-	GPU_SetFloatUniform(GPU_VERTEX_SHADER, md2UniformScale0, (u32*)(float[]){1.0f, mdl->frames[n1].scale.z, mdl->frames[n1].scale.y, mdl->frames[n1].scale.x}, 1);
+	GPU_SetFloatUniform(GPU_VERTEX_SHADER, md2UniformScale0, (u32*)(float[]){brightness, mdl->frames[n1].scale.z, mdl->frames[n1].scale.y, mdl->frames[n1].scale.x}, 1);
 	GPU_SetFloatUniform(GPU_VERTEX_SHADER, md2UniformTranslation0, (u32*)(float[]){1.0f, mdl->frames[n1].translate.z, mdl->frames[n1].translate.y, mdl->frames[n1].translate.x}, 1);
 
 	GPU_SetFloatUniform(GPU_VERTEX_SHADER, md2UniformScale1, (u32*)(float[]){1.0f, mdl->frames[n2].scale.z, mdl->frames[n2].scale.y, mdl->frames[n2].scale.x}, 1);
 	GPU_SetFloatUniform(GPU_VERTEX_SHADER, md2UniformTranslation1, (u32*)(float[]){1.0f, mdl->frames[n2].translate.z, mdl->frames[n2].translate.y, mdl->frames[n2].translate.x}, 1);
 
-	GPU_SetFloatUniform(GPU_VERTEX_SHADER, md2UniformFrameParam, (u32*)(float[]){0.0f, 1.0f / mdl->header.skinheight, 1.0f / mdl->header.skinwidth, interp}, 1);
+	GPU_SetFloatUniform(GPU_VERTEX_SHADER, md2UniformFrameParam, (u32*)(float[]){alpha, 1.0f / mdl->header.skinheight, 1.0f / mdl->header.skinwidth, interp}, 1);
 
 	gsUpdateTransformation();
 
@@ -338,6 +338,8 @@ void md2InstanceInit(md2_instance_t* mi, md2_model_t* mdl, texture_s* t)
 	mi->currentFrame=0;
 	mi->interpolation=0.0f;
 	mi->speed=0.25f;
+	mi->alpha=1.0f;
+	mi->brightness=1.0f;
 	mi->nextFrame=0;
 	mi->texture=t;
 	mi->model=mdl;
@@ -377,6 +379,6 @@ void md2InstanceDraw(md2_instance_t* mi)
 	gsPushMatrix();
 		gsScale(1.0f/6, 1.0f/6, 1.0f/6);
 		gsRotateX(M_PI/2);
-		md2RenderFrame(mi->model, mi->currentFrame, mi->nextFrame, mi->interpolation, mi->texture);
+		md2RenderFrame(mi->model, mi->currentFrame, mi->nextFrame, mi->interpolation, mi->alpha, mi->brightness, mi->texture);
 	gsPopMatrix();
 }

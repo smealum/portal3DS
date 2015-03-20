@@ -91,6 +91,8 @@ void drawScene(camera_s* c, int depth, u8 stencil)
 		drawOBBs();
 		
 		drawSludge(&testRoom);
+		
+		drawEmancipators();
 
 		drawPortals((portal_s*[]){&portals[0], &portals[1]}, 2, drawScene, c, depth, stencil);
 	gsPopMatrix();
@@ -315,6 +317,7 @@ int main(int argc, char** argv)
 
 		md2InstanceUpdate(&gladosInstance);
 		updatePlayer(&testPlayer, &testRoom);
+		updateSludge();
 
 		updateCubeDispensers();
 		updateEnergyDevices();
@@ -324,6 +327,7 @@ int main(int argc, char** argv)
 		updateTimedButtons();
 		updateWallDoors(&testPlayer);
 		updateDoors();
+		updateEmancipators();
 
 		gsDrawFrame();
 

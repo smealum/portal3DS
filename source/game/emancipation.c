@@ -67,7 +67,7 @@ void initEmancipator(emancipator_s* e, md2_instance_t* mi, vect3Df_s pos, float*
 	e->counter=0;
 	e->angle=0;
 	e->velocity=vect3Df(randFloat(-1.0f, 1.0f),1.0f,randFloat(-1.0f, 1.0f));
-	e->velocity=vdivf(vnormf(e->velocity),256);
+	e->velocity=vdivf(vnormf(e->velocity),16);
 	e->axis=vect3Df(randFloat(-1.0f, 1.0f),randFloat(-1.0f, 1.0f),randFloat(-1.0f, 1.0f));
 	e->axis=vnormf(e->axis);
 	
@@ -116,8 +116,8 @@ void drawEmancipator(emancipator_s* e)
 	
 	// TODO : blackout + alpha fade
 
-	// u8 shade=max(31-(e->counter*31)/BLACKENINGTIME,0);
-	// u8 alpha=(e->counter<BLACKENINGTIME)?(31):(max(31-((e->counter-BLACKENINGTIME)*31)/FADINGTIME,1));
+	e->modelInstance.brightness=maxf(1.0f-(e->counter*1.0f)/BLACKENINGTIME,0.0f);
+	e->modelInstance.alpha=(e->counter<BLACKENINGTIME)?(1.0f):(maxf(1.0f-((e->counter-BLACKENINGTIME)*1.0f)/FADINGTIME,0.0f));
 	
 	gsPushMatrix();
 		gsSwitchRenderMode(md2GsMode);
@@ -125,9 +125,11 @@ void drawEmancipator(emancipator_s* e)
 		gsTranslate(e->position.x, e->position.y, e->position.z);
 
 		// TODO : transpose ?
-		gsMultMatrix(e->transformationMatrix);
+		gsMultMatrix3(e->transformationMatrix);
 		
-		// gsRotateY(e->angle, e->axis.x, e->axis.y, e->axis.z);
+		gsRotateX(e->axis.x*e->angle);
+		gsRotateY(e->axis.y*e->angle);
+		gsRotateZ(e->axis.z*e->angle);
 
 		md2InstanceDraw(&e->modelInstance);
 	gsPopMatrix();
