@@ -155,7 +155,7 @@ timedButton_s* collideRayTimedButtons(vect3Df_s o, vect3Df_s v, float l)
 			float dist=vdistf(o,p);
 			if(dist>l)continue;
 			float d=distanceLinePoint(o,v,p);
-			if(d<=(TILESIZE_FLOAT*3)/8)return tb;
+			if(d<=TILESIZE_FLOAT)return tb;
 		}
 	}
 	return NULL;
