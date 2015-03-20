@@ -39,6 +39,8 @@ void writeVect3Di(vect3Di_s* v, FILE* f)
 	fwrite(v, sizeof(vect3Di_s), 1, f);
 }
 
+extern u8 currentResolution;
+
 int main(int argc, char** argv)
 {
 	if(argc < 3)
@@ -51,7 +53,8 @@ int main(int argc, char** argv)
 	room_s room;
 	readRoom(argv[1], &room, 0);
 	lightMapData_s ld;
-	generateLightmaps(&room, &ld);
+	while(generateLightmaps(&room, &ld)<0)currentResolution--;
+	printf("final resolution : %d\n",currentResolution);
 
 	u32 size;
 	u8* buffer = bufferizeFile(argv[1], &size, true);

@@ -4,7 +4,9 @@
 #include "light_rectangle.h"
 
 #define AMBIENTLIGHT (10)
-#define LIGHTMAPRESOLUTION (20)
+#define LIGHTMAPRESOLUTION (currentResolution)
+
+u8 currentResolution = 32;
 
 //LIGHTMAP
 
@@ -124,9 +126,9 @@ void generateLightmap(rectangle_s* rec, room_s* r, lightMapData_s* lmd, u8* b, l
 	}else printf("NOTHING?\n");
 }
 
-void generateLightmaps(room_s* r, lightMapData_s* ld)
+int generateLightmaps(room_s* r, lightMapData_s* ld)
 {
-	if(!r)return;
+	if(!r)return -1;
 	listCell_s *lc=r->rectangles.first;
 	rectangle2DList_s rl;
 	initRectangle2DList(&rl);
@@ -150,7 +152,7 @@ void generateLightmaps(room_s* r, lightMapData_s* ld)
 	{
 		//TEMP
 		// freeLightData(ld);
-		return;
+		return -1;
 	}
 
 	ld->buffer=malloc(w*h);
@@ -158,7 +160,7 @@ void generateLightmaps(room_s* r, lightMapData_s* ld)
 	if(!ld->buffer)
 	{
 		// freeLightData(ld);
-		return;
+		return -1;
 	}
 
 	lc=r->rectangles.first;
@@ -171,4 +173,6 @@ void generateLightmaps(room_s* r, lightMapData_s* ld)
 		
 	freeRectangle2DList(&rl);
 	printf("freed.\n");
+
+	return 0;
 }
