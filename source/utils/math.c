@@ -11,6 +11,14 @@ void loadIdentity44(float* m)
 	m[0]=m[5]=m[10]=m[15]=1.0f;
 }
 
+void loadIdentity33(float* m)
+{
+	if(!m)return;
+
+	memset(m, 0x00, 9*4);
+	m[0]=m[4]=m[8]=1.0f;
+}
+
 void transposeMatrix33(float* m1, float* m2) //3x3
 {
 	int i, j;

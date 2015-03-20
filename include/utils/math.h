@@ -200,6 +200,7 @@ void rotateMatrixZ(float* tm, float x, bool r);
 void scaleMatrix(float* tm, float x, float y, float z);
 void rotateMatrixAxis(float* tm, float x, vect3Df_s a, bool r);
 
+void loadIdentity33(float* m);
 void multMatrix33(float* m1, float* m2, float* m);
 void addMatrix33(float* m1, float* m2, float* m);
 void fixMatrix33(float* m);
