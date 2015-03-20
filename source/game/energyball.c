@@ -33,9 +33,9 @@ void initEnergyBalls(void)
 	md2ReadModel(&energyLauncherModel, "balllauncher.md2");
 	md2ReadModel(&energyBallModel, "energyball.md2");
 
-	textureLoad(&energyLauncherTexture, "balllauncher.png", GPU_TEXTURE_MAG_FILTER(GPU_LINEAR)|GPU_TEXTURE_MIN_FILTER(GPU_LINEAR), 0);
-	textureLoad(&energyLauncherActiveTexture, "balllauncheractive.png", GPU_TEXTURE_MAG_FILTER(GPU_LINEAR)|GPU_TEXTURE_MIN_FILTER(GPU_LINEAR), 0);
-	textureLoad(&energyBallTexture, "energyball.png", GPU_TEXTURE_MAG_FILTER(GPU_LINEAR)|GPU_TEXTURE_MIN_FILTER(GPU_LINEAR), 0);
+	textureLoad(&energyLauncherTexture, "balllauncher.png", GPU_TEXTURE_MAG_FILTER(GPU_LINEAR)|GPU_TEXTURE_MIN_FILTER(GPU_LINEAR), 10);
+	textureLoad(&energyLauncherActiveTexture, "balllauncheractive.png", GPU_TEXTURE_MAG_FILTER(GPU_LINEAR)|GPU_TEXTURE_MIN_FILTER(GPU_LINEAR), 10);
+	textureLoad(&energyBallTexture, "energyball.png", GPU_TEXTURE_MAG_FILTER(GPU_LINEAR)|GPU_TEXTURE_MIN_FILTER(GPU_LINEAR), 10);
 }
 
 void exitEnergyBalls(void)

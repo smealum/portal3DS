@@ -8,7 +8,7 @@
 #include "passthrough_vsh_shbin.h"
 
 md2_model_t gunModel, ratmanModel;
-texture_s gunTexture, ratmanTexture;
+texture_s gunTextureOrange, gunTextureBlue, ratmanTexture;
 texture_s crosshairTexture;
 
 DVLB_s* passthroughDvlb;
@@ -43,11 +43,12 @@ SFX_s *portalExitSFX[2];
 void playerInit(void)
 {
 	md2ReadModel(&gunModel, "portalgun.md2");
-	textureLoad(&gunTexture, "portalgun.png", GPU_TEXTURE_MAG_FILTER(GPU_LINEAR)|GPU_TEXTURE_MIN_FILTER(GPU_LINEAR), 0);
+	textureLoad(&gunTextureOrange, "portalgun_orange.png", GPU_TEXTURE_MAG_FILTER(GPU_LINEAR)|GPU_TEXTURE_MIN_FILTER(GPU_LINEAR), 0);
+	textureLoad(&gunTextureBlue, "portalgun_blue.png", GPU_TEXTURE_MAG_FILTER(GPU_LINEAR)|GPU_TEXTURE_MIN_FILTER(GPU_LINEAR), 0);
 	textureLoad(&crosshairTexture, "crosshair.png", GPU_TEXTURE_MAG_FILTER(GPU_LINEAR)|GPU_TEXTURE_MIN_FILTER(GPU_LINEAR), 0);
 	
 	md2ReadModel(&ratmanModel, "ratman.md2");
-	textureLoad(&ratmanTexture, "ratman.png", GPU_TEXTURE_MAG_FILTER(GPU_LINEAR)|GPU_TEXTURE_MIN_FILTER(GPU_LINEAR), 0);
+	textureLoad(&ratmanTexture, "ratman.png", GPU_TEXTURE_MAG_FILTER(GPU_LINEAR)|GPU_TEXTURE_MIN_FILTER(GPU_LINEAR), 10);
 
 	//SFX
 	gunSFX1=createSFX("portalgun_orange.raw", CSND_ENCODING_PCM16);
@@ -63,7 +64,8 @@ void playerInit(void)
 void playerExit(void)
 {
 	md2FreeModel(&gunModel);
-	textureFree(&gunTexture);
+	textureFree(&gunTextureOrange);
+	textureFree(&gunTextureBlue);
 	textureFree(&crosshairTexture);
 	md2FreeModel(&ratmanModel);
 	textureFree(&ratmanTexture);
@@ -75,7 +77,7 @@ void initPlayer(player_s* p)
 
 	initPhysicalPoint(&p->object, vect3Df(0,0,0), PLAYER_RADIUS);
 	initCamera(&p->camera);
-	md2InstanceInit(&p->gunInstance, &gunModel, &gunTexture);
+	md2InstanceInit(&p->gunInstance, &gunModel, &gunTextureOrange);
 	md2InstanceInit(&p->ratmanInstance, &ratmanModel, &ratmanTexture);
 
 	p->ratmanInstance.speed=0.1f;

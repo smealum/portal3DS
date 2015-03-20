@@ -21,14 +21,14 @@ void initBigButtons(void)
 	
 	md2ReadModel(&bigButtonModel, "button1.md2");
 	
-	textureLoad(&bigButtonTexture, "button1.png", GPU_TEXTURE_MAG_FILTER(GPU_LINEAR)|GPU_TEXTURE_MIN_FILTER(GPU_LINEAR), 0);
-	textureLoad(&bigButtonActiveTexture, "button1b.png", GPU_TEXTURE_MAG_FILTER(GPU_LINEAR)|GPU_TEXTURE_MIN_FILTER(GPU_LINEAR), 0);
+	textureLoad(&bigButtonTexture, "button1.png", GPU_TEXTURE_MAG_FILTER(GPU_LINEAR)|GPU_TEXTURE_MIN_FILTER(GPU_LINEAR), 10);
+	textureLoad(&bigButtonActiveTexture, "button1b.png", GPU_TEXTURE_MAG_FILTER(GPU_LINEAR)|GPU_TEXTURE_MIN_FILTER(GPU_LINEAR), 10);
 }
 
 void exitBigButtons(void)
 {
 	md2FreeModel(&bigButtonModel);
-	
+
 	textureFree(&bigButtonTexture);
 	textureFree(&bigButtonActiveTexture);
 }

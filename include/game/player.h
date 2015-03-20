@@ -35,6 +35,8 @@ extern SFX_s *gunSFX1, *gunSFX2;
 extern SFX_s *portalEnterSFX[2];
 extern SFX_s *portalExitSFX[2];
 
+extern texture_s gunTextureOrange, gunTextureBlue, ratmanTexture;
+
 void playerInit(void);
 void playerExit(void);
 

@@ -323,8 +323,8 @@ bool gameFrame()
 
 	// printf("%4.2f %4.2f %4.2f %4.2f %4.2f\n",debugVal[0],debugVal[1],debugVal[2],debugVal[3],debugVal[4]);
 
-	if(keysDown()&KEY_R){shootPlayerGun(&testPlayer, &testRoom, &portals[0]);playSFX(gunSFX1);}
-	if(keysDown()&KEY_L){shootPlayerGun(&testPlayer, &testRoom, &portals[1]);playSFX(gunSFX2);}
+	if(keysDown()&KEY_R){shootPlayerGun(&testPlayer, &testRoom, &portals[0]);playSFX(gunSFX1);testPlayer.gunInstance.texture=&gunTextureOrange;}
+	if(keysDown()&KEY_L){shootPlayerGun(&testPlayer, &testRoom, &portals[1]);playSFX(gunSFX2);testPlayer.gunInstance.texture=&gunTextureBlue;}
 
 	updateControls(&testPlayer);
 

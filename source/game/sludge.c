@@ -17,7 +17,7 @@ void initSludge(void)
 {
 	initRectangleList(&sludgeRectangleList);
 
-	textureLoad(&sludgeTexture, "sludge.png", GPU_TEXTURE_MAG_FILTER(GPU_LINEAR)|GPU_TEXTURE_MIN_FILTER(GPU_LINEAR)|GPU_TEXTURE_WRAP_S(GPU_REPEAT)|GPU_TEXTURE_WRAP_T(GPU_REPEAT), 0);
+	textureLoad(&sludgeTexture, "sludge.png", GPU_TEXTURE_MAG_FILTER(GPU_LINEAR)|GPU_TEXTURE_MIN_FILTER(GPU_LINEAR)|GPU_TEXTURE_WRAP_S(GPU_REPEAT)|GPU_TEXTURE_WRAP_T(GPU_REPEAT), 10);
 
 	sludgeVertexBuffer = NULL;
 	sludgeIndexBuffer = NULL;

@@ -67,7 +67,7 @@ void initWallDoors(void)
 
 	//TEMP ?
 	md2ReadModel(&wallDoorModel, "door.md2");
-	textureLoad(&wallDoorTexture, "door.png", GPU_TEXTURE_MAG_FILTER(GPU_LINEAR)|GPU_TEXTURE_MIN_FILTER(GPU_LINEAR), 0);
+	textureLoad(&wallDoorTexture, "door.png", GPU_TEXTURE_MAG_FILTER(GPU_LINEAR)|GPU_TEXTURE_MIN_FILTER(GPU_LINEAR), 10);
 
 	readRoom("elevatorroom.map", &elevatorRoom, MAP_READ_LIGHT);
 }
