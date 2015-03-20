@@ -38,7 +38,6 @@ float debugVal[10];
 extern md2_model_t cubeModel, cubeDispenserModel;
 extern texture_s storageCubeTexture, companionCubeTexture, cubeDispenserTexture;
 
-char* testString;
 room_s testRoom;
 player_s testPlayer;
 
@@ -189,9 +188,6 @@ void renderFrame(u32* outBuffer, u32* outDepthBuffer)
 	// param[0x1]=0x00AF8000;
 	// GPUCMD_Add(0x8007004D, param, 0x00000002); //frag scaling factors ? (float24)
 
-	// textStartDrawing();
-	// textDrawString(0, 0, testString);
-
 	// //draw object
 		gsMatrixMode(GS_MODELVIEW);
 		drawScene(&testPlayer.camera, 2, 0);
@@ -217,7 +213,6 @@ void gameInit()
 
 	//init text
 	textInit();
-	testString = textMakeString("\1hello this is a test\nwith newline support");
 
 	//init sfx
 	initSound();
@@ -366,6 +361,19 @@ int main(int argc, char** argv)
 
 	//init fs
 	filesystemInit(argc, argv);
+
+	//menu
+	{
+		menuInit();
+
+		bool done = false;
+		while(aptMainLoop() && !done)
+		{
+			done = menuFrame();
+		}
+
+		menuExit();
+	}
 
 	// currentLevel = 0;
 	currentLevel = 4;
