@@ -99,7 +99,7 @@ void warpPlayer(portal_s* p, player_s* pl)
 
 void checkPortalPlayerWarp(player_s* pl, portal_s* p)
 {
-	if(!pl || !p)return;
+	if(!pl || !p || !p->open || !p->target || !p->target->open)return;
 	vect3Df_s v;
 	float x, y, z;
 	bool r=isPointInPortal(p, pl->object.position, &v, &x, &y, &z);
@@ -259,6 +259,9 @@ void shootPlayerGun(player_s* p, room_s* r, portal_s* portal)
 
 		updatePortalOrientation(portal, plane0, normal);
 		isPortalOnWall(r, portal, true);
+
+		portal->draw = true;
+		portal->open = true;
 
 		if(isPortalOnWall(r, portal, false))
 		{

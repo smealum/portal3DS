@@ -21,6 +21,7 @@ typedef struct portal_s
 	AAR_s guideAAR[4];
 	float oldPlayerZ;
 	bool oldPlayerR;
+	bool open, draw;
 }portal_s;
 
 extern portal_s portals[NUM_PORTALS];
@@ -29,6 +30,8 @@ typedef void (*renderSceneCallback_t)(camera_s* c, int depth, u8 stencil);
 
 void portalInit();
 void portalExit();
+
+void resetPortals();
 
 void initPortal(portal_s* p);
 void drawPortals(portal_s* portals[], int n, renderSceneCallback_t callback, camera_s* c, int depth, u8 stencil);

@@ -28,6 +28,16 @@ int portalNumVertices;
 portalVertex_s* portalOutlineVertexData;
 int portalOutlineNumVertices;
 
+void resetPortals()
+{
+	int i;
+	for(i=0; i<NUM_PORTALS; i++)
+	{
+		portals[i].draw = false;
+		portals[i].open = false;
+	}
+}
+
 void generatePortalGeometry(portalVertex_s** v1, int* n1, portalVertex_s** v2, int* n2)
 {
 	if(!v1 || !v2 || !n1 || !n2)return;
@@ -78,6 +88,8 @@ void initPortal(portal_s* p)
 	p->target = NULL;
 	updatePortalOrientation(p, vect3Df(0.0f, 0.0f, 1.0f), vect3Df(-1.0f, 0.0f, 0.0f));
 	p->color = vect3Df(1.0f, 1.0f, 1.0f);
+	p->open = false;
+	p->draw = false;
 }
 
 void updatePortalOrientation(portal_s* p, vect3Df_s plane0, vect3Df_s normal)
@@ -250,6 +262,8 @@ void drawPortals(portal_s* portals[], int n, renderSceneCallback_t callback, cam
 		{
 			portal_s* p = portals[i];
 
+			if(!p->draw)continue;
+
 			GPU_SetFloatUniform(GPU_VERTEX_SHADER, colorUniformLoc, (u32*)(float[]){1.0f, p->color.z, p->color.y, p->color.x}, 1);
 
 			gsPushMatrix();
@@ -271,6 +285,10 @@ void drawPortals(portal_s* portals[], int n, renderSceneCallback_t callback, cam
 		for(i=0; i<n; i++)
 		{
 			portal_s* p = portals[i];
+			
+			if(!p->draw)continue;
+			if(!p->target || !p->target->open)continue;
+
 			GPU_SetStencilTest(true, GPU_EQUAL, stencil, 0xFF, stencilValue(i, 0));
 
 			gsPushMatrix();
@@ -292,6 +310,10 @@ void drawPortals(portal_s* portals[], int n, renderSceneCallback_t callback, cam
 		for(i=0; i<n; i++)
 		{
 			portal_s* p = portals[i];
+			
+			if(!p->draw)continue;
+			if(!p->target || !p->target->open)continue;
+
 			GPU_SetStencilTest(true, GPU_EQUAL, stencilValue(i, stencil), 0xFF, 0x00);
 
 			gsPushMatrix();
@@ -312,6 +334,9 @@ void drawPortals(portal_s* portals[], int n, renderSceneCallback_t callback, cam
 	for(i=0; i<n; i++)
 	{
 		portal_s* p = portals[i];
+
+		if(!p->draw)continue;
+		if(!p->target || !p->target->open)continue;
 		
 		GPU_SetStencilTest(true, GPU_EQUAL, stencilValue(i, stencil), 0xFF, 0x00);
 

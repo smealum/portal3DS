@@ -227,8 +227,7 @@ void updateEmancipationGrid(player_s* pl, emancipationGrid_s* eg)
 	getEmancipationGridAAR(eg,&pos,&sp);
 	if(intersectAABBAAR(pl->object.position, vect3Df(PLAYER_RADIUS,PLAYER_RADIUS*5,PLAYER_RADIUS), pos, sp))
 	{
-		//TODO
-		// resetPortals();
+		resetPortals();
 	}
 
 	int i;

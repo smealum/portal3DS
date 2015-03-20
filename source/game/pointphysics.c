@@ -126,7 +126,7 @@ bool collideRectangle(physicalPoint_s* o, vect3Df_s p, vect3Df_s s)
 	int i;
 	for(i=0; i < NUM_PORTALS; i++)
 	{
-		if(portals[i].target)collidePortal(p, s, &portals[i], &o2);
+		if(portals[i].target && portals[i].open && portals[i].target->open)collidePortal(p, s, &portals[i], &o2);
 	}
 
 	vect3Df_s v = vsubf(o2, o->position);

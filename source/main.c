@@ -202,7 +202,7 @@ void renderFrame(u32* outBuffer, u32* outDepthBuffer)
 	GPU_FinishDrawing();
 }
 
-char* levelNames[] = {"out1.map", "out2.map", "out3.map", "out4.map"};
+char* levelNames[] = {"out1.map", "out2.map", "out3.map", "out4.map", "out5.map", "out6.map", "out7.map", "out8.map"};
 int currentLevel;
 
 void gameInit()
@@ -368,7 +368,7 @@ int main(int argc, char** argv)
 	filesystemInit(argc, argv);
 
 	// currentLevel = 0;
-	currentLevel = 2;
+	currentLevel = 4;
 
 	bool again = true;
 	while(again)
@@ -406,7 +406,7 @@ int main(int argc, char** argv)
 			}
 		}
 		currentLevel++;
-		currentLevel %= 4;
+		currentLevel %= 8;
 	}
 
 	gfxExit();
