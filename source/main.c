@@ -256,8 +256,6 @@ void gameInit()
 	//init physics
 	transferRoomRectangles(&testRoom);
 	physicsGenerateGrid();
-	md2_instance_t modelInstance;
-	md2InstanceInit(&modelInstance, &cubeModel, &companionCubeTexture);
 
 	//background color (blue)
 	gsSetBackgroundColor(RGBA8(0x68, 0xB0, 0xD8, 0xFF));

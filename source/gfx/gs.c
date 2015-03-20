@@ -92,6 +92,8 @@ void gsExit(void)
 {
 	if(gsGpuCmd)linearFree(gsGpuCmd);
 	if(gsGpuCmdRight)linearFree(gsGpuCmdRight);
+	if(gsGpuOut)vramFree(gsGpuOut);
+	if(gsGpuDOut)vramFree(gsGpuDOut);
 	svcCloseHandle(linearAllocMutex);
 }
 
