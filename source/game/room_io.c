@@ -9,6 +9,7 @@
 #include "game/door.h"
 #include "game/walldoor.h"
 #include "game/energyball.h"
+#include "game/emancipation.h"
 #include "game/platform.h"
 #include "game/bigbutton.h"
 #include "game/timedbutton.h"
@@ -190,7 +191,8 @@ void readEntity(room_s* r, u8 i, FILE* f)
 			{
 				s32 l; fread(&l,sizeof(s32),1,f);
 				vect3Di_s p; readVect3Di(&p,f);
-				createEmancipationGrid(r, p, (dir%2)?(-l):(l), !(dir<=1)); //TEMP ?
+				float fl = (l * TILESIZE_FLOAT) / 384;
+				createEmancipationGrid(r, p, (dir%2)?(-fl):(fl), !(dir<=1)); //TEMP ?
 			}
 			break;
 		case 9:

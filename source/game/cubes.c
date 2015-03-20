@@ -150,6 +150,8 @@ void resetDispenserCube(OBB_s* o)
 {
 	if(!o)return;
 
+	if(gravityGunObject==o)gravityGunObject=NULL;
+
 	int i;
 	for(i=0; i<NUMCUBEDISPENSERS; i++)
 	{

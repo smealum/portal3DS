@@ -87,6 +87,7 @@ void drawScene(camera_s* c, int depth, u8 stencil)
 		drawSludge(&testRoom);
 
 		drawEmancipators();
+		drawEmancipationGrids();
 
 		drawPortals((portal_s*[]){&portals[0], &portals[1]}, 2, drawScene, c, depth, stencil);
 	gsPopMatrix();
@@ -201,6 +202,9 @@ void renderFrame(u32* outBuffer, u32* outDepthBuffer)
 	GPU_FinishDrawing();
 }
 
+char* levelNames[] = {"out1.map", "out2.map", "out3.map", "out4.map"};
+int currentLevel;
+
 void gameInit()
 {
 	//initialize GS
@@ -244,7 +248,7 @@ void gameInit()
 	//init room
 	roomInit();
 	// readRoom("test1.map", &testRoom, MAP_READ_ENTITIES);
-	readRoom("out.map", &testRoom, MAP_READ_ENTITIES|MAP_READ_LIGHT);
+	readRoom(levelNames[currentLevel], &testRoom, MAP_READ_ENTITIES|MAP_READ_LIGHT);
 	generateSludgeGeometry();
 
 	//init portal
@@ -338,6 +342,7 @@ bool gameFrame()
 	updateWallDoors(&testPlayer);
 	updateDoors();
 	updateEmancipators();
+	updateEmancipationGrids(&testPlayer);
 
 	gsDrawFrame();
 
@@ -361,6 +366,9 @@ int main(int argc, char** argv)
 
 	//init fs
 	filesystemInit(argc, argv);
+
+	// currentLevel = 0;
+	currentLevel = 2;
 
 	bool again = true;
 	while(again)
@@ -397,6 +405,8 @@ int main(int argc, char** argv)
 				done = true;
 			}
 		}
+		currentLevel++;
+		currentLevel %= 4;
 	}
 
 	gfxExit();

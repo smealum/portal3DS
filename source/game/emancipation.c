@@ -4,14 +4,41 @@
 #include <math.h>
 #include <3ds.h>
 #include "game/emancipation.h"
+#include "game/cubes.h"
 #include "physics/AAR.h"
 #include "physics/OBB.h"
 #include "gfx/gs.h"
 
+#include "emancipation_vsh_shbin.h"
+
 emancipator_s emancipators[NUMEMANCIPATORS];
 emancipationGrid_s emancipationGrids[NUMEMANCIPATIONGRIDS];
 md2_model_t gridModel;
-texture_s gridTextures[6];
+texture_s gridTexture;
+texture_s gridSurfaceTexture;
+md2_instance_t gridInstance;
+
+DVLB_s* emancipationDvlb;
+shaderProgram_s emancipationProgram;
+
+float emancipationRectangleData[] = {1.0f, 1.0f, 0.0f,
+									1.0f, -1.0f, 0.0f,
+									0.0f, -1.0f, 0.0f,
+									1.0f, 1.0f, 0.0f,
+									0.0f, -1.0f, 0.0f,
+									0.0f, 1.0f, 0.0f,
+									1.0f, 1.0f, 0.0f,
+									0.0f, -1.0f, 0.0f,
+									1.0f, -1.0f, 0.0f,
+									0.0f, -1.0f, 0.0f,
+									1.0f, 1.0f, 0.0f,
+									0.0f, 1.0f, 0.0f};
+
+u32* emancipationRectangleVertexData = NULL;
+
+const u32 emancipationBaseAddr=0x14000000;
+
+int emancipationUniformTextureDimensions;
 
 void initEmancipation(void)
 {
@@ -26,24 +53,32 @@ void initEmancipation(void)
 	}
 	
 	md2ReadModel(&gridModel, "grid.md2");
-	textureLoad(&gridTextures[0], "gridcolor1.pcx", GPU_TEXTURE_MAG_FILTER(GPU_LINEAR)|GPU_TEXTURE_MIN_FILTER(GPU_LINEAR), 0);
-	textureLoad(&gridTextures[1], "gridcolor2.pcx", GPU_TEXTURE_MAG_FILTER(GPU_LINEAR)|GPU_TEXTURE_MIN_FILTER(GPU_LINEAR), 0);
-	textureLoad(&gridTextures[2], "gridcolor3.pcx", GPU_TEXTURE_MAG_FILTER(GPU_LINEAR)|GPU_TEXTURE_MIN_FILTER(GPU_LINEAR), 0);
-	textureLoad(&gridTextures[3], "gridcolor4.pcx", GPU_TEXTURE_MAG_FILTER(GPU_LINEAR)|GPU_TEXTURE_MIN_FILTER(GPU_LINEAR), 0);
-	textureLoad(&gridTextures[4], "gridcolor5.pcx", GPU_TEXTURE_MAG_FILTER(GPU_LINEAR)|GPU_TEXTURE_MIN_FILTER(GPU_LINEAR), 0);
-	textureLoad(&gridTextures[5], "gridcolor6.pcx", GPU_TEXTURE_MAG_FILTER(GPU_LINEAR)|GPU_TEXTURE_MIN_FILTER(GPU_LINEAR), 0);
+	textureLoad(&gridTexture, "balllauncher.png", GPU_TEXTURE_MAG_FILTER(GPU_LINEAR)|GPU_TEXTURE_MIN_FILTER(GPU_LINEAR), 0);
+	textureLoad(&gridSurfaceTexture, "grid.png", GPU_TEXTURE_MAG_FILTER(GPU_LINEAR)|GPU_TEXTURE_MIN_FILTER(GPU_LINEAR)|GPU_TEXTURE_WRAP_S(GPU_REPEAT)|GPU_TEXTURE_WRAP_T(GPU_REPEAT), 0);
+	md2InstanceInit(&gridInstance, &gridModel, &gridTexture);
+
+	emancipationRectangleVertexData = linearAlloc(sizeof(emancipationRectangleData));
+	memcpy(emancipationRectangleVertexData, emancipationRectangleData, sizeof(emancipationRectangleData));
+
+	emancipationDvlb = DVLB_ParseFile((u32*)emancipation_vsh_shbin, emancipation_vsh_shbin_size);
+	if(!emancipationDvlb)return;
+	shaderProgramInit(&emancipationProgram);
+	shaderProgramSetVsh(&emancipationProgram, &emancipationDvlb->DVLE[0]);
+
+	emancipationUniformTextureDimensions = shaderInstanceGetUniformLocation(emancipationProgram.vertexShader, "textureDimensions");
 }
 
 void exitEmancipation(void)
 {
 	md2FreeModel(&gridModel);
 
-	textureFree(&gridTextures[0]);
-	textureFree(&gridTextures[1]);
-	textureFree(&gridTextures[2]);
-	textureFree(&gridTextures[3]);
-	textureFree(&gridTextures[4]);
-	textureFree(&gridTextures[5]);
+	textureFree(&gridTexture);
+	textureFree(&gridSurfaceTexture);
+
+	// if(emancipationRectangleVertexData)linearFree(emancipationRectangleVertexData);
+
+	// shaderProgramFree(&emancipationProgram);
+	// DVLB_Free(emancipationDvlb);
 }
 
 float randFloat(float a, float b)
@@ -153,7 +188,6 @@ void initEmancipationGrid(room_s* r, emancipationGrid_s* eg, vect3Di_s pos, floa
 	eg->position=convertRectangleVector(pos);
 	eg->length=l;
 	eg->direction=dir;
-	
 	eg->used=true;
 }
 
@@ -171,6 +205,20 @@ void createEmancipationGrid(room_s* r, vect3Di_s pos, float l, bool dir)
 	}
 }
 
+bool collideBoxGrid(emancipationGrid_s* eg, OBB_s* o)
+{
+	if(!o)return false;
+
+	vect3Df_s p=o->position;
+	vect3Df_s s;
+	getBoxAABB(o,&s);
+
+	vect3Df_s pos, sp;
+	getEmancipationGridAAR(eg,&pos,&sp);
+
+	return intersectAABBAAR(p, s, pos, sp);
+}
+
 void updateEmancipationGrid(player_s* pl, emancipationGrid_s* eg)
 {
 	if(!eg)return;
@@ -181,6 +229,18 @@ void updateEmancipationGrid(player_s* pl, emancipationGrid_s* eg)
 	{
 		//TODO
 		// resetPortals();
+	}
+
+	int i;
+	for(i=0;i<NUMOBJECTS;i++)
+	{
+		OBB_s* o = &objects[i];
+		if(o->used && collideBoxGrid(eg, o))
+		{
+			createEmancipator(o->modelInstance, o->position, o->transformationMatrix);
+			resetDispenserCube(o);
+			printf("imma emancipate your shit\n");
+		}
 	}
 }
 
@@ -198,51 +258,66 @@ void updateEmancipationGrids(player_s* pl)
 
 // u16 counter=0;
 
-// void drawEmancipationGrid(emancipationGrid_s* eg)
-// {
-// 	if(!eg)return;
+void drawEmancipationGrid(emancipationGrid_s* eg)
+{
+	if(!eg)return;
 	
-// 	int32 l=abs(eg->length);
-	
-// 	glPushMatrix();
-// 		glTranslatef32(eg->position.x,eg->position.y,eg->position.z);
-// 		if(eg->direction)glRotateYi(-8192);
-// 		if(eg->length<0)glRotateYi(8192*2);
-// 		renderModelFrameInterp(0, 0, 0, &gridModel, POLY_ALPHA(31) | POLY_ID(20) | POLY_CULL_FRONT | POLY_TOON_HIGHLIGHT | POLY_FORMAT_LIGHT0 | POLY_FOG, false, NULL, RGB15(31,31,31));
-// 		glPushMatrix();
-// 			glTranslatef32(l,0,0);
-// 			glRotateYi(8192*2);
-// 			renderModelFrameInterp(0, 0, 0, &gridModel, POLY_ALPHA(31) | POLY_ID(20) | POLY_CULL_FRONT | POLY_TOON_HIGHLIGHT | POLY_FORMAT_LIGHT0 | POLY_FOG, false, NULL, RGB15(31,31,31));
-// 		glPopMatrix(1);
-		
-// 		applyMTL(gridMtl);
-// 		bindPaletteAddr(gridPalettes[(((counter++)/4)%6)]);
-// 		GFX_COLOR=RGB15(31,31,31);
-// 		glPolyFmt(POLY_ALPHA(12) | POLY_ID(21) | POLY_CULL_NONE | POLY_FOG);
-// 		glScalef32(l,EMANCIPATIONGRIDHEIGHT/2,inttof32(1));
-// 		glBegin(GL_QUADS);
-// 			GFX_TEX_COORD = TEXTURE_PACK(0*16, 0*16);
-// 			glVertex3v16(0, inttof32(1), 0);
-// 			GFX_TEX_COORD = TEXTURE_PACK(l*32*16/TILESIZE, 0*16);
-// 			glVertex3v16(inttof32(1), inttof32(1), 0);
-// 			GFX_TEX_COORD = TEXTURE_PACK(l*32*16/TILESIZE, 256*16);
-// 			glVertex3v16(inttof32(1), -inttof32(1), 0);
-// 			GFX_TEX_COORD = TEXTURE_PACK(0*16, 256*16);
-// 			glVertex3v16(0, -inttof32(1), 0);
-// 	glPopMatrix(1);
-// }
+	float l=fabs(eg->length);
 
-// void drawEmancipationGrids(void)
-// {
-// 	int i;
-// 	for(i=0;i<NUMEMANCIPATIONGRIDS;i++)
-// 	{
-// 		if(emancipationGrids[i].used)
-// 		{
-// 			drawEmancipationGrid(&emancipationGrids[i]);
-// 		}
-// 	}
-// }
+	// TODO : animate surface texture
+	
+	gsPushMatrix();
+		gsSwitchRenderMode(md2GsMode);
+
+		gsTranslate(eg->position.x, eg->position.y, eg->position.z);
+
+		if(eg->direction)gsRotateY(-(M_PI/2));
+		if(eg->length<0)gsRotateY((M_PI/2)*2);
+		md2InstanceDraw(&gridInstance);
+
+		gsPushMatrix();
+			gsTranslate(l,0,0);
+			gsRotateY((M_PI/2)*2);
+			md2InstanceDraw(&gridInstance);
+		gsPopMatrix();
+
+		gsSwitchRenderMode(-1);
+
+		GPU_SetAttributeBuffers(
+			1, // number of attributes
+			(u32*)osConvertVirtToPhys(emancipationBaseAddr), // we use the start of linear heap as base since that's where all our buffers are located
+			GPU_ATTRIBFMT(0, 3, GPU_FLOAT), // we want v0 (vertex position)
+			0xFFE, // mask : we want v0
+			0x0, // permutation : we use identity
+			1, // number of buffers : we have one attribute per buffer
+			(u32[]){(u32)emancipationRectangleVertexData-emancipationBaseAddr}, // buffer offsets (placeholders)
+			(u64[]){0x0}, // attribute permutations for each buffer
+			(u8[]){1} // number of attributes for each buffer
+			);
+
+		gsSetShader(&emancipationProgram);
+
+		gsScale(l, 4.0f, 1.0f);
+		gsUpdateTransformation();
+
+		textureBind(&gridSurfaceTexture, GPU_TEXUNIT0);
+		GPU_SetFloatUniform(GPU_VERTEX_SHADER, emancipationUniformTextureDimensions, (u32*)(float[]){0.0f, 0.0f, 0.7f, l/8}, 1);
+
+		GPU_DrawArray(GPU_TRIANGLES, 12);
+	gsPopMatrix();
+}
+
+void drawEmancipationGrids(void)
+{
+	int i;
+	for(i=0;i<NUMEMANCIPATIONGRIDS;i++)
+	{
+		if(emancipationGrids[i].used)
+		{
+			drawEmancipationGrid(&emancipationGrids[i]);
+		}
+	}
+}
 
 void getEmancipationGridAAR(emancipationGrid_s* eg, vect3Df_s* pos, vect3Df_s* sp)
 {
