@@ -2,6 +2,7 @@
 #include <string.h>
 #include <3ds.h>
 #include "game/cubes.h"
+#include "game/emancipation.h"
 #include "gfx/gs.h"
 
 cubeDispenser_s cubeDispenser[NUMCUBEDISPENSERS];
@@ -139,8 +140,25 @@ void resetCubeDispenserCube(cubeDispenser_s* cd)
 {
 	if(!cd)return;
 
-	// if(cd->currentCube)resetBox(cd->currentCube, vectMultInt(cd->position,4));
+	if(cd->currentCube)physicsResetObb(cd->currentCube, cd->position, vect3Df(1.0f, 1.0f, 1.0f), (cd->companion)?(&companionCubeModelInstance):(&storageCubeModelInstance), 1.0f, 0.0f);
 	md2InstanceChangeAnimation(&cd->modelInstance,1,true);
+}
+
+extern OBB_s* gravityGunObject;
+
+void resetDispenserCube(OBB_s* o)
+{
+	if(!o)return;
+
+	int i;
+	for(i=0; i<NUMCUBEDISPENSERS; i++)
+	{
+		if(cubeDispenser[i].used && cubeDispenser[i].currentCube==o)
+		{
+			resetCubeDispenserCube(&cubeDispenser[i]);
+			return;
+		}
+	}
 }
 
 void updateCubeDispenser(cubeDispenser_s* cd)
@@ -153,10 +171,9 @@ void updateCubeDispenser(cubeDispenser_s* cd)
 		if(!cd->currentCube)
 		{
 			physicsCreateObb(&cd->currentCube, cd->position, vect3Df(1.0f, 1.0f, 1.0f), (cd->companion)?(&companionCubeModelInstance):(&storageCubeModelInstance), 1.0f, 0.0f);
-			// if(cd->currentCube)cd->currentCube->spawner=(void*)cd;
 		}else{
-			// createEmancipator(&cd->currentCube->modelInstance,vectDivInt(cd->currentCube->position,4),cd->currentCube->transformationMatrix);
-			// if(cd->id==gravityGunTarget)gravityGunTarget=-1;
+			createEmancipator(cd->currentCube->modelInstance,cd->currentCube->position,cd->currentCube->transformationMatrix);
+			if(cd->currentCube==gravityGunObject)gravityGunObject=NULL;
 			resetCubeDispenserCube(cd);
 		}
 		md2InstanceChangeAnimation(&cd->modelInstance,1,true);

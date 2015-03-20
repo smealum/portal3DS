@@ -114,8 +114,6 @@ void drawEmancipator(emancipator_s* e)
 {
 	if(!e || !e->used)return;
 	
-	// TODO : blackout + alpha fade
-
 	e->modelInstance.brightness=maxf(1.0f-(e->counter*1.0f)/BLACKENINGTIME,0.0f);
 	e->modelInstance.alpha=(e->counter<BLACKENINGTIME)?(1.0f):(maxf(1.0f-((e->counter-BLACKENINGTIME)*1.0f)/FADINGTIME,0.0f));
 	

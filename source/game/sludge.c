@@ -78,6 +78,7 @@ void updateSludge(void)
 		if(o->used && collideBoxSludge(o))
 		{
 			createEmancipator(o->modelInstance, o->position, o->transformationMatrix);
+			resetDispenserCube(o);
 			printf("sludged up yo\n");
 		}
 	}

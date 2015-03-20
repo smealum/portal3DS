@@ -10,6 +10,7 @@ struct physicsThread_s;
 typedef enum
 {
 	REQUEST_CREATE_OBB,
+	REQUEST_RESET_OBB,
 	REQUEST_CREATE_AAR,
 	REQUEST_GENERATE_GRID,
 	NUM_REQUEST_TYPES
@@ -41,6 +42,7 @@ typedef struct
 }requestType_s;
 
 request_s* createRequestCreateObb(OBB_s** out, vect3Df_s position, vect3Df_s size, md2_instance_t* model, float mass, float angle);
+request_s* createRequestResetObb(OBB_s* target, vect3Df_s position, vect3Df_s size, md2_instance_t* model, float mass, float angle);
 request_s* createRequestCreateAar(AAR_s** out, vect3Df_s position, vect3Df_s size, vect3Df_s normal);
 request_s* createRequestGenerateGrid();
 

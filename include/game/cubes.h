@@ -25,6 +25,7 @@ void initCubes(void);
 void exitCubes(void);
 void drawCubeDispensers(void);
 void updateCubeDispensers(void);
+void resetDispenserCube(OBB_s* o);
 void resetCubeDispenserCube(cubeDispenser_s* cd);
 cubeDispenser_s* createCubeDispenser(room_s* r, vect3Di_s pos, bool companion);
 

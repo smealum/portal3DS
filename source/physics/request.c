@@ -83,6 +83,39 @@ void requestCreateObbHandler(struct physicsThread_s* p, request_s* r)
 	if(d->out)*d->out = o;
 }
 
+//REQUEST_RESET_OBB
+typedef struct
+{
+	OBB_s* target;
+	vect3Df_s position, size;
+	md2_instance_t* model;
+	float mass, angle;
+}requestResetObbData_s;
+
+request_s* createRequestResetObb(OBB_s* target, vect3Df_s position, vect3Df_s size, md2_instance_t* model, float mass, float angle)
+{
+	request_s* r=createNewRequest(REQUEST_RESET_OBB);
+	if(!r)return r;
+	requestResetObbData_s* d=(requestResetObbData_s*)r->data;
+
+	d->target = target;
+	d->position = position;
+	d->size = size;
+	d->model = model;
+	d->mass = mass;
+	d->angle = angle;
+
+	return r;
+}
+
+void requestResetObbHandler(struct physicsThread_s* p, request_s* r)
+{
+	if(!p || !r)return;
+	requestResetObbData_s* d=(requestResetObbData_s*)r->data;
+
+	initOBB(d->target, d->position, d->size, d->model, d->mass, d->angle);
+}
+
 //REQUEST_CREATE_AAR
 typedef struct
 {
@@ -133,6 +166,7 @@ void requestGenerateGridHandler(struct physicsThread_s* p, request_s* r)
 
 requestType_s requestTypes[NUM_REQUEST_TYPES]= {
 	(requestType_s){requestCreateObbHandler, sizeof(requestCreateObbData_s)}, // REQUEST_CREATE_OBB
+	(requestType_s){requestResetObbHandler, sizeof(requestResetObbData_s)}, // REQUEST_RESET_AAR
 	(requestType_s){requestCreateAarHandler, sizeof(requestCreateAarData_s)}, // REQUEST_CREATE_AAR
 	(requestType_s){requestGenerateGridHandler, 0}, // REQUEST_GENERATE_GRID
 };
