@@ -9,20 +9,32 @@
 
 md2_model_t gunModel;
 texture_s gunTexture;
+texture_s crosshairTexture;
 
 DVLB_s* passthroughDvlb;
 shaderProgram_s passthroughProgram;
 
 const u32 rectangleBaseAddr=0x14000000;
 
-float rectangleData[] = {1.0f, 1.0f, 0.0f,
-						1.0f, -1.0f, 0.0f,
-						-1.0f, -1.0f, 0.0f,
-						1.0f, 1.0f, 0.0f,
-						-1.0f, -1.0f, 0.0f,
-						-1.0f, 1.0f, 0.0f};
+float rectangleData[] = {1.0f, 1.0f, 0.0f, 0.0f, 0.0f,
+						1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
+						-1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
+						1.0f, 1.0f, 0.0f, 0.0f, 0.0f,
+						-1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
+						-1.0f, 1.0f, 0.0f, 0.0f, 0.0f,};
+
+#define crosshairWidth (16.0f / 400.0f)
+#define crosshairHeight (16.0f / 240.0f)
+
+float crosshairData[] = {crosshairHeight, crosshairWidth, 0.0f, 1.0f, 1.0f,
+						crosshairHeight, -crosshairWidth, 0.0f, 1.0f, 0.0f,
+						-crosshairHeight, -crosshairWidth, 0.0f, 0.0f, 0.0f,
+						crosshairHeight, crosshairWidth, 0.0f, 1.0f, 1.0f,
+						-crosshairHeight, -crosshairWidth, 0.0f, 0.0f, 0.0f,
+						-crosshairHeight, crosshairWidth, 0.0f, 0.0f, 1.0f,};
 
 u32* rectangleVertexData = NULL;
+u32* crosshairVertexData = NULL;
 
 SFX_s *gunSFX1, *gunSFX2;
 SFX_s *portalEnterSFX[2];
@@ -31,6 +43,7 @@ SFX_s *portalExitSFX[2];
 void playerInit(void)
 {
 	textureLoad(&gunTexture, "portalgun.png", GPU_TEXTURE_MAG_FILTER(GPU_LINEAR)|GPU_TEXTURE_MIN_FILTER(GPU_LINEAR), 0);
+	textureLoad(&crosshairTexture, "crosshair.png", GPU_TEXTURE_MAG_FILTER(GPU_LINEAR)|GPU_TEXTURE_MIN_FILTER(GPU_LINEAR), 0);
 	md2ReadModel(&gunModel, "portalgun.md2");
 
 	//SFX
@@ -69,6 +82,9 @@ void initPlayer(player_s* p)
 
 	rectangleVertexData = linearAlloc(sizeof(rectangleData));
 	memcpy(rectangleVertexData, rectangleData, sizeof(rectangleData));
+
+	crosshairVertexData = linearAlloc(sizeof(crosshairData));
+	memcpy(crosshairVertexData, crosshairData, sizeof(crosshairData));
 
 	p->flying = false;
 	p->walkCnt1 = 0;
@@ -192,18 +208,25 @@ void drawPlayerGun(player_s* p)
 		gsSwitchRenderMode(-1);
 
 		GPU_SetAttributeBuffers(
-			1, // number of attributes
+			2, // number of attributes
 			(u32*)osConvertVirtToPhys(rectangleBaseAddr), // we use the start of linear heap as base since that's where all our buffers are located
-			GPU_ATTRIBFMT(0, 3, GPU_FLOAT), // we want v0 (vertex position)
-			0xFFE, // mask : we want v0
-			0x0, // permutation : we use identity
+			GPU_ATTRIBFMT(0, 3, GPU_FLOAT)|GPU_ATTRIBFMT(1, 2, GPU_FLOAT), // we want v0 (vertex position) and v1 (texcoord)
+			0xFFC, // mask : we want v0 and v1
+			0x10, // permutation : we use identity
 			1, // number of buffers : we have one attribute per buffer
 			(u32[]){(u32)rectangleVertexData-rectangleBaseAddr}, // buffer offsets (placeholders)
-			(u64[]){0x0}, // attribute permutations for each buffer
-			(u8[]){1} // number of attributes for each buffer
+			(u64[]){0x10}, // attribute permutations for each buffer
+			(u8[]){2} // number of attributes for each buffer
 			);
 
 		gsSetShader(&passthroughProgram);
+
+		GPU_DrawArray(GPU_TRIANGLES, 6);
+
+		GPU_SetDepthTestAndWriteMask(true, GPU_ALWAYS, GPU_WRITE_ALL);
+
+		GPUCMD_AddWrite(GPUREG_ATTRIBBUFFER0_CONFIG0, (u32)crosshairVertexData-rectangleBaseAddr);
+		textureBind(&crosshairTexture, GPU_TEXUNIT0);
 
 		GPU_DrawArray(GPU_TRIANGLES, 6);
 

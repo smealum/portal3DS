@@ -24,8 +24,8 @@
 			mov o0,  c82       (0x3)
 
 		; result.texcoord = in.texcoord
-			mov o2,  c82       (0x5)
-			mov o3,  c82       (0x5)
+			mov o2,  v1       (0x5)
+			mov o3,  v1       (0x5)
 
 		; result.color = EXPERIMENTS !			
 			mov o1,  c82       (0x5)
