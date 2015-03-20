@@ -67,5 +67,8 @@ void updateControls(player_s* p)
 			setObbVelocity(gravityGunObject, v);
 			md2InstanceChangeAnimation(&p->gunInstance, 2, false);
 		}
+	}else if(p->gunInstance.currentAnim == 2){
+		md2InstanceChangeAnimation(&p->gunInstance, 0, false);
+		md2InstanceChangeAnimation(&p->gunInstance, 1, true);
 	}
 }

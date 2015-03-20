@@ -75,12 +75,16 @@ void initPlayer(player_s* p)
 	p->walkCnt2 = 0;
 }
 
+extern OBB_s* gravityGunObject;
+
 void warpPlayer(portal_s* p, player_s* pl)
 {
 	if(!p || !pl)return;
 	camera_s* c = &pl->camera;
 
 	camera_s new_camera = *c;
+
+	if(gravityGunObject)gravityGunObject = NULL; // TEMP : TODO better solution
 
 	float tmp1[4*4], tmp2[4*4];
 	transposeMatrix44(p->target->matrix, tmp1);

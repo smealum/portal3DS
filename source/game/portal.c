@@ -257,6 +257,14 @@ void drawPortals(portal_s* portals[], int n, renderSceneCallback_t callback, cam
 
 		//TEMP
 		int colorUniformLoc = shaderInstanceGetUniformLocation(portalProgram.vertexShader, "color");
+			
+		GPU_SetTexEnv(0, 
+			GPU_TEVSOURCES(GPU_PRIMARY_COLOR, GPU_PRIMARY_COLOR, GPU_PRIMARY_COLOR),
+			GPU_TEVSOURCES(GPU_PRIMARY_COLOR, GPU_PRIMARY_COLOR, GPU_PRIMARY_COLOR),
+			GPU_TEVOPERANDS(0,0,0), 
+			GPU_TEVOPERANDS(0,0,0), 
+			GPU_MODULATE, GPU_MODULATE, 
+			0xFFFFFFFF);
 
 		for(i=0; i<n; i++)
 		{
@@ -275,6 +283,14 @@ void drawPortals(portal_s* portals[], int n, renderSceneCallback_t callback, cam
 				GPU_DrawArray(GPU_TRIANGLE_STRIP, portalNumVertices);
 			gsPopMatrix();
 		}
+			
+		GPU_SetTexEnv(0, 
+			GPU_TEVSOURCES(GPU_TEXTURE0, GPU_PRIMARY_COLOR, GPU_PRIMARY_COLOR),
+			GPU_TEVSOURCES(GPU_TEXTURE0, GPU_PRIMARY_COLOR, GPU_PRIMARY_COLOR),
+			GPU_TEVOPERANDS(0,0,0), 
+			GPU_TEVOPERANDS(0,0,0), 
+			GPU_MODULATE, GPU_MODULATE, 
+			0xFFFFFFFF);
 
 		GPU_SetFloatUniform(GPU_VERTEX_SHADER, colorUniformLoc, (u32*)(float[]){1.0f, 1.0f, 1.0f, 1.0f}, 1);
 		GPUCMD_AddWrite(GPUREG_ATTRIBBUFFER0_CONFIG0, (u32)portalVertexData-portalBaseAddr);

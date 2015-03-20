@@ -929,6 +929,8 @@ bool pointInFrontOfPortal(portal_s* p, vect3Df_s pos, float* z) //assuming corre
 	return (v.y>-PORTAL_HEIGHT && v.y<PORTAL_HEIGHT && v.x>-PORTAL_WIDTH && v.x<PORTAL_WIDTH);
 }
 
+extern OBB_s* gravityGunObject;
+
 void updateOBBPortals(OBB_s* o, u8 id, bool init)
 {
 	if(!o&&id<2)return;
@@ -945,6 +947,7 @@ void updateOBBPortals(OBB_s* o, u8 id, bool init)
 	}else if(portals[id].target && (z>=0.0f && o->oldPortalZ[id]<=0.0f))
 	{
 		// printf("WARP object (%d %d)\n", (int)(o->portal[id]&2 && z<=0.0f && z>-0.1f), (int)(((o->oldPortal[id]&1) && !(o->portal[id]&1) && (o->oldPortal[id]&2 || o->portal[id]&2))));
+		if(o == gravityGunObject)gravityGunObject = NULL; // TEMP : TODO better solution
 		o->position=vaddf(portals[id].target->position,warpPortalVector(&portals[id],vsubf(o->position,portals[id].position)));
 		o->velocity=warpPortalVector(&portals[id],o->velocity);
 		o->forces=warpPortalVector(&portals[id],o->forces);
@@ -964,7 +967,7 @@ void updateOBB(OBB_s* o)
 	if(!o)return;
 	
 	simulate(o,0.015f);
-	
+
 	int i;
 	for(i=0; i < NUM_PORTALS; i++)
 	{
