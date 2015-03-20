@@ -97,6 +97,16 @@ void drawPlatforms(void)
 	}
 }
 
+bool intersectOBBPlatform(platform_s* pf, OBB_s* o)
+{
+	if(!pf || !o)return false;
+	
+	vect3Df_s s;
+	getBoxAABB(o, &s);
+
+	return intersectAABBAAR(o->position, s, vaddf(pf->position, vect3Df(-PLATFORMSIZE, 1.0f, -PLATFORMSIZE)), vect3Df(PLATFORMSIZE*2,0,PLATFORMSIZE*2));
+}
+
 void updatePlatform(platform_s* pf, player_s* p)
 {
 	if(!pf)return;
@@ -132,6 +142,20 @@ void updatePlatform(platform_s* pf, player_s* p)
 		}
 
 		pf->position=vaddf(pf->position,pf->velocity);
+	}
+
+	int i;
+	for(i=0; i<NUMOBJECTS; i++)
+	{
+		if(objects[i].used && intersectOBBPlatform(pf, &objects[i]))
+		{
+			objects[i].position = vaddf(objects[i].position, pf->velocity);
+		}
+	}
+
+	if(pf->aar)
+	{
+		pf->aar->position = vaddf(pf->position, vect3Df(-PLATFORMSIZE, PLATFORMHEIGHT, -PLATFORMSIZE));
 	}
 	
 	pf->ao.oldActive=pf->ao.active;
