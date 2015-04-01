@@ -69,7 +69,7 @@ void initEmancipation(void)
 
 	emancipationUniformTextureDimensions = shaderInstanceGetUniformLocation(emancipationProgram.vertexShader, "textureDimensions");
 
-	emancipationSFX=createSFX("emancipation.raw", CSND_ENCODING_PCM16);
+	emancipationSFX=createSFX("emancipation.raw", SOUND_FORMAT_16BIT);
 }
 
 void exitEmancipation(void)

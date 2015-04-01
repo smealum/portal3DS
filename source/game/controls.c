@@ -15,6 +15,39 @@ void exitControls()
 
 }
 
+touchPosition	g_lastTouch = { 0, 0 };
+touchPosition	g_currentTouch = { 0, 0 };
+
+void touchControl(player_s* p) {
+	if (keysDown() & KEY_TOUCH)
+	{
+		touchRead(&g_lastTouch);// = touchReadXY();
+		g_lastTouch.px <<= 7;
+		g_lastTouch.py <<= 7;
+	}
+	if (keysHeld() & KEY_TOUCH)
+	{
+		int dx, dy;
+		touchRead(&g_currentTouch);// = touchReadXY();
+		// let's use some fixed point magic to improve touch smoothing accuracy
+		g_currentTouch.px <<= 7;
+		g_currentTouch.py <<= 7;
+
+		dx = (g_currentTouch.px - g_lastTouch.px) >> 6;
+		dy = (g_currentTouch.py - g_lastTouch.py) >> 6;
+
+
+		dx *= 3;
+		dy *= 3;
+
+		rotatePlayer(p, vect3Df((abs(dy)<5) ? 0 : (dy*0.001f), (abs(dx)<5) ? 0 : (dx*0.001f), 0.0f));
+
+		// some simple averaging / smoothing through weightened (.5 + .5) accumulation
+		g_lastTouch.px = (g_lastTouch.px + g_currentTouch.px) / 2;
+		g_lastTouch.py = (g_lastTouch.py + g_currentTouch.py) / 2;
+	}
+}
+
 void updateControls(player_s* p)
 {
 	circlePosition cpad;
@@ -23,6 +56,7 @@ void updateControls(player_s* p)
 	hidCircleRead(&cpad);
 	irrstCstickRead(&cstick);
 
+	touchControl(p);
 	rotatePlayer(p, vect3Df((abs(cstick.dy)<5)?0:(-cstick.dy*0.001f), (abs(cstick.dx)<5)?0:(cstick.dx*0.001f), 0.0f));
 
 	if(abs(cpad.dx) > 15 || abs(cpad.dy) > 15) //dead zone
