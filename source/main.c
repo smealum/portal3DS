@@ -371,7 +371,7 @@ void fadeOutTop()
 int main(int argc, char** argv)
 {
 	//setup services
-        gfxInitDefault();
+	gfxInitDefault();
 
 	consoleInit(GFX_BOTTOM, NULL);
 	//let GFX know we're ok with doing stereoscopic 3D rendering

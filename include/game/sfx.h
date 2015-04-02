@@ -7,7 +7,7 @@ typedef struct
 {
 	u8* data;
 	u32 size;
-        u32 format;
+	u32 format;
 	bool used;
 }SFX_s;
 

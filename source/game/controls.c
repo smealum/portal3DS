@@ -92,7 +92,7 @@ void updateControls(player_s* p)
 		// JUMP key
 		if(p->object.contact)
 		{
-			p->object.speed.y += 0.6f;			
+			p->object.speed.y += 0.6f;
 		}
 	}
 

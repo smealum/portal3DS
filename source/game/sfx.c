@@ -16,7 +16,7 @@ void initSound()
 		SFX[i].used=false;
 	}
 
-        if(csndInit()==0)soundEnabled=true;
+	if(csndInit()==0)soundEnabled=true;
 	else soundEnabled=false;
 }
 
@@ -35,7 +35,7 @@ void exitSound(void)
 			SFX[i].used=false;
 		}
 	}
-        if(soundEnabled)csndExit();
+	if(soundEnabled)csndExit();
 }
 
 void initSFX(SFX_s* s)
@@ -83,5 +83,5 @@ void playSFX(SFX_s* s)
 	channel%=8;
 
 	// soundPlaySample(s->data, s->format, s->size, 22050, 127, 64, false, 0);
-        csndPlaySound(channel+8, s->format, 22050, (u32*)s->data, (u32*)s->data, s->size);
+	csndPlaySound(channel+8, s->format, 22050, (u32*)s->data, (u32*)s->data, s->size);
 }
