@@ -417,20 +417,21 @@ int main(int argc, char** argv)
 		printf("linear heap : %08X\n",linearSpaceFree());
 		printf("textures : %d\n",totaltextures);
 		done = false;
-		again = false;
-		while(!done)
-		{
-			hidScanInput();
-			if(keysDown()&KEY_A)
-			{
-				done = true;
-				again = true;
-			}
-			if(keysDown()&KEY_B)
-			{
-				done = true;
-			}
-		}
+		// again = false;
+		if(keysHeld()&KEY_B)again = false;
+		// while(!done)
+		// {
+		// 	hidScanInput();
+		// 	if(keysDown()&KEY_A)
+		// 	{
+		// 		done = true;
+		// 		again = true;
+		// 	}
+		// 	if(keysDown()&KEY_B)
+		// 	{
+		// 		done = true;
+		// 	}
+		// }
 		currentLevel %= 8;
 		fadeOutTop();
 	}

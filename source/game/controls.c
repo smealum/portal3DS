@@ -23,7 +23,7 @@ void updateControls(player_s* p)
 	hidCircleRead(&cpad);
 	irrstCstickRead(&cstick);
 
-	rotatePlayer(p, vect3Df((abs(cstick.dy)<5)?0:(-cstick.dy*0.001f), (abs(cstick.dx)<5)?0:(cstick.dx*0.001f), 0.0f));
+	rotatePlayer(p, vect3Df((abs(cstick.dy)<2)?0:(-cstick.dy*0.0005f), (abs(cstick.dx)<2)?0:(cstick.dx*0.0005f), 0.0f));
 
 	if(abs(cpad.dx) > 15 || abs(cpad.dy) > 15) //dead zone
 	{

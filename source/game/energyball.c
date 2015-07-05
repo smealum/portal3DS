@@ -343,7 +343,7 @@ void updateEnergyBall(room_s* r, energyBall_s* eb)
 			eb->position=ip;
 			eb->direction=vsubf(eb->direction,vmulf(normal,2*vdotf(eb->direction,normal)));
 			eb->position=vaddf(eb->position,vmulf(eb->direction,ENERGYBALLSIZE));
-		}else{
+		}else if(portal->target && portal->open && portal->target->open){
 			eb->position=vaddf(eb->position,vmulf(eb->direction,eb->speed));
 			warpEnergyBall(portal,eb);
 			eb->position=vaddf(eb->position,vmulf(eb->direction,eb->speed));
