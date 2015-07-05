@@ -39,7 +39,8 @@ float logoangle;
 
 u32* logoRectangleVertexData = NULL;
 
-const u32 logoBaseAddr=0x14000000;
+extern u32 __linear_heap;
+#define logoBaseAddr __linear_heap
 
 int logoUniformTextureDimensions;
 

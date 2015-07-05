@@ -99,7 +99,8 @@ int sludgeAnimationCounter=0;
 
 extern shaderProgram_s roomProgram;
 extern int roomUniformTextureDimensions;
-extern const u32 roomBaseAddr;
+extern u32 __linear_heap;
+#define roomBaseAddr __linear_heap
 
 void drawSludge(room_s* r)
 {
