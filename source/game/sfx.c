@@ -83,5 +83,5 @@ void playSFX(SFX_s* s)
 	channel%=8;
 
 	// soundPlaySample(s->data, s->format, s->size, 22050, 127, 64, false, 0);
-	csndPlaySound(channel+8, s->format, 22050, (u32*)s->data, (u32*)s->data, s->size);
+	csndPlaySound(channel+8, s->format, 22050, 1.0, 0.0, (u32*)s->data, (u32*)s->data, s->size);
 }
