@@ -251,7 +251,7 @@ void textureBind(texture_s* t, GPU_TEXUNIT unit)
 {
 	if(!t)return;
 
-	GPU_SetTexture(unit, (u32*)osConvertVirtToPhys((u32)t->data), t->height, t->width, t->param, t->format);
+	GPU_SetTexture(unit, (u32*)osConvertVirtToPhys((u32)t->data), t->width, t->height, t->param, t->format);
 	GPUCMD_AddWrite(GPUREG_0084, t->mipmap<<16);
 }
 

@@ -14,7 +14,8 @@ texture_s crosshairTexture;
 DVLB_s* passthroughDvlb;
 shaderProgram_s passthroughProgram;
 
-const u32 rectangleBaseAddr=0x14000000;
+extern u32 __linear_heap;
+#define rectangleBaseAddr __linear_heap
 
 float rectangleData[] = {1.0f, 1.0f, 0.0f, 0.0f, 0.0f,
 						1.0f, -1.0f, 0.0f, 0.0f, 0.0f,

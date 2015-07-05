@@ -14,7 +14,8 @@
 
 DVLB_s* portalDvlb;
 shaderProgram_s portalProgram;
-const u32 portalBaseAddr=0x14000000;
+extern u32 __linear_heap;
+#define portalBaseAddr __linear_heap
 
 portal_s portals[NUM_PORTALS];
 

@@ -41,7 +41,8 @@ u8 normalPermutation[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 
 
 DVLB_s* md2Dvlb;
 shaderProgram_s md2Program;
-const u32 md2BaseAddr=0x14000000;
+extern u32 __linear_heap;
+#define md2BaseAddr __linear_heap
 
 int md2UniformScale0;
 int md2UniformTranslation0;

@@ -12,7 +12,8 @@
 
 DVLB_s* roomDvlb;
 shaderProgram_s roomProgram;
-const u32 roomBaseAddr=0x14000000;
+extern u32 __linear_heap;
+#define roomBaseAddr __linear_heap
 
 int roomUniformTextureDimensions;
 
