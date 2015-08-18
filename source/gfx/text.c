@@ -9,7 +9,8 @@
 DVLB_s* textDvlb;
 shaderProgram_s textProgram;
 texture_s textTexture;
-const u32 textBaseAddr=0x14000000;
+extern u32 __linear_heap;
+#define textBaseAddr __linear_heap
 
 int textUniformOffset;
 

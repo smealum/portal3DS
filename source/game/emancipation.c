@@ -38,7 +38,8 @@ float emancipationRectangleData[] = {1.0f, 1.0f, 0.0f,
 
 u32* emancipationRectangleVertexData = NULL;
 
-const u32 emancipationBaseAddr=0x14000000;
+extern u32 __linear_heap;
+#define emancipationBaseAddr __linear_heap
 
 int emancipationUniformTextureDimensions;
 
@@ -69,7 +70,7 @@ void initEmancipation(void)
 
 	emancipationUniformTextureDimensions = shaderInstanceGetUniformLocation(emancipationProgram.vertexShader, "textureDimensions");
 
-	emancipationSFX=createSFX("emancipation.raw", CSND_ENCODING_PCM16);
+	emancipationSFX=createSFX("emancipation.raw", SOUND_FORMAT_16BIT);
 }
 
 void exitEmancipation(void)

@@ -22,8 +22,8 @@ void initDoors(void)
 	md2ReadModel(&doorModel, "door.md2");
 	textureLoad(&doorTexture, "door.png", GPU_TEXTURE_MAG_FILTER(GPU_LINEAR)|GPU_TEXTURE_MIN_FILTER(GPU_LINEAR), 10);
 
-	doorOpenSFX=createSFX("door_open.raw", CSND_ENCODING_PCM16);
-	doorCloseSFX=createSFX("door_close.raw", CSND_ENCODING_PCM16);
+	doorOpenSFX=createSFX("door_open.raw", SOUND_FORMAT_16BIT);
+	doorCloseSFX=createSFX("door_close.raw", SOUND_FORMAT_16BIT);
 }
 
 void exitDoors(void)

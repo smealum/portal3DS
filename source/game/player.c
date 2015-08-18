@@ -14,7 +14,8 @@ texture_s crosshairTexture;
 DVLB_s* passthroughDvlb;
 shaderProgram_s passthroughProgram;
 
-const u32 rectangleBaseAddr=0x14000000;
+extern u32 __linear_heap;
+#define rectangleBaseAddr __linear_heap
 
 float rectangleData[] = {1.0f, 1.0f, 0.0f, 0.0f, 0.0f,
 						1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
@@ -51,14 +52,14 @@ void playerInit(void)
 	textureLoad(&ratmanTexture, "ratman.png", GPU_TEXTURE_MAG_FILTER(GPU_LINEAR)|GPU_TEXTURE_MIN_FILTER(GPU_LINEAR), 10);
 
 	//SFX
-	gunSFX1=createSFX("portalgun_orange.raw", CSND_ENCODING_PCM16);
-	gunSFX2=createSFX("portalgun_blue.raw", CSND_ENCODING_PCM16);
+	gunSFX1=createSFX("portalgun_orange.raw", SOUND_FORMAT_16BIT);
+	gunSFX2=createSFX("portalgun_blue.raw", SOUND_FORMAT_16BIT);
 
-	portalEnterSFX[0]=createSFX("portal_enter1.raw", CSND_ENCODING_PCM16);
-	portalEnterSFX[1]=createSFX("portal_enter2.raw", CSND_ENCODING_PCM16);
+	portalEnterSFX[0]=createSFX("portal_enter1.raw", SOUND_FORMAT_16BIT);
+	portalEnterSFX[1]=createSFX("portal_enter2.raw", SOUND_FORMAT_16BIT);
 
-	portalExitSFX[0]=createSFX("portal_exit1.raw", CSND_ENCODING_PCM16);
-	portalExitSFX[1]=createSFX("portal_exit2.raw", CSND_ENCODING_PCM16);
+	portalExitSFX[0]=createSFX("portal_exit1.raw", SOUND_FORMAT_16BIT);
+	portalExitSFX[1]=createSFX("portal_exit2.raw", SOUND_FORMAT_16BIT);
 }
 
 void playerExit(void)

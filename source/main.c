@@ -101,7 +101,7 @@ void renderFrame(u32* outBuffer, u32* outDepthBuffer)
 {
 	GPU_SetViewport((u32*)osConvertVirtToPhys((u32)outDepthBuffer),(u32*)osConvertVirtToPhys((u32)outBuffer),0,0,240,400);
 	
-	GPU_DepthRange(-1.0f, 0.0f);
+        GPU_DepthMap(-1.0f, 0.0f);
 	GPU_SetFaceCulling(GPU_CULL_FRONT_CCW);
 	GPU_SetStencilTest(false, GPU_ALWAYS, 0x00, 0xFF, 0x00);
 	GPU_SetStencilOp(GPU_KEEP, GPU_KEEP, GPU_KEEP);
@@ -371,11 +371,15 @@ void fadeOutTop()
 int main(int argc, char** argv)
 {
 	//setup services
-	gfxInit();
+	gfxInitDefault();
 
 	consoleInit(GFX_BOTTOM, NULL);
 	//let GFX know we're ok with doing stereoscopic 3D rendering
 	gfxSet3D(true);
+
+	aptOpenSession();
+	APT_SetAppCpuTimeLimit(NULL, 30);
+	aptCloseSession();
 
 	//init fs
 	filesystemInit(argc, argv);
@@ -396,7 +400,6 @@ int main(int argc, char** argv)
 	fadeOutTop();
 
 	bool again = true;
-	// bool again = false;
 	while(again)
 	{
 		gameInit();
@@ -435,6 +438,10 @@ int main(int argc, char** argv)
 		currentLevel %= 8;
 		fadeOutTop();
 	}
+
+	aptOpenSession();
+	APT_SetAppCpuTimeLimit(NULL, 0);
+	aptCloseSession();
 
 	gfxExit();
 	return 0;

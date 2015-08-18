@@ -6,11 +6,6 @@ ifeq ($(strip $(DEVKITARM)),)
 $(error "Please set DEVKITARM in your environment. export DEVKITARM=<path to>devkitARM")
 endif
 
-ifeq ($(strip $(CTRULIB)),)
-# THIS IS TEMPORARY - in the future it should be at $(DEVKITPRO)/libctru
-$(error "Please set CTRULIB in your environment. export CTRULIB=<path to>libctru")
-endif
-
 TOPDIR ?= $(CURDIR)
 include $(DEVKITARM)/3ds_rules
 
@@ -37,10 +32,14 @@ SOURCES		:=	source source/gfx source/utils source/game source/physics source/men
 DATA		:=	data
 INCLUDES	:=	include
 
+APP_TITLE := Aperture Science 3D
+APP_DESCRIPTION := Portal for the 3DS !
+APP_AUTHOR := smea & lobo
+
 #---------------------------------------------------------------------------------
 # options for code generation
 #---------------------------------------------------------------------------------
-ARCH	:=	-march=armv6k -mtune=mpcore -mfloat-abi=softfp
+ARCH	:=	-march=armv6k -mtune=mpcore -mfloat-abi=hard
 
 CFLAGS	:=	-g -Wall -O2 -mword-relocations \
 			-fomit-frame-pointer -ffast-math \

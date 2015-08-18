@@ -21,7 +21,7 @@ void filesystemInit(int argc, char** argv)
 	}else{
 		currentPath=(char*)defaultPath;
 	}
-	printf("%s\n%s\n",argv[0],currentPath);
+	printf("%d\n%s\n",argv[0],currentPath);
 }
 
 void filesystemExit()

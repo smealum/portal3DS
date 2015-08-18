@@ -40,11 +40,14 @@ void initPhysicsThread(physicsThread_s* p)
 
 	p->exit=false;
 	svcCreateMutex(&p->requestMutex, false);
-	Result val = svcCreateThread(&p->thread, physicsThreadMain, (u32)p, (u32*)&p->stack[PHYSICSTHREAD_STACKSIZE/8], 0x18, 1);
+	Result val = svcCreateThread(&p->thread, (void*)physicsThreadMain, (u32)p, (u32*)&p->stack[PHYSICSTHREAD_STACKSIZE/8], 0x18, 1);
 	printf("%08X (%08X)\n",(unsigned int)val,(unsigned int)p->thread);
 	if(val)
 	{
 		//thread creation failed ! what do we do ?!
+		printf("physics thread creation failed ! what do we do ?!\n");
+		printf("%08X %08X %08X\n", (u32)physicsThreadMain, (u32)p, (u32)&p->stack[PHYSICSTHREAD_STACKSIZE/8]);
+		while(1);
 	}
 }
 
