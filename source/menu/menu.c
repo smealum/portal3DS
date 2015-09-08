@@ -77,7 +77,7 @@ void renderMenuFrame(u32* outBuffer, u32* outDepthBuffer)
 	GPU_DepthMap(-1.0f, 0.0f);
 	GPU_SetFaceCulling(GPU_CULL_FRONT_CCW);
 	GPU_SetStencilTest(false, GPU_ALWAYS, 0x00, 0xFF, 0x00);
-	GPU_SetStencilOp(GPU_KEEP, GPU_KEEP, GPU_KEEP);
+	GPU_SetStencilOp(GPU_STENCIL_KEEP, GPU_STENCIL_KEEP, GPU_STENCIL_KEEP);
 	GPU_SetBlendingColor(0,0,0,0);
 	GPU_SetDepthTestAndWriteMask(true, GPU_GREATER, GPU_WRITE_ALL);
 	
@@ -150,7 +150,7 @@ void renderMenuFrame(u32* outBuffer, u32* outDepthBuffer)
 				textureBind(&rotateLogoTexture, GPU_TEXUNIT0);
 				GPU_SetFloatUniform(GPU_VERTEX_SHADER, logoUniformTextureDimensions, (u32*)(float[]){0.0f, 0.0f, 1.0f, 1.0f}, 1);
 
-				GPU_DrawArray(GPU_TRIANGLES, 6);
+				GPU_DrawArray(GPU_TRIANGLES, 0, 6);
 			gsPopMatrix();
 
 			gsPushMatrix();
@@ -163,7 +163,7 @@ void renderMenuFrame(u32* outBuffer, u32* outDepthBuffer)
 				textureBind(&logoTexture, GPU_TEXUNIT0);
 				GPU_SetFloatUniform(GPU_VERTEX_SHADER, logoUniformTextureDimensions, (u32*)(float[]){0.0f, 0.0f, 1.0f, 1.0f}, 1);
 
-				GPU_DrawArray(GPU_TRIANGLES, 6);
+				GPU_DrawArray(GPU_TRIANGLES, 0, 6);
 			gsPopMatrix();
 		gsPopMatrix();
 	}

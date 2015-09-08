@@ -282,7 +282,7 @@ void drawPortals(portal_s* portals[], int n, renderSceneCallback_t callback, cam
 
 				gsUpdateTransformation();
 
-				GPU_DrawArray(GPU_TRIANGLE_STRIP, portalNumVertices);
+				GPU_DrawArray(GPU_TRIANGLE_STRIP, 0, portalNumVertices);
 			gsPopMatrix();
 		}
 			
@@ -298,7 +298,7 @@ void drawPortals(portal_s* portals[], int n, renderSceneCallback_t callback, cam
 		GPUCMD_AddWrite(GPUREG_ATTRIBBUFFER0_CONFIG0, (u32)portalVertexData-portalBaseAddr);
 
 		GPU_SetDepthTestAndWriteMask(true, GPU_GEQUAL, GPU_WRITE_COLOR);
-		GPU_SetStencilOp(GPU_KEEP, GPU_KEEP, GPU_XOR);
+		GPU_SetStencilOp(GPU_STENCIL_KEEP, GPU_STENCIL_KEEP, GPU_STENCIL_INVERT);
 
 		for(i=0; i<n; i++)
 		{
@@ -315,7 +315,7 @@ void drawPortals(portal_s* portals[], int n, renderSceneCallback_t callback, cam
 
 				gsUpdateTransformation();
 
-				GPU_DrawArray(GPU_TRIANGLE_STRIP, portalNumVertices);
+				GPU_DrawArray(GPU_TRIANGLE_STRIP, 0, portalNumVertices);
 			gsPopMatrix();
 		}
 
@@ -323,7 +323,7 @@ void drawPortals(portal_s* portals[], int n, renderSceneCallback_t callback, cam
 		GPUCMD_AddWrite(GPUREG_VSH_BOOLUNIFORM, 0x7FFF0000|portalProgram.vertexShader->boolUniforms);
 
 		GPU_SetDepthTestAndWriteMask(true, GPU_ALWAYS, GPU_WRITE_DEPTH);
-		GPU_SetStencilOp(GPU_KEEP, GPU_KEEP, GPU_KEEP);
+		GPU_SetStencilOp(GPU_STENCIL_KEEP, GPU_STENCIL_KEEP, GPU_STENCIL_KEEP);
 
 		for(i=0; i<n; i++)
 		{
@@ -340,14 +340,14 @@ void drawPortals(portal_s* portals[], int n, renderSceneCallback_t callback, cam
 
 				gsUpdateTransformation();
 
-				GPU_DrawArray(GPU_TRIANGLE_STRIP, portalNumVertices);
+				GPU_DrawArray(GPU_TRIANGLE_STRIP, 0, portalNumVertices);
 			gsPopMatrix();
 		}
 
 	gsPopMatrix();
 
 	GPU_SetDepthTestAndWriteMask(true, GPU_GREATER, GPU_WRITE_ALL);
-	GPU_SetStencilOp(GPU_KEEP, GPU_KEEP, GPU_KEEP);
+	GPU_SetStencilOp(GPU_STENCIL_KEEP, GPU_STENCIL_KEEP, GPU_STENCIL_KEEP);
 
 	for(i=0; i<n; i++)
 	{
