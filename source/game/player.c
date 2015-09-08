@@ -240,14 +240,14 @@ void drawPlayerGun(player_s* p)
 
 		gsSetShader(&passthroughProgram);
 
-		GPU_DrawArray(GPU_TRIANGLES, 6);
+		GPU_DrawArray(GPU_TRIANGLES, 0, 6);
 
 		GPU_SetDepthTestAndWriteMask(true, GPU_ALWAYS, GPU_WRITE_ALL);
 
 		GPUCMD_AddWrite(GPUREG_ATTRIBBUFFER0_CONFIG0, (u32)crosshairVertexData-rectangleBaseAddr);
 		textureBind(&crosshairTexture, GPU_TEXUNIT0);
 
-		GPU_DrawArray(GPU_TRIANGLES, 6);
+		GPU_DrawArray(GPU_TRIANGLES, 0, 6);
 
 		GPU_SetDepthTestAndWriteMask(true, GPU_GREATER, GPU_WRITE_ALL);
 		gsSwitchRenderMode(md2GsMode);

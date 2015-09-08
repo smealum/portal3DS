@@ -309,7 +309,7 @@ void drawEmancipationGrid(emancipationGrid_s* eg)
 		textureBind(&gridSurfaceTexture, GPU_TEXUNIT0);
 		GPU_SetFloatUniform(GPU_VERTEX_SHADER, emancipationUniformTextureDimensions, (u32*)(float[]){0.0f, 0.0f, 0.7f, l/8}, 1);
 
-		GPU_DrawArray(GPU_TRIANGLES, 12);
+		GPU_DrawArray(GPU_TRIANGLES, 0, 12);
 	gsPopMatrix();
 }
 
