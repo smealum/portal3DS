@@ -9,8 +9,8 @@
 DVLB_s* textDvlb;
 shaderProgram_s textProgram;
 texture_s textTexture;
-extern u32 __linear_heap;
-#define textBaseAddr __linear_heap
+extern u32 __ctru_linear_heap;
+#define textBaseAddr __ctru_linear_heap
 
 int textUniformOffset;
 
@@ -80,9 +80,9 @@ void textDrawString(float x, float y, const char* s)
 	if(!s)return;
 	if((u32)s < textBaseAddr)return;
 
-	GPUCMD_AddWrite(GPUREG_ATTRIBBUFFER0_CONFIG0, (u32)s-textBaseAddr);
+	GPUCMD_AddWrite(GPUREG_ATTRIBBUFFER0_OFFSET, (u32)s-textBaseAddr);
 
 	GPU_SetFloatUniform(GPU_GEOMETRY_SHADER, textUniformOffset, (u32*)(float[]){1.0f, 0.0f, x, y}, 1);
 
-	GPU_DrawArray(GPU_UNKPRIM, 0, strlen(s));
+	GPU_DrawArray(GPU_GEOMETRY_PRIM, 0, strlen(s));
 }

@@ -38,8 +38,8 @@ float emancipationRectangleData[] = {1.0f, 1.0f, 0.0f,
 
 u32* emancipationRectangleVertexData = NULL;
 
-extern u32 __linear_heap;
-#define emancipationBaseAddr __linear_heap
+extern u32 __ctru_linear_heap;
+#define emancipationBaseAddr __ctru_linear_heap
 
 int emancipationUniformTextureDimensions;
 

@@ -41,8 +41,8 @@ u8 normalPermutation[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 
 
 DVLB_s* md2Dvlb;
 shaderProgram_s md2Program;
-extern u32 __linear_heap;
-#define md2BaseAddr __linear_heap
+extern u32 __ctru_linear_heap;
+#define md2BaseAddr __ctru_linear_heap
 
 int md2UniformScale0;
 int md2UniformTranslation0;
@@ -324,11 +324,11 @@ void md2RenderFrame(md2_model_t *mdl, int n1, int n2, float interp, float alpha,
 
 	textureBind(t, GPU_TEXUNIT0);
 
-	GPUCMD_AddWrite(GPUREG_ATTRIBBUFFER0_CONFIG0, (u32)mdl->frames[n1].verts-md2BaseAddr);
-	GPUCMD_AddWrite(GPUREG_ATTRIBBUFFER1_CONFIG0, (u32)mdl->frames[n2].verts-md2BaseAddr);
-	GPUCMD_AddWrite(GPUREG_ATTRIBBUFFER2_CONFIG0, (u32)mdl->texcoords-md2BaseAddr);
+	GPUCMD_AddWrite(GPUREG_ATTRIBBUFFER0_OFFSET, (u32)mdl->frames[n1].verts-md2BaseAddr);
+	GPUCMD_AddWrite(GPUREG_ATTRIBBUFFER1_OFFSET, (u32)mdl->frames[n2].verts-md2BaseAddr);
+	GPUCMD_AddWrite(GPUREG_ATTRIBBUFFER2_OFFSET, (u32)mdl->texcoords-md2BaseAddr);
 
-	GPU_DrawElements(GPU_UNKPRIM, (u32*)((u32)mdl->indices-md2BaseAddr), mdl->header.num_tris*3);
+	GPU_DrawElements(GPU_GEOMETRY_PRIM, (u32*)((u32)mdl->indices-md2BaseAddr), mdl->header.num_tris*3);
 }
 
 void md2InstanceInit(md2_instance_t* mi, md2_model_t* mdl, texture_s* t)

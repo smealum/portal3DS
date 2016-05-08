@@ -14,8 +14,8 @@ texture_s crosshairTexture;
 DVLB_s* passthroughDvlb;
 shaderProgram_s passthroughProgram;
 
-extern u32 __linear_heap;
-#define rectangleBaseAddr __linear_heap
+extern u32 __ctru_linear_heap;
+#define rectangleBaseAddr __ctru_linear_heap
 
 float rectangleData[] = {1.0f, 1.0f, 0.0f, 0.0f, 0.0f,
 						1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
@@ -244,7 +244,7 @@ void drawPlayerGun(player_s* p)
 
 		GPU_SetDepthTestAndWriteMask(true, GPU_ALWAYS, GPU_WRITE_ALL);
 
-		GPUCMD_AddWrite(GPUREG_ATTRIBBUFFER0_CONFIG0, (u32)crosshairVertexData-rectangleBaseAddr);
+		GPUCMD_AddWrite(GPUREG_ATTRIBBUFFER0_OFFSET, (u32)crosshairVertexData-rectangleBaseAddr);
 		textureBind(&crosshairTexture, GPU_TEXUNIT0);
 
 		GPU_DrawArray(GPU_TRIANGLES, 0, 6);

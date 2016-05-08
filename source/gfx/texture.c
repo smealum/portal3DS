@@ -252,7 +252,7 @@ void textureBind(texture_s* t, GPU_TEXUNIT unit)
 	if(!t)return;
 
 	GPU_SetTexture(unit, (u32*)osConvertVirtToPhys((u32)t->data), t->width, t->height, t->param, t->format);
-	GPUCMD_AddWrite(GPUREG_0084, t->mipmap<<16);
+	GPUCMD_AddWrite(GPUREG_TEXUNIT0_LOD, t->mipmap<<16);
 }
 
 void textureFree(texture_s* t)

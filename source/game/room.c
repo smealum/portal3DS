@@ -12,8 +12,8 @@
 
 DVLB_s* roomDvlb;
 shaderProgram_s roomProgram;
-extern u32 __linear_heap;
-#define roomBaseAddr __linear_heap
+extern u32 __ctru_linear_heap;
+#define roomBaseAddr __ctru_linear_heap
 
 int roomUniformTextureDimensions;
 
@@ -663,7 +663,7 @@ void drawRoom(room_s* r)
 			textureBind(r->indexBufferTextures[i], GPU_TEXUNIT0);
 			textureBind(r->lightingData.data.lightMap.texture, GPU_TEXUNIT1);
 			GPU_SetFloatUniform(GPU_VERTEX_SHADER, roomUniformTextureDimensions, (u32*)(float[]){0.0f, 0.0f, 1.0f / r->indexBufferTextures[i]->height, 1.0f / r->indexBufferTextures[i]->width}, 1);
-			GPU_DrawElements(GPU_UNKPRIM, (u32*)((u32)r->indexBuffers[i]-roomBaseAddr), r->numIndices[i]);
+			GPU_DrawElements(GPU_GEOMETRY_PRIM, (u32*)((u32)r->indexBuffers[i]-roomBaseAddr), r->numIndices[i]);
 		}
 
 	GPU_SetTextureEnable(GPU_TEXUNIT0);
